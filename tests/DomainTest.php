@@ -142,4 +142,19 @@ class DomainTest extends TestCase
         $this->assertEquals(false, $domain->isPrivate());
         $this->assertEquals(false, $domain->isTest());
     }
+
+    public function testPrivateTLD()
+    {
+        $domain = new Domain('blog.potager.org');
+       
+        $this->assertEquals('blog.potager.org', $domain->get());
+        $this->assertEquals('org', $domain->getTLD());
+        $this->assertEquals('potager.org', $domain->getSuffix());
+        $this->assertEquals('blog', $domain->getName());
+        $this->assertEquals('', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(false, $domain->isICANN());
+        $this->assertEquals(true, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
 }
