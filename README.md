@@ -36,7 +36,7 @@ $domain->isICANN(); // true
 $domain->isPrivate(); // false
 $domain->isTest(); // false
 
-// demo.example.co.uk
+// demo.localhost
 
 $domain = new Domain('demo.localhost');
 
