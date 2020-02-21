@@ -22,10 +22,12 @@ require_once '../vendor/autoload.php';
 
 use Utopia\Domains\Domain;
 
+// demo.example.co.uk
+
 $domain = new Domain('demo.example.co.uk');
 
 $domain->get(); // demo.example.co.uk
-$domain->getTLD(); // .uk
+$domain->getTLD(); // uk
 $domain->getSuffix(); // co.uk
 $domain->getName(); // example
 $domain->getSub(); // demo
@@ -33,6 +35,20 @@ $domain->isKnown(); // true
 $domain->isICANN(); // true
 $domain->isPrivate(); // false
 $domain->isTest(); // false
+
+// demo.example.co.uk
+
+$domain = new Domain('demo.localhost');
+
+$domain->get(); // demo.localhost
+$domain->getTLD(); // localhost
+$domain->getSuffix(); // ''
+$domain->getName(); // demo
+$domain->getSub(); // ''
+$domain->isKnown(); // false
+$domain->isICANN(); // false
+$domain->isPrivate(); // false
+$domain->isTest(); // true
 
 ```
 
