@@ -52,7 +52,7 @@ $domain->isTest(); // true
 
 ```
 
-Utopia Domains parser uses a public suffix PHP dataset auto-generated from the (publicsuffix.org)[https://publicsuffix.org/]. The dataset get periodically updates from us, but you can also manually update it by cloning this library and running the import script with the import command:
+Utopia Domains parser uses a public suffix PHP dataset auto-generated from the [publicsuffix.org](https://publicsuffix.org/). The dataset get periodically updates from us, but you can also manually update it by cloning this library and running the import script with the import command:
 
 ```bash
 php ./data/import.php
