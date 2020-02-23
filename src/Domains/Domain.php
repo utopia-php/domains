@@ -116,6 +116,22 @@ class Domain {
     }
 
     /**
+     * Returns registerable domain name
+     * 
+     * @return string
+     */
+    public function getRegisterable():string
+    {
+        if(!$this->isKnown()) {
+            return false;
+        }
+
+        $registerable = $this->getName().'.'.$this->getSuffix();
+        
+        return $registerable;
+    }
+
+    /**
      * Returns domain name
      * 
      * @return string

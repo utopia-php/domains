@@ -29,6 +29,7 @@ $domain = new Domain('demo.example.co.uk');
 $domain->get(); // demo.example.co.uk
 $domain->getTLD(); // uk
 $domain->getSuffix(); // co.uk
+$domain->getRegisterable(); // example.co.uk
 $domain->getName(); // example
 $domain->getSub(); // demo
 $domain->isKnown(); // true
@@ -43,6 +44,7 @@ $domain = new Domain('demo.localhost');
 $domain->get(); // demo.localhost
 $domain->getTLD(); // localhost
 $domain->getSuffix(); // ''
+$domain->getRegisterable(); // ''
 $domain->getName(); // demo
 $domain->getSub(); // ''
 $domain->isKnown(); // false

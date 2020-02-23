@@ -30,6 +30,7 @@ class DomainTest extends TestCase
         $this->assertEquals('demo.example.co.uk', $domain->get());
         $this->assertEquals('uk', $domain->getTLD());
         $this->assertEquals('co.uk', $domain->getSuffix());
+        $this->assertEquals('example.co.uk', $domain->getRegisterable());
         $this->assertEquals('example', $domain->getName());
         $this->assertEquals('demo', $domain->getSub());
         $this->assertEquals(true, $domain->isKnown());
@@ -45,6 +46,7 @@ class DomainTest extends TestCase
         $this->assertEquals('subsub.demo.example.co.uk', $domain->get());
         $this->assertEquals('uk', $domain->getTLD());
         $this->assertEquals('co.uk', $domain->getSuffix());
+        $this->assertEquals('example.co.uk', $domain->getRegisterable());
         $this->assertEquals('example', $domain->getName());
         $this->assertEquals('subsub.demo', $domain->getSub());
         $this->assertEquals(true, $domain->isKnown());
@@ -60,6 +62,7 @@ class DomainTest extends TestCase
         $this->assertEquals('localhost', $domain->get());
         $this->assertEquals('localhost', $domain->getTLD());
         $this->assertEquals('', $domain->getSuffix());
+        $this->assertEquals('', $domain->getRegisterable());
         $this->assertEquals('', $domain->getName());
         $this->assertEquals('', $domain->getSub());
         $this->assertEquals(false, $domain->isKnown());
@@ -75,6 +78,7 @@ class DomainTest extends TestCase
         $this->assertEquals('demo.localhost', $domain->get());
         $this->assertEquals('localhost', $domain->getTLD());
         $this->assertEquals('', $domain->getSuffix());
+        $this->assertEquals('', $domain->getRegisterable());
         $this->assertEquals('demo', $domain->getName());
         $this->assertEquals('', $domain->getSub());
         $this->assertEquals(false, $domain->isKnown());
@@ -90,6 +94,7 @@ class DomainTest extends TestCase
         $this->assertEquals('sub.sub.demo.localhost', $domain->get());
         $this->assertEquals('localhost', $domain->getTLD());
         $this->assertEquals('', $domain->getSuffix());
+        $this->assertEquals('', $domain->getRegisterable());
         $this->assertEquals('demo', $domain->getName());
         $this->assertEquals('sub.sub', $domain->getSub());
         $this->assertEquals(false, $domain->isKnown());
@@ -105,6 +110,7 @@ class DomainTest extends TestCase
         $this->assertEquals('sub.demo.localhost', $domain->get());
         $this->assertEquals('localhost', $domain->getTLD());
         $this->assertEquals('', $domain->getSuffix());
+        $this->assertEquals('', $domain->getRegisterable());
         $this->assertEquals('demo', $domain->getName());
         $this->assertEquals('sub', $domain->getSub());
         $this->assertEquals(false, $domain->isKnown());
@@ -120,6 +126,7 @@ class DomainTest extends TestCase
         $this->assertEquals('אשקלון.קום', $domain->get());
         $this->assertEquals('קום', $domain->getTLD());
         $this->assertEquals('קום', $domain->getSuffix());
+        $this->assertEquals('אשקלון.קום', $domain->getRegisterable());
         $this->assertEquals('אשקלון', $domain->getName());
         $this->assertEquals('', $domain->getSub());
         $this->assertEquals(true, $domain->isKnown());
@@ -135,6 +142,7 @@ class DomainTest extends TestCase
         $this->assertEquals('חדשות.אשקלון.קום', $domain->get());
         $this->assertEquals('קום', $domain->getTLD());
         $this->assertEquals('קום', $domain->getSuffix());
+        $this->assertEquals('אשקלון.קום', $domain->getRegisterable());
         $this->assertEquals('אשקלון', $domain->getName());
         $this->assertEquals('חדשות', $domain->getSub());
         $this->assertEquals(true, $domain->isKnown());
@@ -150,6 +158,7 @@ class DomainTest extends TestCase
         $this->assertEquals('blog.potager.org', $domain->get());
         $this->assertEquals('org', $domain->getTLD());
         $this->assertEquals('potager.org', $domain->getSuffix());
+        $this->assertEquals('blog.potager.org', $domain->getRegisterable());
         $this->assertEquals('blog', $domain->getName());
         $this->assertEquals('', $domain->getSub());
         $this->assertEquals(true, $domain->isKnown());
