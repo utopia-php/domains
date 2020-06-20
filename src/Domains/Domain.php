@@ -58,8 +58,8 @@ class Domain {
      */
     public function __construct($domain)
     {
-        $this->domain = mb_strtolower($domain);
-        $this->parts = explode('.', $this->domain);
+        $this->domain = \mb_strtolower($domain);
+        $this->parts = \explode('.', $this->domain);
 
         if(empty(self::$list)) {
             self::$list = include __DIR__.'/../../data/data.php';
@@ -87,7 +87,7 @@ class Domain {
             return $this->TLD;
         }
 
-        $this->TLD = end($this->parts);
+        $this->TLD = \end($this->parts);
         
         return $this->TLD;
     }
@@ -104,9 +104,9 @@ class Domain {
         }
         
         for ($i=3; $i > 0; $i--) { 
-            $joined = implode('.', array_slice($this->parts, $i * -1));
+            $joined = \implode('.', \array_slice($this->parts, $i * -1));
 
-            if(array_key_exists($joined, self::$list)) {
+            if(\array_key_exists($joined, self::$list)) {
                 $this->suffix = $joined;
                 return $joined;
             }
@@ -145,9 +145,9 @@ class Domain {
         $suffix = $this->getSuffix();
         $suffix = (!empty($suffix)) ? '.'.$suffix : '.'.$this->getTLD();
 
-        $name = explode('.', mb_substr($this->domain, 0, mb_strlen($suffix) * -1));
+        $name = \explode('.', \mb_substr($this->domain, 0, \mb_strlen($suffix) * -1));
 
-        $this->name = end($name);
+        $this->name = \end($name);
         
         return $this->name;
     }
@@ -167,9 +167,9 @@ class Domain {
 
         $domain = $name.$suffix;
 
-        $sub = explode('.', mb_substr($this->domain, 0, mb_strlen($domain) * -1));
+        $sub = \explode('.', \mb_substr($this->domain, 0, \mb_strlen($domain) * -1));
         
-        $this->sub = implode('.', $sub);
+        $this->sub = \implode('.', $sub);
         
         return $this->sub;
     }
@@ -181,7 +181,7 @@ class Domain {
      */
     public function isKnown():bool
     {
-        if(array_key_exists($this->getSuffix(), self::$list)) {
+        if(\array_key_exists($this->getSuffix(), self::$list)) {
             return true;
         }
 
@@ -223,7 +223,7 @@ class Domain {
      */
     public function isTest():bool
     {
-        if(in_array($this->getTLD(), ['test', 'localhost'])) {
+        if(\in_array($this->getTLD(), ['test', 'localhost'])) {
             return true;
         }
 
