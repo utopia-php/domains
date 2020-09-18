@@ -2,6 +2,8 @@
 
 namespace Utopia\Domains;
 
+use Exception;
+
 class Domain {
 
     /**
@@ -58,6 +60,10 @@ class Domain {
      */
     public function __construct($domain)
     {
+        if ((strpos($domain, 'http') === 0) || (strpos($domain, 'https') === 0)) {
+            throw new Exception('$domain must be a valid domain or hostname');
+        }
+
         $this->domain = \mb_strtolower($domain);
         $this->parts = \explode('.', $this->domain);
 

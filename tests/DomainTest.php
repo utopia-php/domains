@@ -13,6 +13,7 @@
 
 namespace Utopia\Tests;
 
+use Exception;
 use Utopia\Domains\Domain;
 use PHPUnit\Framework\TestCase;
 
@@ -165,5 +166,33 @@ class DomainTest extends TestCase
         $this->assertEquals(false, $domain->isICANN());
         $this->assertEquals(true, $domain->isPrivate());
         $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testHTTPException1()
+    {
+        $this->expectException(Exception::class);
+
+        new Domain('http://www.facbook.com');
+    }
+
+    public function testHTTPException2()
+    {
+        $this->expectException(Exception::class);
+
+        new Domain('http://facbook.com');
+    }
+
+    public function testHTTPSException1()
+    {
+        $this->expectException(Exception::class);
+
+        new Domain('https://www.facbook.com');
+    }
+
+    public function testHTTPSException2()
+    {
+        $this->expectException(Exception::class);
+
+        new Domain('https://facbook.com');
     }
 }
