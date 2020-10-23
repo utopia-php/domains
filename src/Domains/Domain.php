@@ -4,8 +4,8 @@ namespace Utopia\Domains;
 
 use Exception;
 
-class Domain {
-
+class Domain
+{
     /**
      * @var array
      */
@@ -56,9 +56,9 @@ class Domain {
     /**
      * Domain constructor.
      *
-     * @param $name
+     * @param string $name
      */
-    public function __construct($domain)
+    public function __construct(string $domain)
     {
         if ((strpos($domain, 'http') === 0) || (strpos($domain, 'https') === 0)) {
             throw new Exception('$domain must be a valid domain or hostname');
@@ -67,7 +67,7 @@ class Domain {
         $this->domain = \mb_strtolower($domain);
         $this->parts = \explode('.', $this->domain);
 
-        if(empty(self::$list)) {
+        if (empty(self::$list)) {
             self::$list = include __DIR__.'/../../data/data.php';
         }
     }
@@ -77,7 +77,7 @@ class Domain {
      * 
      * @return string
      */
-    public function get():string
+    public function get(): string
     {
         return $this->domain;
     }
@@ -87,9 +87,9 @@ class Domain {
      * 
      * @return string
      */
-    public function getTLD():string
+    public function getTLD(): string
     {
-        if($this->TLD) {
+        if ($this->TLD) {
             return $this->TLD;
         }
 
@@ -103,16 +103,16 @@ class Domain {
      * 
      * @return string
      */
-    public function getSuffix():string
+    public function getSuffix(): string
     {
-        if($this->suffix) {
+        if ($this->suffix) {
             return $this->suffix;
         }
         
-        for ($i=3; $i > 0; $i--) { 
+        for ($i=3; $i > 0; $i--) {
             $joined = \implode('.', \array_slice($this->parts, $i * -1));
 
-            if(\array_key_exists($joined, self::$list)) {
+            if (\array_key_exists($joined, self::$list)) {
                 $this->suffix = $joined;
                 return $joined;
             }
@@ -126,10 +126,10 @@ class Domain {
      * 
      * @return string
      */
-    public function getRegisterable():string
+    public function getRegisterable(): string
     {
-        if(!$this->isKnown()) {
-            return false;
+        if (!$this->isKnown()) {
+            return '';
         }
 
         $registerable = $this->getName().'.'.$this->getSuffix();
@@ -142,9 +142,9 @@ class Domain {
      * 
      * @return string
      */
-    public function getName():string
+    public function getName(): string
     {
-        if($this->name) {
+        if ($this->name) {
             return $this->name;
         }
 
@@ -163,7 +163,7 @@ class Domain {
      * 
      * @return string
      */
-    public function getSub():string
+    public function getSub(): string
     {
         $name = $this->getName();
         $name = (!empty($name)) ? '.'.$name : '';
@@ -185,9 +185,9 @@ class Domain {
      * 
      * @return bool
      */
-    public function isKnown():bool
+    public function isKnown(): bool
     {
-        if(\array_key_exists($this->getSuffix(), self::$list)) {
+        if (\array_key_exists($this->getSuffix(), self::$list)) {
             return true;
         }
 
@@ -199,9 +199,9 @@ class Domain {
      * 
      * @return bool
      */
-    public function isICANN():bool
+    public function isICANN(): bool
     {
-        if(isset(self::$list[$this->getSuffix()]) && self::$list[$this->getSuffix()]['type'] === 'ICANN') {
+        if (isset(self::$list[$this->getSuffix()]) && self::$list[$this->getSuffix()]['type'] === 'ICANN') {
             return true;
         }
 
@@ -213,9 +213,9 @@ class Domain {
      * 
      * @return bool
      */
-    public function isPrivate():bool
+    public function isPrivate(): bool
     {
-        if(isset(self::$list[$this->getSuffix()]) && self::$list[$this->getSuffix()]['type'] === 'PRIVATE') {
+        if (isset(self::$list[$this->getSuffix()]) && self::$list[$this->getSuffix()]['type'] === 'PRIVATE') {
             return true;
         }
 
@@ -227,12 +227,12 @@ class Domain {
      * 
      * @return bool
      */
-    public function isTest():bool
+    public function isTest(): bool
     {
-        if(\in_array($this->getTLD(), ['test', 'localhost'])) {
+        if (\in_array($this->getTLD(), ['test', 'localhost'])) {
             return true;
         }
 
         return false;
-    }   
+    }
 }
