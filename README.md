@@ -72,7 +72,8 @@ php ./data/import.php
 * **isICANN()** - Returns true if the public suffix is found in the ICANN DOMAINS section of the public suffix list.
 * **isPrivate()** - Returns true if the public suffix is found in the PRIVATE DOMAINS section of the public suffix list.
 * **isTest()** - Returns true if the domain TLD is 'locahost' or 'test' and false otherwise.
-* If you want to parse ordinary web urls then use $host = parse_url($return, PHP_URL_HOST); $domain = new Utopia\Domains\Domain($host); to get the domain object. 
+
+> If you want to parse ordinary web urls then use `$host = parse_url($return, PHP_URL_HOST); $domain = new Utopia\Domains\Domain($host);` to get the domain object. 
 
 ## System Requirements
 
