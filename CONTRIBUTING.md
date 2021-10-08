@@ -4,19 +4,20 @@ We would ❤️ for you to contribute to Utopia-php and help make it better! We 
 
 ## How to Start?
 
-If you are worried or don’t know where to start, check out our next section explaining what kind of help we could use and where can you get involved. You can reach out with questions to [Eldad Fux (@eldadfux)](https://twitter.com/eldadfux) on Twitter. You can also submit an issue, and a maintainer can guide you!
+If you are worried or don’t know where to start, check out our next section explaining what kind of help we could use and where can you get involved. You can reach out with questions to [Eldad Fux (@eldadfux)](https://twitter.com/eldadfux) or anyone from the [Appwrite team on Discord](https://discord.gg/GSeTUeA). You can also submit an issue, and a maintainer can guide you!
 
 ## Code of Conduct
 
-Help us keep Utopia-php open and inclusive.
+Help us keep Utopia-php open and inclusive. Please read and follow our [Code of Conduct](/CODE_OF_CONDUCT.md).
 
 ## Submit a Pull Request 🚀
 
-Branch naming convention is as following 
+Branch naming convention is as following
 
 `TYPE-ISSUE_ID-DESCRIPTION`
 
 example:
+
 ```
 doc-548-submit-a-pull-request-section-to-contribution-guide
 ```
@@ -29,54 +30,37 @@ When `TYPE` can be:
 - **fix** - a bug fix
 - **refactor** - code change that neither fixes a bug nor adds a feature
 
-**All PRs must include a commit message with the changes description!** 
+**All PRs must include a commit message with the changes description!**
 
 For the initial start, fork the project and use git clone command to download the repository to your computer. A standard procedure for working on an issue would be to:
 
 1. `git pull`, before creating a new branch, pull the changes from upstream. Your master needs to be up to date.
+
 ```
 $ git pull
 ```
+
 2. Create new branch from `master` like: `doc-548-submit-a-pull-request-section-to-contribution-guide`<br/>
+
 ```
 $ git checkout -b [name_of_your_new_branch]
 ```
+
 3. Work - commit - repeat ( be sure to be in your branch )
 
-4. Push changes to GitHub 
+4. Push changes to GitHub
+
 ```
 $ git push origin [name_of_your_new_branch]
 ```
 
 5. Submit your changes for review
-If you go to your repository on GitHub, you'll see a `Compare & pull request` button. Click on that button.
+   If you go to your repository on GitHub, you'll see a `Compare & pull request` button. Click on that button.
 6. Start a Pull Request
-Now submit the pull request and click on `Create pull request`.
+   Now submit the pull request and click on `Create pull request`.
 7. Get a code review approval/reject
 8. After approval, merge your PR
 9. GitHub will automatically delete the branch after the merge is done. (they can still be restored).
-
-
-### File Structure
-
-```bash
-.
-├── composer.json
-├── CONTRIBUTING.md
-├── data
-│   ├── data.php
-│   └── import.php
-├── LICENSE.md
-├── phpunit.xml
-├── psalm.xml
-├── README.md
-├── src
-│   └── Domains
-│       └── Domain.php
-└── tests
-    └── DomainTest.php
-
-```
 
 ## Introducing New Features
 
@@ -86,6 +70,7 @@ For us to find the right balance, please open an issue explaining your ideas bef
 
 This will allow the Utopia-php community to have sufficient discussion about the new feature value and how it fits in the product roadmap and vision.
 
+This is also important for the Utopia-php lead developers to be able to give technical input and different emphasis regarding the feature design and architecture. Some bigger features might need to go through our [RFC process](https://github.com/appwrite/rfc).
 
 ## Other Ways to Help
 
