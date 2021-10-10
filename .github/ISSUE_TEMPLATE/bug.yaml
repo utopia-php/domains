@@ -34,7 +34,7 @@ body:
   - type: dropdown
     id: appwrite-version
     attributes:
-      label: "🎲 Appwrite version"
+      label: "🎲 Utopia Domain version"
       description: "What version of Appwrite are you running?"
       options:
         - Version 0.10.x
