@@ -32,7 +32,7 @@ body:
       description: "What did actually happen? Add screenshots, if applicable."
       placeholder: "It actually ..."
   - type: dropdown
-    id: Utopia Domain-version
+    id: Utopia-Domain-version
     attributes:
       label: "🎲 Utopia Domain version"
       description: "What version of Appwrite are you running?"
