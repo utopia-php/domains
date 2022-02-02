@@ -24,6 +24,26 @@ class DomainTest extends TestCase
      */
     protected $test = null;
 
+    public function testEdgecaseDomains()
+    {
+        $domain = new Domain('httpmydomain.com');
+        $this->assertEquals('httpmydomain.com', $domain->getRegisterable());
+    }
+
+    public function testEdgecaseDomainsError()
+    {
+        $this->expectException('Exception');
+        $this->expectExceptionMessage("'http://httpmydomain.com' must be a valid domain or hostname");
+        $domain = new Domain('http://httpmydomain.com');
+    }
+
+    public function testEdgecaseDomainsError2()
+    {
+        $this->expectException('Exception');
+        $this->expectExceptionMessage("'https://httpmydomain.com' must be a valid domain or hostname");
+        $domain = new Domain('https://httpmydomain.com');
+    }
+
     public function testExampleCoUk()
     {
         $domain = new Domain('demo.example.co.uk');
