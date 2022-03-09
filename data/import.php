@@ -74,4 +74,8 @@ foreach ($list as $key => $line) {
     $comments = [];
 }
 
+if (!isset($domains['com'])) {
+    throw new RuntimeException(".com is missing from public suffix list; it must be corrupted");
+}
+
 file_put_contents(__DIR__.'/data.php', "<?php\n\nreturn ".arrayToCode($domains).';');
