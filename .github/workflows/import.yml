@@ -1,0 +1,21 @@
+on:
+  schedule:
+    - cron: "12 3 * * *"
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+      - name: Run import.php
+        run: php data/import.php
+      - name: Commit and push
+        run: |
+          if git diff --exit-code data/data.php; then
+            exit 1
+          fi
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git commit -m "Update data.php" data/data.php
+          git push
