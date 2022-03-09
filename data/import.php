@@ -1,6 +1,11 @@
 <?php
 
-$list = explode("\n", file_get_contents('https://publicsuffix.org/list/public_suffix_list.dat'));
+$data = file_get_contents('https://publicsuffix.org/list/public_suffix_list.dat');
+if ($data === false) {
+    throw new RuntimeException("Could not download public suffix list");
+}
+
+$list = explode("\n", $data);
 
 function arrayToCode(array $data, $level = 0):string {
     $output = '['."\n";
