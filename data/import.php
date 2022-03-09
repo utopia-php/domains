@@ -9,20 +9,20 @@ $list = explode("\n", $data);
 
 function arrayToCode(array $data, $level = 0):string {
     $output = '['."\n";
-    
+
     $level++;
-    
-    $tabs = str_repeat ("\t", $level);
-    
+
+    $tabs = str_repeat("\t", $level);
+
     foreach($data as $key => $node) {
-        $key = is_integer($key) ? '' : '\''.$key.'\' => ';
-        $value = (is_array($node)) ? arrayToCode($node, $level) : str_replace("'", "\'", $node);
-        $output .= $tabs.$key.((is_string($node)) ? '\''.$value.'\'' : $value).(($key !== array_key_last($data)) ? ', ' : '')."\n";
+        $key = is_integer($key) ? '' : var_export($key, true) . ' => ';
+        $value = is_array($node) ? arrayToCode($node, $level) : var_export($node, true);
+        $output .= $tabs.$key.$value.",\n";
     }
 
     $level--;
 
-    $tabs = str_repeat ("\t", $level);
+    $tabs = str_repeat("\t", $level);
 
     $output .= $tabs.']';
 
@@ -39,18 +39,18 @@ foreach ($list as $key => $line) {
         $comments = [];
         continue;
     }
-    
+
     if(mb_strpos($line, '===END ICANN DOMAINS===')) {
         $type = null;
         continue;
     }
-    
+
     if(mb_strpos($line, '===BEGIN PRIVATE DOMAINS===')) {
         $type = 'PRIVATE';
         $comments = [];
         continue;
     }
-    
+
     if(mb_strpos($line, '===END PRIVATE DOMAINS===')) {
         $type = null;
         continue;
