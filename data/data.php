@@ -5,7 +5,7 @@ return [
 		'suffix' => 'ac', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'ac : https://en.wikipedia.org/wiki/.ac', 
+			'ac : http://nic.ac/rules.htm', 
 		], 
 	], 
 	'com.ac' => [
@@ -61,8 +61,7 @@ return [
 		'suffix' => 'ae', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'ae : https://en.wikipedia.org/wiki/.ae', 
-			'see also: "Domain Name Eligibility Policy" at http://www.aeda.ae/eng/aepolicy.php', 
+			'ae : https://tdra.gov.ae/en/aeda/ae-policies', 
 		], 
 	], 
 	'co.ae' => [
@@ -4250,6 +4249,7 @@ return [
 		'comments' => [
 			'cy : http://www.nic.cy/', 
 			'Submitted by registry Panayiotou Fotia <cydns@ucy.ac.cy>', 
+			'namespace policies URL https://www.nic.cy/portal//sites/default/files/symfonia_gia_eggrafi.pdf', 
 		], 
 	], 
 	'ac.cy' => [
@@ -4288,8 +4288,8 @@ return [
 		'comments' => [
 		], 
 	], 
-	'name.cy' => [
-		'suffix' => 'name.cy', 
+	'mil.cy' => [
+		'suffix' => 'mil.cy', 
 		'type' => 'ICANN', 
 		'comments' => [
 		], 
@@ -4302,12 +4302,6 @@ return [
 	], 
 	'org.cy' => [
 		'suffix' => 'org.cy', 
-		'type' => 'ICANN', 
-		'comments' => [
-		], 
-	], 
-	'parliament.cy' => [
-		'suffix' => 'parliament.cy', 
 		'type' => 'ICANN', 
 		'comments' => [
 		], 
@@ -6501,7 +6495,7 @@ return [
 		'suffix' => 'io', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'io : http://www.nic.io/rules.html', 
+			'io : http://www.nic.io/rules.htm', 
 			'list of other 2nd level tlds ?', 
 		], 
 	], 
@@ -33034,7 +33028,7 @@ return [
 		'suffix' => 'sh', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'sh : http://www.nic.sh/registrar.html', 
+			'sh : http://nic.sh/rules.htm', 
 		], 
 	], 
 	'com.sh' => [
@@ -37688,7 +37682,7 @@ return [
 		'type' => 'ICANN', 
 		'comments' => [
 			'newGTLDs', 
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-02-02T15:12:37Z', 
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-04-30T15:14:46Z', 
 			'This list is auto-generated, don\'t edit it manually.', 
 			'aaa : 2015-02-26 American Automobile Association, Inc.', 
 		], 
@@ -38159,7 +38153,7 @@ return [
 		'suffix' => 'audio', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'audio : 2014-03-20 UNR Corp.', 
+			'audio : 2014-03-20 XYZ.COM LLC', 
 		], 
 	], 
 	'auspost' => [
@@ -38481,7 +38475,7 @@ return [
 		'suffix' => 'blackfriday', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'blackfriday : 2014-01-16 UNR Corp.', 
+			'blackfriday : 2014-01-16 Registry Services, LLC', 
 		], 
 	], 
 	'blockbuster' => [
@@ -38671,13 +38665,6 @@ return [
 		'type' => 'ICANN', 
 		'comments' => [
 			'brussels : 2014-02-06 DNS.be vzw', 
-		], 
-	], 
-	'budapest' => [
-		'suffix' => 'budapest', 
-		'type' => 'ICANN', 
-		'comments' => [
-			'budapest : 2013-11-21 Minds + Machines Group Limited', 
 		], 
 	], 
 	'bugatti' => [
@@ -39027,7 +39014,7 @@ return [
 		'suffix' => 'christmas', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'christmas : 2013-11-21 UNR Corp.', 
+			'christmas : 2013-11-21 XYZ.COM LLC', 
 		], 
 	], 
 	'chrome' => [
@@ -39608,7 +39595,7 @@ return [
 		'suffix' => 'diet', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'diet : 2014-06-26 UNR Corp.', 
+			'diet : 2014-06-26 XYZ.COM LLC', 
 		], 
 	], 
 	'digital' => [
@@ -40182,7 +40169,7 @@ return [
 		'suffix' => 'flowers', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'flowers : 2014-10-09 UNR Corp.', 
+			'flowers : 2014-10-09 XYZ.COM LLC', 
 		], 
 	], 
 	'fly' => [
@@ -40385,7 +40372,7 @@ return [
 		'suffix' => 'game', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'game : 2015-05-28 UNR Corp.', 
+			'game : 2015-05-28 XYZ.COM LLC', 
 		], 
 	], 
 	'games' => [
@@ -40441,7 +40428,7 @@ return [
 		'suffix' => 'gent', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'gent : 2014-01-23 COMBELL NV', 
+			'gent : 2014-01-23 Easyhost BV', 
 		], 
 	], 
 	'genting' => [
@@ -40700,7 +40687,7 @@ return [
 		'suffix' => 'guitars', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'guitars : 2013-11-14 UNR Corp.', 
+			'guitars : 2013-11-14 XYZ.COM LLC', 
 		], 
 	], 
 	'guru' => [
@@ -40812,7 +40799,7 @@ return [
 		'suffix' => 'hiphop', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'hiphop : 2014-03-06 UNR Corp.', 
+			'hiphop : 2014-03-06 Dot Hip Hop, LLC', 
 		], 
 	], 
 	'hisamitsu' => [
@@ -40924,7 +40911,7 @@ return [
 		'suffix' => 'hosting', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'hosting : 2014-05-29 UNR Corp.', 
+			'hosting : 2014-05-29 XYZ.COM LLC', 
 		], 
 	], 
 	'hot' => [
@@ -41785,7 +41772,7 @@ return [
 		'suffix' => 'lol', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'lol : 2015-01-30 UNR Corp.', 
+			'lol : 2015-01-30 XYZ.COM LLC', 
 		], 
 	], 
 	'london' => [
@@ -42149,7 +42136,7 @@ return [
 		'suffix' => 'mom', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'mom : 2015-04-16 UNR Corp.', 
+			'mom : 2015-04-16 XYZ.COM LLC', 
 		], 
 	], 
 	'monash' => [
@@ -42772,7 +42759,7 @@ return [
 		'suffix' => 'photo', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'photo : 2013-11-14 UNR Corp.', 
+			'photo : 2013-11-14 Registry Services, LLC', 
 		], 
 	], 
 	'photography' => [
@@ -42800,7 +42787,7 @@ return [
 		'suffix' => 'pics', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'pics : 2013-11-14 UNR Corp.', 
+			'pics : 2013-11-14 XYZ.COM LLC', 
 		], 
 	], 
 	'pictet' => [
@@ -43339,7 +43326,7 @@ return [
 		'suffix' => 'ruhr', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'ruhr : 2013-10-02 regiodot GmbH & Co. KG', 
+			'ruhr : 2013-10-02 dotSaarland GmbH', 
 		], 
 	], 
 	'run' => [
@@ -44158,7 +44145,7 @@ return [
 		'suffix' => 'tattoo', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'tattoo : 2013-08-30 UNR Corp.', 
+			'tattoo : 2013-08-30 Top Level Design, LLC', 
 		], 
 	], 
 	'tax' => [
@@ -44375,7 +44362,7 @@ return [
 		'suffix' => 'total', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'total : 2015-08-06 Total SA', 
+			'total : 2015-08-06 TOTAL SE', 
 		], 
 	], 
 	'tours' => [
@@ -45868,6 +45855,34 @@ return [
 			'Submitted by Przemyslaw Plewa <it-admin@domena.pl>', 
 		], 
 	], 
+	'airkitapps.com' => [
+		'suffix' => 'airkitapps.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Airkit : https://www.airkit.com/', 
+			'Submitted by Grant Cooksey <security@airkit.com>', 
+		], 
+	], 
+	'airkitapps-au.com' => [
+		'suffix' => 'airkitapps-au.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'airkitapps.eu' => [
+		'suffix' => 'airkitapps.eu', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'aivencloud.com' => [
+		'suffix' => 'aivencloud.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Aiven: https://aiven.io/', 
+			'Submitted by Etienne Stalmans <security@aiven.io>', 
+		], 
+	], 
 	'barsy.ca' => [
 		'suffix' => 'barsy.ca', 
 		'type' => 'PRIVATE', 
@@ -46548,6 +46563,14 @@ return [
 			'Submitted by Sam Smyth <devloop@atlassian.com>', 
 		], 
 	], 
+	'translated.page' => [
+		'suffix' => 'translated.page', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Authentick UG (haftungsbeschränkt) : https://authentick.net', 
+			'Submitted by Lukas Reschke <lukas@authentick.net>', 
+		], 
+	], 
 	'myfritz.net' => [
 		'suffix' => 'myfritz.net', 
 		'type' => 'PRIVATE', 
@@ -46583,7 +46606,7 @@ return [
 		'type' => 'PRIVATE', 
 		'comments' => [
 			'AZ.pl sp. z.o.o: https://az.pl', 
-			'Submited by Krzysztof Wolski <krzysztof.wolski@home.eu>', 
+			'Submitted by Krzysztof Wolski <krzysztof.wolski@home.eu>', 
 		], 
 	], 
 	'b-data.io' => [
@@ -46699,6 +46722,14 @@ return [
 		'suffix' => 'base.shop', 
 		'type' => 'PRIVATE', 
 		'comments' => [
+		], 
+	], 
+	'*.beget.app' => [
+		'suffix' => '*.beget.app', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Beget Ltd', 
+			'Submitted by Lev Nekrasov <lnekrasov@beget.com>', 
 		], 
 	], 
 	'betainabox.com' => [
@@ -47849,6 +47880,20 @@ return [
 			'Submitted by Peter Thomassen <peter@desec.io>', 
 		], 
 	], 
+	'deta.app' => [
+		'suffix' => 'deta.app', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Deta: https://www.deta.sh/', 
+			'Submitted by Aavash Shrestha <aavash@deta.sh>', 
+		], 
+	], 
+	'deta.dev' => [
+		'suffix' => 'deta.dev', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
 	'*.rss.my.id' => [
 		'suffix' => '*.rss.my.id', 
 		'type' => 'PRIVATE', 
@@ -47859,6 +47904,20 @@ return [
 	], 
 	'*.diher.solutions' => [
 		'suffix' => '*.diher.solutions', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'discordsays.com' => [
+		'suffix' => 'discordsays.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Discord Inc : https://discord.com', 
+			'Submitted by Sahn Lam <slam@discordapp.com>', 
+		], 
+	], 
+	'discordsez.com' => [
+		'suffix' => 'discordsez.com', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
@@ -49915,6 +49974,20 @@ return [
 		'comments' => [
 		], 
 	], 
+	'encr.app' => [
+		'suffix' => 'encr.app', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Encoretivity AB: https://encore.dev', 
+			'Submitted by André Eriksson <andre@encore.dev>', 
+		], 
+	], 
+	'encoreapi.com' => [
+		'suffix' => 'encoreapi.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
 	'onred.one' => [
 		'suffix' => 'onred.one', 
 		'type' => 'PRIVATE', 
@@ -50962,24 +51035,12 @@ return [
 		'comments' => [
 		], 
 	], 
-	'couk.me' => [
-		'suffix' => 'couk.me', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-			'FearWorks Media Ltd. : https://fearworksmedia.co.uk', 
-			'submitted by Keith Fairley <domains@fearworksmedia.co.uk>', 
-		], 
-	], 
-	'ukco.me' => [
-		'suffix' => 'ukco.me', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-		], 
-	], 
 	'conn.uk' => [
 		'suffix' => 'conn.uk', 
 		'type' => 'PRIVATE', 
 		'comments' => [
+			'FearWorks Media Ltd. : https://fearworksmedia.co.uk', 
+			'submitted by Keith Fairley <domains@fearworksmedia.co.uk>', 
 		], 
 	], 
 	'copro.uk' => [
@@ -51328,6 +51389,12 @@ return [
 		'comments' => [
 		], 
 	], 
+	'campaign.gov.uk' => [
+		'suffix' => 'campaign.gov.uk', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
 	'service.gov.uk' => [
 		'suffix' => 'service.gov.uk', 
 		'type' => 'PRIVATE', 
@@ -51475,7 +51542,637 @@ return [
 		'type' => 'PRIVATE', 
 		'comments' => [
 			'GMO Pepabo, Inc. : https://pepabo.com/', 
-			'Submitted by dojineko <admin@pepabo.com>', 
+			'Submitted by Hosting Div <admin@pepabo.com>', 
+		], 
+	], 
+	'angry.jp' => [
+		'suffix' => 'angry.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'babyblue.jp' => [
+		'suffix' => 'babyblue.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'babymilk.jp' => [
+		'suffix' => 'babymilk.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'backdrop.jp' => [
+		'suffix' => 'backdrop.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'bambina.jp' => [
+		'suffix' => 'bambina.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'bitter.jp' => [
+		'suffix' => 'bitter.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'blush.jp' => [
+		'suffix' => 'blush.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'boo.jp' => [
+		'suffix' => 'boo.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'boy.jp' => [
+		'suffix' => 'boy.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'boyfriend.jp' => [
+		'suffix' => 'boyfriend.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'but.jp' => [
+		'suffix' => 'but.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'candypop.jp' => [
+		'suffix' => 'candypop.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'capoo.jp' => [
+		'suffix' => 'capoo.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'catfood.jp' => [
+		'suffix' => 'catfood.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'cheap.jp' => [
+		'suffix' => 'cheap.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'chicappa.jp' => [
+		'suffix' => 'chicappa.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'chillout.jp' => [
+		'suffix' => 'chillout.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'chips.jp' => [
+		'suffix' => 'chips.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'chowder.jp' => [
+		'suffix' => 'chowder.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'chu.jp' => [
+		'suffix' => 'chu.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'ciao.jp' => [
+		'suffix' => 'ciao.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'cocotte.jp' => [
+		'suffix' => 'cocotte.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'coolblog.jp' => [
+		'suffix' => 'coolblog.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'cranky.jp' => [
+		'suffix' => 'cranky.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'cutegirl.jp' => [
+		'suffix' => 'cutegirl.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'daa.jp' => [
+		'suffix' => 'daa.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'deca.jp' => [
+		'suffix' => 'deca.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'deci.jp' => [
+		'suffix' => 'deci.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'digick.jp' => [
+		'suffix' => 'digick.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'egoism.jp' => [
+		'suffix' => 'egoism.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'fakefur.jp' => [
+		'suffix' => 'fakefur.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'fem.jp' => [
+		'suffix' => 'fem.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'flier.jp' => [
+		'suffix' => 'flier.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'floppy.jp' => [
+		'suffix' => 'floppy.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'fool.jp' => [
+		'suffix' => 'fool.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'frenchkiss.jp' => [
+		'suffix' => 'frenchkiss.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'girlfriend.jp' => [
+		'suffix' => 'girlfriend.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'girly.jp' => [
+		'suffix' => 'girly.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'gloomy.jp' => [
+		'suffix' => 'gloomy.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'gonna.jp' => [
+		'suffix' => 'gonna.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'greater.jp' => [
+		'suffix' => 'greater.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'hacca.jp' => [
+		'suffix' => 'hacca.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'heavy.jp' => [
+		'suffix' => 'heavy.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'her.jp' => [
+		'suffix' => 'her.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'hiho.jp' => [
+		'suffix' => 'hiho.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'hippy.jp' => [
+		'suffix' => 'hippy.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'holy.jp' => [
+		'suffix' => 'holy.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'hungry.jp' => [
+		'suffix' => 'hungry.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'icurus.jp' => [
+		'suffix' => 'icurus.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'itigo.jp' => [
+		'suffix' => 'itigo.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'jellybean.jp' => [
+		'suffix' => 'jellybean.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'kikirara.jp' => [
+		'suffix' => 'kikirara.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'kill.jp' => [
+		'suffix' => 'kill.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'kilo.jp' => [
+		'suffix' => 'kilo.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'kuron.jp' => [
+		'suffix' => 'kuron.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'littlestar.jp' => [
+		'suffix' => 'littlestar.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'lolitapunk.jp' => [
+		'suffix' => 'lolitapunk.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'lomo.jp' => [
+		'suffix' => 'lomo.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'lovepop.jp' => [
+		'suffix' => 'lovepop.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'lovesick.jp' => [
+		'suffix' => 'lovesick.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'main.jp' => [
+		'suffix' => 'main.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'mods.jp' => [
+		'suffix' => 'mods.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'mond.jp' => [
+		'suffix' => 'mond.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'mongolian.jp' => [
+		'suffix' => 'mongolian.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'moo.jp' => [
+		'suffix' => 'moo.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'namaste.jp' => [
+		'suffix' => 'namaste.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'nikita.jp' => [
+		'suffix' => 'nikita.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'nobushi.jp' => [
+		'suffix' => 'nobushi.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'noor.jp' => [
+		'suffix' => 'noor.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'oops.jp' => [
+		'suffix' => 'oops.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'parallel.jp' => [
+		'suffix' => 'parallel.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'parasite.jp' => [
+		'suffix' => 'parasite.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'pecori.jp' => [
+		'suffix' => 'pecori.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'peewee.jp' => [
+		'suffix' => 'peewee.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'penne.jp' => [
+		'suffix' => 'penne.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'pepper.jp' => [
+		'suffix' => 'pepper.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'perma.jp' => [
+		'suffix' => 'perma.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'pigboat.jp' => [
+		'suffix' => 'pigboat.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'pinoko.jp' => [
+		'suffix' => 'pinoko.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'punyu.jp' => [
+		'suffix' => 'punyu.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'pupu.jp' => [
+		'suffix' => 'pupu.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'pussycat.jp' => [
+		'suffix' => 'pussycat.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'pya.jp' => [
+		'suffix' => 'pya.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'raindrop.jp' => [
+		'suffix' => 'raindrop.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'readymade.jp' => [
+		'suffix' => 'readymade.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'sadist.jp' => [
+		'suffix' => 'sadist.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'schoolbus.jp' => [
+		'suffix' => 'schoolbus.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'secret.jp' => [
+		'suffix' => 'secret.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'staba.jp' => [
+		'suffix' => 'staba.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'stripper.jp' => [
+		'suffix' => 'stripper.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'sub.jp' => [
+		'suffix' => 'sub.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'sunnyday.jp' => [
+		'suffix' => 'sunnyday.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'thick.jp' => [
+		'suffix' => 'thick.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'tonkotsu.jp' => [
+		'suffix' => 'tonkotsu.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'under.jp' => [
+		'suffix' => 'under.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'upper.jp' => [
+		'suffix' => 'upper.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'velvet.jp' => [
+		'suffix' => 'velvet.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'verse.jp' => [
+		'suffix' => 'verse.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'versus.jp' => [
+		'suffix' => 'versus.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'vivian.jp' => [
+		'suffix' => 'vivian.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'watson.jp' => [
+		'suffix' => 'watson.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'weblike.jp' => [
+		'suffix' => 'weblike.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'whitesnow.jp' => [
+		'suffix' => 'whitesnow.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'zombie.jp' => [
+		'suffix' => 'zombie.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'heteml.net' => [
+		'suffix' => 'heteml.net', 
+		'type' => 'PRIVATE', 
+		'comments' => [
 		], 
 	], 
 	'cloudapps.digital' => [
@@ -52113,7 +52810,7 @@ return [
 		'type' => 'PRIVATE', 
 		'comments' => [
 			'Hakaran group: http://hakaran.cz', 
-			'Submited by Arseniy Sokolov <security@hakaran.cz>', 
+			'Submitted by Arseniy Sokolov <security@hakaran.cz>', 
 		], 
 	], 
 	'free.hr' => [
@@ -52248,7 +52945,7 @@ return [
 		'type' => 'PRIVATE', 
 		'comments' => [
 			'home.pl S.A.: https://home.pl', 
-			'Submited by Krzysztof Wolski <krzysztof.wolski@home.eu>', 
+			'Submitted by Krzysztof Wolski <krzysztof.wolski@home.eu>', 
 		], 
 	], 
 	'secaas.hk' => [
@@ -52672,7 +53369,7 @@ return [
 		'type' => 'PRIVATE', 
 		'comments' => [
 			'Internet-Pro, LLP: https://netangels.ru/', 
-			'Submited by Vasiliy Sheredeko <piphon@gmail.com>', 
+			'Submitted by Vasiliy Sheredeko <piphon@gmail.com>', 
 		], 
 	], 
 	'iopsys.se' => [
@@ -52730,7 +53427,7 @@ return [
 		'type' => 'PRIVATE', 
 		'comments' => [
 			'Jelastic, Inc. : https://jelastic.com/', 
-			'Submited by Ihor Kolodyuk <ik@jelastic.com>', 
+			'Submitted by Ihor Kolodyuk <ik@jelastic.com>', 
 		], 
 	], 
 	'cloud.interhostsolutions.be' => [
@@ -53301,6 +53998,22 @@ return [
 		'comments' => [
 		], 
 	], 
+	'ktistory.com' => [
+		'suffix' => 'ktistory.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Kakao : https://www.kakaocorp.com/', 
+			'Submitted by JaeYoong Lee <cec@kakaocorp.com>', 
+		], 
+	], 
+	'kapsi.fi' => [
+		'suffix' => 'kapsi.fi', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Kapsi : https://kapsi.fi', 
+			'Submitted by Tomi Juntunen <erani@kapsi.fi>', 
+		], 
+	], 
 	'keymachine.de' => [
 		'suffix' => 'keymachine.de', 
 		'type' => 'PRIVATE', 
@@ -53534,6 +54247,14 @@ return [
 		'comments' => [
 			'LiquidNet Ltd : http://www.liquidnetlimited.com/', 
 			'Submitted by Victor Velchev <admin@liquidnetlimited.com>', 
+		], 
+	], 
+	'*.user.localcert.dev' => [
+		'suffix' => '*.user.localcert.dev', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Localcert : https://localcert.dev', 
+			'Submitted by Lann Martin <security@localcert.dev>', 
 		], 
 	], 
 	'localzone.xyz' => [
@@ -53966,7 +54687,7 @@ return [
 		'type' => 'PRIVATE', 
 		'comments' => [
 			'Microsoft Corporation : http://microsoft.com', 
-			'Submitted by Mitch Webster <miwebst@microsoft.com>', 
+			'Submitted by Public Suffix List Admin <msftpsladmin@microsoft.com>', 
 		], 
 	], 
 	'azurewebsites.net' => [
@@ -53989,6 +54710,12 @@ return [
 	], 
 	'azurestaticapps.net' => [
 		'suffix' => 'azurestaticapps.net', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'1.azurestaticapps.net' => [
+		'suffix' => '1.azurestaticapps.net', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
@@ -54339,8 +55066,26 @@ return [
 			'Submitted by Marco Suter <marco@northflank.com>', 
 		], 
 	], 
+	'*.build.run' => [
+		'suffix' => '*.build.run', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
 	'*.code.run' => [
 		'suffix' => '*.code.run', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'*.database.run' => [
+		'suffix' => '*.database.run', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'*.migration.run' => [
+		'suffix' => '*.migration.run', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
@@ -55143,12 +55888,20 @@ return [
 			'Submitted by Yngve Pettersen <yngve@opera.com>', 
 		], 
 	], 
+	'tech.orange' => [
+		'suffix' => 'tech.orange', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Orange : https://www.orange.com', 
+			'Submitted by Alexandre Linte <alexandre.linte@orange.com>', 
+		], 
+	], 
 	'authgear-staging.com' => [
 		'suffix' => 'authgear-staging.com', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 			'Oursky Limited : https://authgear.com/, https://skygear.io/', 
-			'Submited by Authgear Team <hello@authgear.com>, Skygear Developer <hello@skygear.io>', 
+			'Submitted by Authgear Team <hello@authgear.com>, Skygear Developer <hello@skygear.io>', 
 		], 
 	], 
 	'authgearapps.com' => [
@@ -55448,6 +56201,14 @@ return [
 		'comments' => [
 			'Port53 : https://port53.io/', 
 			'Submitted by Maximilian Schieder <maxi@zeug.co>', 
+		], 
+	], 
+	'onporter.run' => [
+		'suffix' => 'onporter.run', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Porter : https://porter.run/', 
+			'Submitted by Rudraksh MK <rudi@porter.run>', 
 		], 
 	], 
 	'co.bn' => [
@@ -55850,6 +56611,14 @@ return [
 			'Submitted by Jennifer Herting <jchits@rit.edu>', 
 		], 
 	], 
+	'rocky.page' => [
+		'suffix' => 'rocky.page', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Rocky Enterprise Software Foundation : https://resf.org', 
+			'Submitted by Neil Hanlon <neil@resf.org>', 
+		], 
+	], 
 	'биз.рус' => [
 		'suffix' => 'биз.рус', 
 		'type' => 'PRIVATE', 
@@ -55930,6 +56699,158 @@ return [
 	], 
 	'logoip.com' => [
 		'suffix' => 'logoip.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'fr-par-1.baremetal.scw.cloud' => [
+		'suffix' => 'fr-par-1.baremetal.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Scaleway : https://www.scaleway.com/', 
+			'Submitted by Rémy Léone <rleone@scaleway.com>', 
+		], 
+	], 
+	'fr-par-2.baremetal.scw.cloud' => [
+		'suffix' => 'fr-par-2.baremetal.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'nl-ams-1.baremetal.scw.cloud' => [
+		'suffix' => 'nl-ams-1.baremetal.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'fnc.fr-par.scw.cloud' => [
+		'suffix' => 'fnc.fr-par.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'functions.fnc.fr-par.scw.cloud' => [
+		'suffix' => 'functions.fnc.fr-par.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'k8s.fr-par.scw.cloud' => [
+		'suffix' => 'k8s.fr-par.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'nodes.k8s.fr-par.scw.cloud' => [
+		'suffix' => 'nodes.k8s.fr-par.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	's3.fr-par.scw.cloud' => [
+		'suffix' => 's3.fr-par.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	's3-website.fr-par.scw.cloud' => [
+		'suffix' => 's3-website.fr-par.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'whm.fr-par.scw.cloud' => [
+		'suffix' => 'whm.fr-par.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'priv.instances.scw.cloud' => [
+		'suffix' => 'priv.instances.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'pub.instances.scw.cloud' => [
+		'suffix' => 'pub.instances.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'k8s.scw.cloud' => [
+		'suffix' => 'k8s.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'k8s.nl-ams.scw.cloud' => [
+		'suffix' => 'k8s.nl-ams.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'nodes.k8s.nl-ams.scw.cloud' => [
+		'suffix' => 'nodes.k8s.nl-ams.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	's3.nl-ams.scw.cloud' => [
+		'suffix' => 's3.nl-ams.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	's3-website.nl-ams.scw.cloud' => [
+		'suffix' => 's3-website.nl-ams.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'whm.nl-ams.scw.cloud' => [
+		'suffix' => 'whm.nl-ams.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'k8s.pl-waw.scw.cloud' => [
+		'suffix' => 'k8s.pl-waw.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'nodes.k8s.pl-waw.scw.cloud' => [
+		'suffix' => 'nodes.k8s.pl-waw.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	's3.pl-waw.scw.cloud' => [
+		'suffix' => 's3.pl-waw.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	's3-website.pl-waw.scw.cloud' => [
+		'suffix' => 's3-website.pl-waw.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'scalebook.scw.cloud' => [
+		'suffix' => 'scalebook.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'smartlabeling.scw.cloud' => [
+		'suffix' => 'smartlabeling.scw.cloud', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'dedibox.fr' => [
+		'suffix' => 'dedibox.fr', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
@@ -56248,11 +57169,18 @@ return [
 			'Submitted by Adrien Gillon <adrien+public-suffix-list@stackhero.io>', 
 		], 
 	], 
+	'musician.io' => [
+		'suffix' => 'musician.io', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Staclar : https://staclar.com', 
+			'Submitted by Q Misell <q@staclar.com>', 
+		], 
+	], 
 	'novecore.site' => [
 		'suffix' => 'novecore.site', 
 		'type' => 'PRIVATE', 
 		'comments' => [
-			'Staclar : https://staclar.com', 
 			'Submitted by Matthias Merkel <matthias.merkel@staclar.com>', 
 		], 
 	], 
@@ -56558,28 +57486,16 @@ return [
 			'Submitted by Boris Rybalkin <syncloud@syncloud.it>', 
 		], 
 	], 
-	'diskstation.me' => [
-		'suffix' => 'diskstation.me', 
+	'dscloud.biz' => [
+		'suffix' => 'dscloud.biz', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 			'Synology, Inc. : https://www.synology.com/', 
 			'Submitted by Rony Weng <ronyweng@synology.com>', 
 		], 
 	], 
-	'dscloud.biz' => [
-		'suffix' => 'dscloud.biz', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-		], 
-	], 
-	'dscloud.me' => [
-		'suffix' => 'dscloud.me', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-		], 
-	], 
-	'dscloud.mobi' => [
-		'suffix' => 'dscloud.mobi', 
+	'direct.quickconnect.cn' => [
+		'suffix' => 'direct.quickconnect.cn', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
@@ -56590,32 +57506,20 @@ return [
 		'comments' => [
 		], 
 	], 
-	'dsmynas.net' => [
-		'suffix' => 'dsmynas.net', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-		], 
-	], 
-	'dsmynas.org' => [
-		'suffix' => 'dsmynas.org', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-		], 
-	], 
 	'familyds.com' => [
 		'suffix' => 'familyds.com', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
 	], 
-	'familyds.net' => [
-		'suffix' => 'familyds.net', 
+	'diskstation.me' => [
+		'suffix' => 'diskstation.me', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
 	], 
-	'familyds.org' => [
-		'suffix' => 'familyds.org', 
+	'dscloud.me' => [
+		'suffix' => 'dscloud.me', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
@@ -56634,6 +57538,36 @@ return [
 	], 
 	'synology.me' => [
 		'suffix' => 'synology.me', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'dscloud.mobi' => [
+		'suffix' => 'dscloud.mobi', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'dsmynas.net' => [
+		'suffix' => 'dsmynas.net', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'familyds.net' => [
+		'suffix' => 'familyds.net', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'dsmynas.org' => [
+		'suffix' => 'dsmynas.org', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'familyds.org' => [
+		'suffix' => 'familyds.org', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
@@ -57029,6 +57963,14 @@ return [
 		'comments' => [
 		], 
 	], 
+	'site.transip.me' => [
+		'suffix' => 'site.transip.me', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'TransIP: https://www.transip.nl', 
+			'Submitted by Cedric Dubois <cedric.dubois@team.blue>', 
+		], 
+	], 
 	'tuxfamily.org' => [
 		'suffix' => 'tuxfamily.org', 
 		'type' => 'PRIVATE', 
@@ -57115,6 +58057,14 @@ return [
 		'suffix' => 'synology-ds.de', 
 		'type' => 'PRIVATE', 
 		'comments' => [
+		], 
+	], 
+	'typedream.app' => [
+		'suffix' => 'typedream.app', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Typedream : https://typedream.com', 
+			'Submitted by Putri Karunia <putri@typedream.com>', 
 		], 
 	], 
 	'pro.typeform.com' => [
@@ -57505,50 +58455,20 @@ return [
 			'Submitted by Serhii Rostilo <sergey@rostilo.kiev.ua>', 
 		], 
 	], 
+	'*.vultrobjects.com' => [
+		'suffix' => '*.vultrobjects.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Vultr Objects : https://www.vultr.com/products/object-storage/', 
+			'Submitted by Niels Maumenee <storage@vultr.com>', 
+		], 
+	], 
 	'wafflecell.com' => [
 		'suffix' => 'wafflecell.com', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 			'Waffle Computer Inc., Ltd. : https://docs.waffleinfo.com', 
 			'Submitted by Masayuki Note <masa@blade.wafflecell.com>', 
-		], 
-	], 
-	'idnblogger.com' => [
-		'suffix' => 'idnblogger.com', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-			'WapBlog.ID : https://www.wapblog.id', 
-			'Submitted by Fajar Sodik <official@wapblog.id>', 
-		], 
-	], 
-	'indowapblog.com' => [
-		'suffix' => 'indowapblog.com', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-		], 
-	], 
-	'bloger.id' => [
-		'suffix' => 'bloger.id', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-		], 
-	], 
-	'wblog.id' => [
-		'suffix' => 'wblog.id', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-		], 
-	], 
-	'wbq.me' => [
-		'suffix' => 'wbq.me', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-		], 
-	], 
-	'fastblog.net' => [
-		'suffix' => 'fastblog.net', 
-		'type' => 'PRIVATE', 
-		'comments' => [
 		], 
 	], 
 	'*.webhare.dev' => [
@@ -57653,6 +58573,14 @@ return [
 		'suffix' => 'daemon.panel.gg', 
 		'type' => 'PRIVATE', 
 		'comments' => [
+		], 
+	], 
+	'messwithdns.com' => [
+		'suffix' => 'messwithdns.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Wizard Zines : https://wizardzines.com', 
+			'Submitted by Julia Evans <julia@wizardzines.com>', 
 		], 
 	], 
 	'woltlab-demo.com' => [
