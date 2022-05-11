@@ -52783,6 +52783,14 @@ return [
 			'Submitted by Niels Martignene <hello@goupile.fr>', 
 		], 
 	], 
+	'gov.nl' => [
+		'suffix' => 'gov.nl', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Government of the Netherlands: https://www.government.nl', 
+			'Submitted by <domeinnaam@minaz.nl>', 
+		], 
+	], 
 	'awsmppl.com' => [
 		'suffix' => 'awsmppl.com', 
 		'type' => 'PRIVATE', 
