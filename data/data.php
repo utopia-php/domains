@@ -53028,12 +53028,6 @@ return [
 		'comments' => [
 		], 
 	], 
-	'org.yt' => [
-		'suffix' => 'org.yt', 
-		'type' => 'PRIVATE', 
-		'comments' => [
-		], 
-	], 
 	'hostyhosting.io' => [
 		'suffix' => 'hostyhosting.io', 
 		'type' => 'PRIVATE', 
@@ -56689,6 +56683,26 @@ return [
 		'comments' => [
 		], 
 	], 
+	'builder.code.com' => [
+		'suffix' => 'builder.code.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Salesforce.com, Inc. https://salesforce.com/', 
+			'Submitted by Michael Biven <mbiven@salesforce.com>', 
+		], 
+	], 
+	'dev-builder.code.com' => [
+		'suffix' => 'dev-builder.code.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'stg-builder.code.com' => [
+		'suffix' => 'stg-builder.code.com', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
 	'sandcats.io' => [
 		'suffix' => 'sandcats.io', 
 		'type' => 'PRIVATE', 
@@ -58119,6 +58133,39 @@ return [
 	], 
 	'inc.hk' => [
 		'suffix' => 'inc.hk', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'name.pm' => [
+		'suffix' => 'name.pm', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'UNIVERSAL DOMAIN REGISTRY : https://www.udr.org.yt/', 
+			'see also: whois -h whois.udr.org.yt help', 
+			'Submitted by Atanunu Igbunuroghene <publicsuffixlist@udr.org.yt>', 
+		], 
+	], 
+	'sch.tf' => [
+		'suffix' => 'sch.tf', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'biz.wf' => [
+		'suffix' => 'biz.wf', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'sch.wf' => [
+		'suffix' => 'sch.wf', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
+	'org.yt' => [
+		'suffix' => 'org.yt', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
