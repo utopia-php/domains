@@ -6393,7 +6393,7 @@ return [
 		'type' => 'ICANN', 
 		'comments' => [
 			'in : https://en.wikipedia.org/wiki/.in', 
-			'see also: https://registry.in/Policies', 
+			'see also: https://registry.in/policies', 
 			'Please note, that nic.in is not an official eTLD, but used by most', 
 			'government institutions.', 
 		], 
@@ -37682,7 +37682,7 @@ return [
 		'type' => 'ICANN', 
 		'comments' => [
 			'newGTLDs', 
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-05-18T15:16:02Z', 
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-06-02T15:16:31Z', 
 			'This list is auto-generated, don\'t edit it manually.', 
 			'aaa : 2015-02-26 American Automobile Association, Inc.', 
 		], 
@@ -38979,7 +38979,7 @@ return [
 		'suffix' => 'charity', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'charity : 2018-04-11 Binky Moon, LLC', 
+			'charity : 2018-04-11 Public Interest Registry', 
 		], 
 	], 
 	'chase' => [
@@ -39322,7 +39322,7 @@ return [
 		'suffix' => 'courses', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'courses : 2014-12-04 OPEN UNIVERSITIES AUSTRALIA PTY LTD', 
+			'courses : 2014-12-04 Registry Services, LLC', 
 		], 
 	], 
 	'cpa' => [
@@ -40239,7 +40239,7 @@ return [
 		'suffix' => 'foundation', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'foundation : 2013-12-05 Binky Moon, LLC', 
+			'foundation : 2013-12-05 Public Interest Registry', 
 		], 
 	], 
 	'fox' => [
@@ -40470,7 +40470,7 @@ return [
 		'suffix' => 'gives', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'gives : 2014-03-06 Dog Beach, LLC', 
+			'gives : 2014-03-06 Public Interest Registry', 
 		], 
 	], 
 	'giving' => [
@@ -44005,7 +44005,7 @@ return [
 		'suffix' => 'study', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'study : 2014-12-11 OPEN UNIVERSITIES AUSTRALIA PTY LTD', 
+			'study : 2014-12-11 Registry Services, LLC', 
 		], 
 	], 
 	'style' => [
