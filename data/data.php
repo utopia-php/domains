@@ -37682,7 +37682,7 @@ return [
 		'type' => 'ICANN', 
 		'comments' => [
 			'newGTLDs', 
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-06-02T15:16:31Z', 
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-06-14T15:15:19Z', 
 			'This list is auto-generated, don\'t edit it manually.', 
 			'aaa : 2015-02-26 American Automobile Association, Inc.', 
 		], 
@@ -40764,7 +40764,7 @@ return [
 		'suffix' => 'help', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'help : 2014-06-26 UNR Corp.', 
+			'help : 2014-06-26 Innovation service Limited', 
 		], 
 	], 
 	'helsinki' => [
@@ -41730,7 +41730,7 @@ return [
 		'suffix' => 'llp', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'llp : 2019-08-26 UNR Corp.', 
+			'llp : 2019-08-26 Intercap Registry Inc.', 
 		], 
 	], 
 	'loan' => [
