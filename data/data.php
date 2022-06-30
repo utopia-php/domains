@@ -51881,6 +51881,12 @@ return [
 		'comments' => [
 		], 
 	], 
+	'lolipopmc.jp' => [
+		'suffix' => 'lolipopmc.jp', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
 	'lolitapunk.jp' => [
 		'suffix' => 'lolitapunk.jp', 
 		'type' => 'PRIVATE', 
@@ -53065,6 +53071,20 @@ return [
 			'Submitted by Hannu Aronsson <haa@iki.fi>', 
 		], 
 	], 
+	'ibxos.it' => [
+		'suffix' => 'ibxos.it', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'iliad italia: https://www.iliad.it', 
+			'Submitted by Marios Makassikis <mmakassikis@freebox.fr>', 
+		], 
+	], 
+	'iliadboxos.it' => [
+		'suffix' => 'iliadboxos.it', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+		], 
+	], 
 	'impertrixcdn.com' => [
 		'suffix' => 'impertrixcdn.com', 
 		'type' => 'PRIVATE', 
@@ -53390,12 +53410,24 @@ return [
 			'Submitted by Matthew Hardeman <mhardeman@ipifony.com>', 
 		], 
 	], 
+	'iservschule.de' => [
+		'suffix' => 'iservschule.de', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'IServ GmbH : https://iserv.de', 
+			'Submitted by Mario Hoberg <info@iserv.de>', 
+		], 
+	], 
 	'mein-iserv.de' => [
 		'suffix' => 'mein-iserv.de', 
 		'type' => 'PRIVATE', 
 		'comments' => [
-			'IServ GmbH : https://iserv.eu', 
-			'Submitted by Kim-Alexander Brodowski <info@iserv.eu>', 
+		], 
+	], 
+	'schulplattform.de' => [
+		'suffix' => 'schulplattform.de', 
+		'type' => 'PRIVATE', 
+		'comments' => [
 		], 
 	], 
 	'schulserver.de' => [
@@ -54633,6 +54665,14 @@ return [
 		'suffix' => 'memset.net', 
 		'type' => 'PRIVATE', 
 		'comments' => [
+		], 
+	], 
+	'messerli.app' => [
+		'suffix' => 'messerli.app', 
+		'type' => 'PRIVATE', 
+		'comments' => [
+			'Messerli Informatik AG : https://www.messerli.ch/', 
+			'Submitted by Ruben Schmidmeister <psl-maintainers@messerli.ch>', 
 		], 
 	], 
 	'*.cloud.metacentrum.cz' => [
@@ -56683,22 +56723,22 @@ return [
 		'comments' => [
 		], 
 	], 
-	'builder.code.com' => [
-		'suffix' => 'builder.code.com', 
+	'*.builder.code.com' => [
+		'suffix' => '*.builder.code.com', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 			'Salesforce.com, Inc. https://salesforce.com/', 
 			'Submitted by Michael Biven <mbiven@salesforce.com>', 
 		], 
 	], 
-	'dev-builder.code.com' => [
-		'suffix' => 'dev-builder.code.com', 
+	'*.dev-builder.code.com' => [
+		'suffix' => '*.dev-builder.code.com', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
 	], 
-	'stg-builder.code.com' => [
-		'suffix' => 'stg-builder.code.com', 
+	'*.stg-builder.code.com' => [
+		'suffix' => '*.stg-builder.code.com', 
 		'type' => 'PRIVATE', 
 		'comments' => [
 		], 
