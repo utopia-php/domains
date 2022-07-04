@@ -37682,7 +37682,7 @@ return [
 		'type' => 'ICANN', 
 		'comments' => [
 			'newGTLDs', 
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-06-14T15:15:19Z', 
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-07-03T15:13:53Z', 
 			'This list is auto-generated, don\'t edit it manually.', 
 			'aaa : 2015-02-26 American Automobile Association, Inc.', 
 		], 
@@ -39756,7 +39756,7 @@ return [
 		'suffix' => 'earth', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'earth : 2014-12-04 Interlink Co., Ltd.', 
+			'earth : 2014-12-04 Interlink Systems Innovation Institute K.K.', 
 		], 
 	], 
 	'eat' => [
@@ -42122,7 +42122,7 @@ return [
 		'suffix' => 'moe', 
 		'type' => 'ICANN', 
 		'comments' => [
-			'moe : 2013-11-13 Interlink Co., Ltd.', 
+			'moe : 2013-11-13 Interlink Systems Innovation Institute K.K.', 
 		], 
 	], 
 	'moi' => [
