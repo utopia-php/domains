@@ -37682,7 +37682,7 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'newGTLDs',
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-07-03T15:13:53Z',
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-07-28T15:14:54Z',
 			'This list is auto-generated, don\'t edit it manually.',
 			'aaa : 2015-02-26 American Automobile Association, Inc.',
 		],
@@ -41527,7 +41527,7 @@ return [
 		'suffix' => 'lat',
 		'type' => 'ICANN',
 		'comments' => [
-			'lat : 2014-10-16 ECOM-LAC Federaciòn de Latinoamèrica y el Caribe para Internet y el Comercio Electrònico',
+			'lat : 2014-10-16 XYZ.COM LLC',
 		],
 	],
 	'latino' => [
