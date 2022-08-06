@@ -6398,44 +6398,14 @@ return [
 			'government institutions.',
 		],
 	],
-	'co.in' => [
-		'suffix' => 'co.in',
+	'5g.in' => [
+		'suffix' => '5g.in',
 		'type' => 'ICANN',
 		'comments' => [
 		],
 	],
-	'firm.in' => [
-		'suffix' => 'firm.in',
-		'type' => 'ICANN',
-		'comments' => [
-		],
-	],
-	'net.in' => [
-		'suffix' => 'net.in',
-		'type' => 'ICANN',
-		'comments' => [
-		],
-	],
-	'org.in' => [
-		'suffix' => 'org.in',
-		'type' => 'ICANN',
-		'comments' => [
-		],
-	],
-	'gen.in' => [
-		'suffix' => 'gen.in',
-		'type' => 'ICANN',
-		'comments' => [
-		],
-	],
-	'ind.in' => [
-		'suffix' => 'ind.in',
-		'type' => 'ICANN',
-		'comments' => [
-		],
-	],
-	'nic.in' => [
-		'suffix' => 'nic.in',
+	'6g.in' => [
+		'suffix' => '6g.in',
 		'type' => 'ICANN',
 		'comments' => [
 		],
@@ -6446,14 +6416,104 @@ return [
 		'comments' => [
 		],
 	],
+	'ai.in' => [
+		'suffix' => 'ai.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'am.in' => [
+		'suffix' => 'am.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'bihar.in' => [
+		'suffix' => 'bihar.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'biz.in' => [
+		'suffix' => 'biz.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'business.in' => [
+		'suffix' => 'business.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'ca.in' => [
+		'suffix' => 'ca.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'cn.in' => [
+		'suffix' => 'cn.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'co.in' => [
+		'suffix' => 'co.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'com.in' => [
+		'suffix' => 'com.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'coop.in' => [
+		'suffix' => 'coop.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'cs.in' => [
+		'suffix' => 'cs.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'delhi.in' => [
+		'suffix' => 'delhi.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'dr.in' => [
+		'suffix' => 'dr.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
 	'edu.in' => [
 		'suffix' => 'edu.in',
 		'type' => 'ICANN',
 		'comments' => [
 		],
 	],
-	'res.in' => [
-		'suffix' => 'res.in',
+	'er.in' => [
+		'suffix' => 'er.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'firm.in' => [
+		'suffix' => 'firm.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'gen.in' => [
+		'suffix' => 'gen.in',
 		'type' => 'ICANN',
 		'comments' => [
 		],
@@ -6464,8 +6524,122 @@ return [
 		'comments' => [
 		],
 	],
+	'gujarat.in' => [
+		'suffix' => 'gujarat.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'ind.in' => [
+		'suffix' => 'ind.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'info.in' => [
+		'suffix' => 'info.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'int.in' => [
+		'suffix' => 'int.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'internet.in' => [
+		'suffix' => 'internet.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'io.in' => [
+		'suffix' => 'io.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'me.in' => [
+		'suffix' => 'me.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
 	'mil.in' => [
 		'suffix' => 'mil.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'net.in' => [
+		'suffix' => 'net.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'nic.in' => [
+		'suffix' => 'nic.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'org.in' => [
+		'suffix' => 'org.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'pg.in' => [
+		'suffix' => 'pg.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'post.in' => [
+		'suffix' => 'post.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'pro.in' => [
+		'suffix' => 'pro.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'res.in' => [
+		'suffix' => 'res.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'travel.in' => [
+		'suffix' => 'travel.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'tv.in' => [
+		'suffix' => 'tv.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'uk.in' => [
+		'suffix' => 'uk.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'up.in' => [
+		'suffix' => 'up.in',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'us.in' => [
+		'suffix' => 'us.in',
 		'type' => 'ICANN',
 		'comments' => [
 		],
