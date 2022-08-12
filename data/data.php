@@ -6275,7 +6275,9 @@ return [
 		'suffix' => 'il',
 		'type' => 'ICANN',
 		'comments' => [
-			'il : http://www.isoc.org.il/domains/',
+			'il :         http://www.isoc.org.il/domains/',
+			'see also:    https://en.isoc.org.il/il-cctld/registration-rules',
+			'ISOC-IL      (operated by .il Registry)',
 		],
 	],
 	'ac.il' => [
@@ -6324,6 +6326,41 @@ return [
 		'suffix' => 'org.il',
 		'type' => 'ICANN',
 		'comments' => [
+		],
+	],
+	'ישראל' => [
+		'suffix' => 'ישראל',
+		'type' => 'ICANN',
+		'comments' => [
+			'xn--4dbrk0ce ("Israel", Hebrew) : IL',
+		],
+	],
+	'אקדמיה.ישראל' => [
+		'suffix' => 'אקדמיה.ישראל',
+		'type' => 'ICANN',
+		'comments' => [
+			'xn--4dbgdty6c.xn--4dbrk0ce.',
+		],
+	],
+	'ישוב.ישראל' => [
+		'suffix' => 'ישוב.ישראל',
+		'type' => 'ICANN',
+		'comments' => [
+			'xn--5dbhl8d.xn--4dbrk0ce.',
+		],
+	],
+	'צהל.ישראל' => [
+		'suffix' => 'צהל.ישראל',
+		'type' => 'ICANN',
+		'comments' => [
+			'xn--8dbq2a.xn--4dbrk0ce.',
+		],
+	],
+	'ממשל.ישראל' => [
+		'suffix' => 'ממשל.ישראל',
+		'type' => 'ICANN',
+		'comments' => [
+			'xn--hebda8b.xn--4dbrk0ce.',
 		],
 	],
 	'im' => [
