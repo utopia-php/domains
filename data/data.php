@@ -51420,6 +51420,30 @@ return [
 		'comments' => [
 		],
 	],
+	'framer.media' => [
+		'suffix' => 'framer.media',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'framer.photos' => [
+		'suffix' => 'framer.photos',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'framer.website' => [
+		'suffix' => 'framer.website',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'framer.wiki' => [
+		'suffix' => 'framer.wiki',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
 	'*.frusky.de' => [
 		'suffix' => '*.frusky.de',
 		'type' => 'PRIVATE',
