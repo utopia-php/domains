@@ -46935,6 +46935,14 @@ return [
 		'comments' => [
 		],
 	],
+	'beagleboard.io' => [
+		'suffix' => 'beagleboard.io',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'BeagleBoard.org Foundation : https://beagleboard.org',
+			'Submitted by Jason Kridner <jkridner@beagleboard.org>',
+		],
+	],
 	'*.beget.app' => [
 		'suffix' => '*.beget.app',
 		'type' => 'PRIVATE',
@@ -50133,6 +50141,20 @@ return [
 		'comments' => [
 			'E4YOU spol. s.r.o. : https://e4you.cz/',
 			'Submitted by Vladimir Dudr <info@e4you.cz>',
+		],
+	],
+	'easypanel.app' => [
+		'suffix' => 'easypanel.app',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'Easypanel : https://easypanel.io',
+			'Submitted by Andrei Canta <andrei@easypanel.io>',
+		],
+	],
+	'easypanel.host' => [
+		'suffix' => 'easypanel.host',
+		'type' => 'PRIVATE',
+		'comments' => [
 		],
 	],
 	'eero.online' => [
@@ -57440,6 +57462,14 @@ return [
 		'comments' => [
 			'Smoove.io : https://www.smoove.io/',
 			'Submitted by Dan Kozak <dan@smoove.io>',
+		],
+	],
+	'streamlitapp.com' => [
+		'suffix' => 'streamlitapp.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'Snowflake Inc : https://www.snowflake.com/',
+			'Submitted by Faith Olapade <faith.olapade@snowflake.com>',
 		],
 	],
 	'try-snowplow.com' => [
