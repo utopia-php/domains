@@ -1,6 +1,7 @@
 on:
   schedule:
     - cron: "12 3 * * *"
+  workflow_dispatch:
 
 jobs:
   import:
@@ -13,7 +14,8 @@ jobs:
       - name: Commit and push
         run: |
           if git diff --exit-code data/data.php; then
-            exit 1
+            echo "Aborting action, remote data has not changed."
+            exit 0
           fi
           git config user.name github-actions
           git config user.email github-actions@github.com
