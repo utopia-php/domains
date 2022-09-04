@@ -37893,7 +37893,7 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'newGTLDs',
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-07-28T15:14:54Z',
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-09-03T15:15:24Z',
 			'This list is auto-generated, don\'t edit it manually.',
 			'aaa : 2015-02-26 American Automobile Association, Inc.',
 		],
@@ -39078,7 +39078,7 @@ return [
 		'suffix' => 'case',
 		'type' => 'ICANN',
 		'comments' => [
-			'case : 2015-09-03 Helium TLDs Ltd',
+			'case : 2015-09-03 Digity, LLC',
 		],
 	],
 	'cash' => [
@@ -40688,7 +40688,7 @@ return [
 		'suffix' => 'giving',
 		'type' => 'ICANN',
 		'comments' => [
-			'giving : 2014-11-13 Giving Limited',
+			'giving : 2014-11-13 Public Interest Registry',
 		],
 	],
 	'glass' => [
