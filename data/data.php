@@ -37893,7 +37893,7 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'newGTLDs',
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-09-03T15:15:24Z',
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-09-15T15:17:34Z',
 			'This list is auto-generated, don\'t edit it manually.',
 			'aaa : 2015-02-26 American Automobile Association, Inc.',
 		],
@@ -39512,7 +39512,7 @@ return [
 		'suffix' => 'country',
 		'type' => 'ICANN',
 		'comments' => [
-			'country : 2013-12-19 DotCountry LLC',
+			'country : 2013-12-19 Internet Naming Company LLC',
 		],
 	],
 	'coupon' => [
