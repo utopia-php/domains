@@ -46644,6 +46644,261 @@ return [
 		'comments' => [
 		],
 	],
+	'vfs.cloud9.af-south-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.af-south-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'AWS Cloud9 : https://aws.amazon.com/cloud9/',
+			'Submitted by: AWS Security <psl-maintainers@amazon.com>',
+			'Reference: 2b6dfa9a-3a7f-4367-b2e7-0321e77c0d59',
+		],
+	],
+	'webview-assets.cloud9.af-south-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.af-south-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.ap-east-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.ap-east-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.ap-east-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.ap-east-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.ap-northeast-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.ap-northeast-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.ap-northeast-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.ap-northeast-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.ap-northeast-2.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.ap-northeast-2.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.ap-northeast-2.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.ap-northeast-2.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.ap-northeast-3.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.ap-northeast-3.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.ap-northeast-3.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.ap-northeast-3.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.ap-south-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.ap-south-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.ap-south-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.ap-south-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.ap-southeast-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.ap-southeast-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.ap-southeast-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.ap-southeast-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.ap-southeast-2.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.ap-southeast-2.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.ap-southeast-2.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.ap-southeast-2.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.ca-central-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.ca-central-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.ca-central-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.ca-central-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.eu-central-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.eu-central-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.eu-central-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.eu-central-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.eu-north-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.eu-north-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.eu-north-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.eu-north-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.eu-south-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.eu-south-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.eu-south-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.eu-south-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.eu-west-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.eu-west-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.eu-west-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.eu-west-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.eu-west-2.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.eu-west-2.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.eu-west-2.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.eu-west-2.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.eu-west-3.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.eu-west-3.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.eu-west-3.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.eu-west-3.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.me-south-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.me-south-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.me-south-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.me-south-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.sa-east-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.sa-east-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.sa-east-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.sa-east-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.us-east-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.us-east-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.us-east-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.us-east-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.us-east-2.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.us-east-2.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.us-east-2.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.us-east-2.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.us-west-1.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.us-west-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.us-west-1.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.us-west-1.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'vfs.cloud9.us-west-2.amazonaws.com' => [
+		'suffix' => 'vfs.cloud9.us-west-2.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'webview-assets.cloud9.us-west-2.amazonaws.com' => [
+		'suffix' => 'webview-assets.cloud9.us-west-2.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
 	't3l3p0rt.net' => [
 		'suffix' => 't3l3p0rt.net',
 		'type' => 'PRIVATE',
