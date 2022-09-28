@@ -55274,6 +55274,12 @@ return [
 		'comments' => [
 		],
 	],
+	'2.azurestaticapps.net' => [
+		'suffix' => '2.azurestaticapps.net',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
 	'centralus.azurestaticapps.net' => [
 		'suffix' => 'centralus.azurestaticapps.net',
 		'type' => 'PRIVATE',
