@@ -46020,6 +46020,14 @@ return [
 			'Submitted by accesso Team <accessoecommerce@accesso.com>',
 		],
 	],
+	'*.on-acorn.io' => [
+		'suffix' => '*.on-acorn.io',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'Acorn Labs : https://acorn.io',
+			'Submitted by Craig Jellick <domains@acorn.io>',
+		],
+	],
 	'adobeaemcloud.com' => [
 		'suffix' => 'adobeaemcloud.com',
 		'type' => 'PRIVATE',
@@ -57091,12 +57099,24 @@ return [
 		'comments' => [
 		],
 	],
+	'firewalledreplit.co' => [
+		'suffix' => 'firewalledreplit.co',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'Repl.it : https://repl.it',
+			'Submitted by Lincoln Bergeson <lincoln@replit.com>',
+		],
+	],
+	'id.firewalledreplit.co' => [
+		'suffix' => 'id.firewalledreplit.co',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
 	'repl.co' => [
 		'suffix' => 'repl.co',
 		'type' => 'PRIVATE',
 		'comments' => [
-			'Repl.it : https://repl.it',
-			'Submitted by Mason Clayton <mason@repl.it>',
 		],
 	],
 	'id.repl.co' => [
