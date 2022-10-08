@@ -37893,7 +37893,7 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'newGTLDs',
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-09-15T15:17:34Z',
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-10-07T15:19:57Z',
 			'This list is auto-generated, don\'t edit it manually.',
 			'aaa : 2015-02-26 American Automobile Association, Inc.',
 		],
@@ -38981,13 +38981,6 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'camp : 2013-11-07 Binky Moon, LLC',
-		],
-	],
-	'cancerresearch' => [
-		'suffix' => 'cancerresearch',
-		'type' => 'ICANN',
-		'comments' => [
-			'cancerresearch : 2014-05-15 Australian Cancer Research Foundation',
 		],
 	],
 	'canon' => [
