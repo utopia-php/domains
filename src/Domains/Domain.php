@@ -56,7 +56,7 @@ class Domain
     /**
      * Domain constructor.
      *
-     * @param string $name
+     * @param string $domain
      */
     public function __construct(string $domain)
     {
@@ -85,9 +85,9 @@ class Domain
     /**
      * Return top level domain
      * 
-     * @return string
+     * @return mixed
      */
-    public function getTLD(): string
+    public function getTLD(): mixed
     {
         if ($this->TLD) {
             return $this->TLD;
