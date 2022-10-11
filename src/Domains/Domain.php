@@ -85,9 +85,9 @@ class Domain
     /**
      * Return top level domain
      * 
-     * @return mixed
+     * @return string
      */
-    public function getTLD(): mixed
+    public function getTLD(): string
     {
         if ($this->TLD) {
             return $this->TLD;
