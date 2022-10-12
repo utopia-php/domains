@@ -37893,7 +37893,7 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'newGTLDs',
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-10-07T15:19:57Z',
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-10-11T15:20:33Z',
 			'This list is auto-generated, don\'t edit it manually.',
 			'aaa : 2015-02-26 American Automobile Association, Inc.',
 		],
@@ -38876,13 +38876,6 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'brussels : 2014-02-06 DNS.be vzw',
-		],
-	],
-	'bugatti' => [
-		'suffix' => 'bugatti',
-		'type' => 'ICANN',
-		'comments' => [
-			'bugatti : 2015-07-23 Bugatti International SA',
 		],
 	],
 	'build' => [
