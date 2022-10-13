@@ -1,14 +1,4 @@
 <?php
-/**
- * Utopia PHP Framework
- *
- * @package Domains
- * @subpackage Tests
- *
- * @link https://github.com/utopia-php/framework
- * @version 1.0 RC4
- * @license The MIT License (MIT) <http://www.opensource.org/licenses/mit-license.php>
- */
 
 namespace Utopia\Tests;
 
