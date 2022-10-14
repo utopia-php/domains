@@ -51453,6 +51453,14 @@ return [
 		'comments' => [
 		],
 	],
+	'*.user.fm' => [
+		'suffix' => '*.user.fm',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'Fastmail : https://www.fastmail.com/',
+			'Submitted by Marc Bradshaw <marc@fastmailteam.com>',
+		],
+	],
 	'fastvps-server.com' => [
 		'suffix' => 'fastvps-server.com',
 		'type' => 'PRIVATE',
@@ -55452,104 +55460,6 @@ return [
 			'Submitted by Paulus Schoutsen <infra@nabucasa.com>',
 		],
 	],
-	'pony.club' => [
-		'suffix' => 'pony.club',
-		'type' => 'PRIVATE',
-		'comments' => [
-			'Names.of.London : https://names.of.london/',
-			'Submitted by James Stevens <registry[at]names.of.london> or <publiclist[at]jrcs.net>',
-		],
-	],
-	'of.fashion' => [
-		'suffix' => 'of.fashion',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'in.london' => [
-		'suffix' => 'in.london',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'of.london' => [
-		'suffix' => 'of.london',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'from.marketing' => [
-		'suffix' => 'from.marketing',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'with.marketing' => [
-		'suffix' => 'with.marketing',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'for.men' => [
-		'suffix' => 'for.men',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'repair.men' => [
-		'suffix' => 'repair.men',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'and.mom' => [
-		'suffix' => 'and.mom',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'for.mom' => [
-		'suffix' => 'for.mom',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'for.one' => [
-		'suffix' => 'for.one',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'under.one' => [
-		'suffix' => 'under.one',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'for.sale' => [
-		'suffix' => 'for.sale',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'that.win' => [
-		'suffix' => 'that.win',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'from.work' => [
-		'suffix' => 'from.work',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'to.work' => [
-		'suffix' => 'to.work',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
 	'cloud.nospamproxy.com' => [
 		'suffix' => 'cloud.nospamproxy.com',
 		'type' => 'PRIVATE',
@@ -56394,12 +56304,126 @@ return [
 			'Submitted by Vicary Archangel <vicary@omniwe.com>',
 		],
 	],
-	'service.one' => [
-		'suffix' => 'service.one',
+	'123hjemmeside.dk' => [
+		'suffix' => '123hjemmeside.dk',
 		'type' => 'PRIVATE',
 		'comments' => [
 			'One.com: https://www.one.com/',
 			'Submitted by Jacob Bunk Nielsen <jbn@one.com>',
+		],
+	],
+	'123hjemmeside.no' => [
+		'suffix' => '123hjemmeside.no',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123homepage.it' => [
+		'suffix' => '123homepage.it',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123kotisivu.fi' => [
+		'suffix' => '123kotisivu.fi',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123minsida.se' => [
+		'suffix' => '123minsida.se',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123miweb.es' => [
+		'suffix' => '123miweb.es',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123paginaweb.pt' => [
+		'suffix' => '123paginaweb.pt',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123sait.ru' => [
+		'suffix' => '123sait.ru',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123siteweb.fr' => [
+		'suffix' => '123siteweb.fr',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123webseite.at' => [
+		'suffix' => '123webseite.at',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123webseite.de' => [
+		'suffix' => '123webseite.de',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123website.be' => [
+		'suffix' => '123website.be',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123website.ch' => [
+		'suffix' => '123website.ch',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123website.lu' => [
+		'suffix' => '123website.lu',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'123website.nl' => [
+		'suffix' => '123website.nl',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'service.one' => [
+		'suffix' => 'service.one',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'simplesite.com' => [
+		'suffix' => 'simplesite.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'simplesite.com.br' => [
+		'suffix' => 'simplesite.com.br',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'simplesite.gr' => [
+		'suffix' => 'simplesite.gr',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'simplesite.pl' => [
+		'suffix' => 'simplesite.pl',
+		'type' => 'PRIVATE',
+		'comments' => [
 		],
 	],
 	'nid.io' => [
