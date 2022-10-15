@@ -46138,16 +46138,21 @@ return [
 		'suffix' => 'cloudfront.net',
 		'type' => 'PRIVATE',
 		'comments' => [
-			'Amazon CloudFront : https://aws.amazon.com/cloudfront/',
+			'Amazon : https://www.amazon.com/',
+			'Submitted by AWS Security <psl-maintainers@amazon.com>',
+			'Subsections of Amazon/subsidiaries will appear until "concludes" tag',
+			'Amazon CloudFront',
 			'Submitted by Donavan Miller <donavanm@amazon.com>',
+			'Reference: 54144616-fd49-4435-8535-19c6a601bdb3',
 		],
 	],
 	'*.compute.amazonaws.com' => [
 		'suffix' => '*.compute.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
-			'Amazon Elastic Compute Cloud : https://aws.amazon.com/ec2/',
+			'Amazon EC2',
 			'Submitted by Luke Wells <psl-maintainers@amazon.com>',
+			'Reference: 4c38fa71-58ac-4768-99e5-689c1767e537',
 		],
 	],
 	'*.compute-1.amazonaws.com' => [
@@ -46168,156 +46173,151 @@ return [
 		'comments' => [
 		],
 	],
-	'cn-north-1.eb.amazonaws.com.cn' => [
-		'suffix' => 'cn-north-1.eb.amazonaws.com.cn',
+	's3.cn-north-1.amazonaws.com.cn' => [
+		'suffix' => 's3.cn-north-1.amazonaws.com.cn',
 		'type' => 'PRIVATE',
 		'comments' => [
-			'Amazon Elastic Beanstalk : https://aws.amazon.com/elasticbeanstalk/',
+			'Amazon S3',
 			'Submitted by Luke Wells <psl-maintainers@amazon.com>',
+			'Reference: d068bd97-f0a9-4838-a6d8-954b622ef4ae',
 		],
 	],
-	'cn-northwest-1.eb.amazonaws.com.cn' => [
-		'suffix' => 'cn-northwest-1.eb.amazonaws.com.cn',
+	's3.dualstack.ap-northeast-1.amazonaws.com' => [
+		'suffix' => 's3.dualstack.ap-northeast-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'elasticbeanstalk.com' => [
-		'suffix' => 'elasticbeanstalk.com',
+	's3.dualstack.ap-northeast-2.amazonaws.com' => [
+		'suffix' => 's3.dualstack.ap-northeast-2.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'ap-northeast-1.elasticbeanstalk.com' => [
-		'suffix' => 'ap-northeast-1.elasticbeanstalk.com',
+	's3.ap-northeast-2.amazonaws.com' => [
+		'suffix' => 's3.ap-northeast-2.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'ap-northeast-2.elasticbeanstalk.com' => [
-		'suffix' => 'ap-northeast-2.elasticbeanstalk.com',
+	's3-website.ap-northeast-2.amazonaws.com' => [
+		'suffix' => 's3-website.ap-northeast-2.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'ap-northeast-3.elasticbeanstalk.com' => [
-		'suffix' => 'ap-northeast-3.elasticbeanstalk.com',
+	's3.dualstack.ap-south-1.amazonaws.com' => [
+		'suffix' => 's3.dualstack.ap-south-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'ap-south-1.elasticbeanstalk.com' => [
-		'suffix' => 'ap-south-1.elasticbeanstalk.com',
+	's3.ap-south-1.amazonaws.com' => [
+		'suffix' => 's3.ap-south-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'ap-southeast-1.elasticbeanstalk.com' => [
-		'suffix' => 'ap-southeast-1.elasticbeanstalk.com',
+	's3-website.ap-south-1.amazonaws.com' => [
+		'suffix' => 's3-website.ap-south-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'ap-southeast-2.elasticbeanstalk.com' => [
-		'suffix' => 'ap-southeast-2.elasticbeanstalk.com',
+	's3.dualstack.ap-southeast-1.amazonaws.com' => [
+		'suffix' => 's3.dualstack.ap-southeast-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'ca-central-1.elasticbeanstalk.com' => [
-		'suffix' => 'ca-central-1.elasticbeanstalk.com',
+	's3.dualstack.ap-southeast-2.amazonaws.com' => [
+		'suffix' => 's3.dualstack.ap-southeast-2.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'eu-central-1.elasticbeanstalk.com' => [
-		'suffix' => 'eu-central-1.elasticbeanstalk.com',
+	's3.dualstack.ca-central-1.amazonaws.com' => [
+		'suffix' => 's3.dualstack.ca-central-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'eu-west-1.elasticbeanstalk.com' => [
-		'suffix' => 'eu-west-1.elasticbeanstalk.com',
+	's3.ca-central-1.amazonaws.com' => [
+		'suffix' => 's3.ca-central-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'eu-west-2.elasticbeanstalk.com' => [
-		'suffix' => 'eu-west-2.elasticbeanstalk.com',
+	's3-website.ca-central-1.amazonaws.com' => [
+		'suffix' => 's3-website.ca-central-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'eu-west-3.elasticbeanstalk.com' => [
-		'suffix' => 'eu-west-3.elasticbeanstalk.com',
+	's3.dualstack.eu-central-1.amazonaws.com' => [
+		'suffix' => 's3.dualstack.eu-central-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'sa-east-1.elasticbeanstalk.com' => [
-		'suffix' => 'sa-east-1.elasticbeanstalk.com',
+	's3.eu-central-1.amazonaws.com' => [
+		'suffix' => 's3.eu-central-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'us-east-1.elasticbeanstalk.com' => [
-		'suffix' => 'us-east-1.elasticbeanstalk.com',
+	's3-website.eu-central-1.amazonaws.com' => [
+		'suffix' => 's3-website.eu-central-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'us-east-2.elasticbeanstalk.com' => [
-		'suffix' => 'us-east-2.elasticbeanstalk.com',
+	's3.dualstack.eu-west-1.amazonaws.com' => [
+		'suffix' => 's3.dualstack.eu-west-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'us-gov-west-1.elasticbeanstalk.com' => [
-		'suffix' => 'us-gov-west-1.elasticbeanstalk.com',
+	's3.dualstack.eu-west-2.amazonaws.com' => [
+		'suffix' => 's3.dualstack.eu-west-2.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'us-west-1.elasticbeanstalk.com' => [
-		'suffix' => 'us-west-1.elasticbeanstalk.com',
+	's3.eu-west-2.amazonaws.com' => [
+		'suffix' => 's3.eu-west-2.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'us-west-2.elasticbeanstalk.com' => [
-		'suffix' => 'us-west-2.elasticbeanstalk.com',
+	's3-website.eu-west-2.amazonaws.com' => [
+		'suffix' => 's3-website.eu-west-2.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'*.elb.amazonaws.com' => [
-		'suffix' => '*.elb.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-			'Amazon Elastic Load Balancing : https://aws.amazon.com/elasticloadbalancing/',
-			'Submitted by Luke Wells <psl-maintainers@amazon.com>',
-		],
-	],
-	'*.elb.amazonaws.com.cn' => [
-		'suffix' => '*.elb.amazonaws.com.cn',
+	's3.dualstack.eu-west-3.amazonaws.com' => [
+		'suffix' => 's3.dualstack.eu-west-3.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	'awsglobalaccelerator.com' => [
-		'suffix' => 'awsglobalaccelerator.com',
+	's3.eu-west-3.amazonaws.com' => [
+		'suffix' => 's3.eu-west-3.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
-			'Amazon Global Accelerator : https://aws.amazon.com/global-accelerator/',
-			'Submitted by Daniel Massaguer <psl-maintainers@amazon.com>',
+		],
+	],
+	's3-website.eu-west-3.amazonaws.com' => [
+		'suffix' => 's3-website.eu-west-3.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
 		],
 	],
 	's3.amazonaws.com' => [
 		'suffix' => 's3.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
-			'Amazon S3 : https://aws.amazon.com/s3/',
-			'Submitted by Luke Wells <psl-maintainers@amazon.com>',
 		],
 	],
 	's3-ap-northeast-1.amazonaws.com' => [
@@ -46398,14 +46398,14 @@ return [
 		'comments' => [
 		],
 	],
-	's3-us-gov-west-1.amazonaws.com' => [
-		'suffix' => 's3-us-gov-west-1.amazonaws.com',
+	's3-us-east-2.amazonaws.com' => [
+		'suffix' => 's3-us-east-2.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	's3-us-east-2.amazonaws.com' => [
-		'suffix' => 's3-us-east-2.amazonaws.com',
+	's3-us-gov-west-1.amazonaws.com' => [
+		'suffix' => 's3-us-gov-west-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
@@ -46418,150 +46418,6 @@ return [
 	],
 	's3-us-west-2.amazonaws.com' => [
 		'suffix' => 's3-us-west-2.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.ap-northeast-2.amazonaws.com' => [
-		'suffix' => 's3.ap-northeast-2.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.ap-south-1.amazonaws.com' => [
-		'suffix' => 's3.ap-south-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.cn-north-1.amazonaws.com.cn' => [
-		'suffix' => 's3.cn-north-1.amazonaws.com.cn',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.ca-central-1.amazonaws.com' => [
-		'suffix' => 's3.ca-central-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.eu-central-1.amazonaws.com' => [
-		'suffix' => 's3.eu-central-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.eu-west-2.amazonaws.com' => [
-		'suffix' => 's3.eu-west-2.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.eu-west-3.amazonaws.com' => [
-		'suffix' => 's3.eu-west-3.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.us-east-2.amazonaws.com' => [
-		'suffix' => 's3.us-east-2.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.ap-northeast-1.amazonaws.com' => [
-		'suffix' => 's3.dualstack.ap-northeast-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.ap-northeast-2.amazonaws.com' => [
-		'suffix' => 's3.dualstack.ap-northeast-2.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.ap-south-1.amazonaws.com' => [
-		'suffix' => 's3.dualstack.ap-south-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.ap-southeast-1.amazonaws.com' => [
-		'suffix' => 's3.dualstack.ap-southeast-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.ap-southeast-2.amazonaws.com' => [
-		'suffix' => 's3.dualstack.ap-southeast-2.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.ca-central-1.amazonaws.com' => [
-		'suffix' => 's3.dualstack.ca-central-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.eu-central-1.amazonaws.com' => [
-		'suffix' => 's3.dualstack.eu-central-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.eu-west-1.amazonaws.com' => [
-		'suffix' => 's3.dualstack.eu-west-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.eu-west-2.amazonaws.com' => [
-		'suffix' => 's3.dualstack.eu-west-2.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.eu-west-3.amazonaws.com' => [
-		'suffix' => 's3.dualstack.eu-west-3.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.sa-east-1.amazonaws.com' => [
-		'suffix' => 's3.dualstack.sa-east-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.us-east-1.amazonaws.com' => [
-		'suffix' => 's3.dualstack.us-east-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3.dualstack.us-east-2.amazonaws.com' => [
-		'suffix' => 's3.dualstack.us-east-2.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3-website-us-east-1.amazonaws.com' => [
-		'suffix' => 's3-website-us-east-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3-website-us-west-1.amazonaws.com' => [
-		'suffix' => 's3-website-us-west-1.amazonaws.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	's3-website-us-west-2.amazonaws.com' => [
-		'suffix' => 's3-website-us-west-2.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
@@ -46596,38 +46452,44 @@ return [
 		'comments' => [
 		],
 	],
-	's3-website.ap-northeast-2.amazonaws.com' => [
-		'suffix' => 's3-website.ap-northeast-2.amazonaws.com',
+	's3-website-us-east-1.amazonaws.com' => [
+		'suffix' => 's3-website-us-east-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	's3-website.ap-south-1.amazonaws.com' => [
-		'suffix' => 's3-website.ap-south-1.amazonaws.com',
+	's3-website-us-west-1.amazonaws.com' => [
+		'suffix' => 's3-website-us-west-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	's3-website.ca-central-1.amazonaws.com' => [
-		'suffix' => 's3-website.ca-central-1.amazonaws.com',
+	's3-website-us-west-2.amazonaws.com' => [
+		'suffix' => 's3-website-us-west-2.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	's3-website.eu-central-1.amazonaws.com' => [
-		'suffix' => 's3-website.eu-central-1.amazonaws.com',
+	's3.dualstack.sa-east-1.amazonaws.com' => [
+		'suffix' => 's3.dualstack.sa-east-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	's3-website.eu-west-2.amazonaws.com' => [
-		'suffix' => 's3-website.eu-west-2.amazonaws.com',
+	's3.dualstack.us-east-1.amazonaws.com' => [
+		'suffix' => 's3.dualstack.us-east-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
 	],
-	's3-website.eu-west-3.amazonaws.com' => [
-		'suffix' => 's3-website.eu-west-3.amazonaws.com',
+	's3.dualstack.us-east-2.amazonaws.com' => [
+		'suffix' => 's3.dualstack.us-east-2.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	's3.us-east-2.amazonaws.com' => [
+		'suffix' => 's3.us-east-2.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
@@ -46642,7 +46504,7 @@ return [
 		'suffix' => 'vfs.cloud9.af-south-1.amazonaws.com',
 		'type' => 'PRIVATE',
 		'comments' => [
-			'AWS Cloud9 : https://aws.amazon.com/cloud9/',
+			'AWS Cloud9',
 			'Submitted by: AWS Security <psl-maintainers@amazon.com>',
 			'Reference: 2b6dfa9a-3a7f-4367-b2e7-0321e77c0d59',
 		],
@@ -46893,10 +46755,173 @@ return [
 		'comments' => [
 		],
 	],
+	'cn-north-1.eb.amazonaws.com.cn' => [
+		'suffix' => 'cn-north-1.eb.amazonaws.com.cn',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'AWS Elastic Beanstalk',
+			'Submitted by Luke Wells <psl-maintainers@amazon.com>',
+			'Reference: aa202394-43a0-4857-b245-8db04549137e',
+		],
+	],
+	'cn-northwest-1.eb.amazonaws.com.cn' => [
+		'suffix' => 'cn-northwest-1.eb.amazonaws.com.cn',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'elasticbeanstalk.com' => [
+		'suffix' => 'elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'ap-northeast-1.elasticbeanstalk.com' => [
+		'suffix' => 'ap-northeast-1.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'ap-northeast-2.elasticbeanstalk.com' => [
+		'suffix' => 'ap-northeast-2.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'ap-northeast-3.elasticbeanstalk.com' => [
+		'suffix' => 'ap-northeast-3.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'ap-south-1.elasticbeanstalk.com' => [
+		'suffix' => 'ap-south-1.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'ap-southeast-1.elasticbeanstalk.com' => [
+		'suffix' => 'ap-southeast-1.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'ap-southeast-2.elasticbeanstalk.com' => [
+		'suffix' => 'ap-southeast-2.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'ca-central-1.elasticbeanstalk.com' => [
+		'suffix' => 'ca-central-1.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'eu-central-1.elasticbeanstalk.com' => [
+		'suffix' => 'eu-central-1.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'eu-west-1.elasticbeanstalk.com' => [
+		'suffix' => 'eu-west-1.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'eu-west-2.elasticbeanstalk.com' => [
+		'suffix' => 'eu-west-2.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'eu-west-3.elasticbeanstalk.com' => [
+		'suffix' => 'eu-west-3.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'sa-east-1.elasticbeanstalk.com' => [
+		'suffix' => 'sa-east-1.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'us-east-1.elasticbeanstalk.com' => [
+		'suffix' => 'us-east-1.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'us-east-2.elasticbeanstalk.com' => [
+		'suffix' => 'us-east-2.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'us-gov-west-1.elasticbeanstalk.com' => [
+		'suffix' => 'us-gov-west-1.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'us-west-1.elasticbeanstalk.com' => [
+		'suffix' => 'us-west-1.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'us-west-2.elasticbeanstalk.com' => [
+		'suffix' => 'us-west-2.elasticbeanstalk.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'*.elb.amazonaws.com.cn' => [
+		'suffix' => '*.elb.amazonaws.com.cn',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'(AWS) Elastic Load Balancing',
+			'Submitted by Luke Wells <psl-maintainers@amazon.com>',
+			'Reference: 12a3d528-1bac-4433-a359-a395867ffed2',
+		],
+	],
+	'*.elb.amazonaws.com' => [
+		'suffix' => '*.elb.amazonaws.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'awsglobalaccelerator.com' => [
+		'suffix' => 'awsglobalaccelerator.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'AWS Global Accelerator',
+			'Submitted by Daniel Massaguer <psl-maintainers@amazon.com>',
+			'Reference: d916759d-a08b-4241-b536-4db887383a6a',
+		],
+	],
+	'eero.online' => [
+		'suffix' => 'eero.online',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'eero',
+			'Submitted by Yue Kang <eero-dynamic-dns@amazon.com>',
+			'Reference: 264afe70-f62c-4c02-8ab9-b5281ed24461',
+		],
+	],
+	'eero-stage.online' => [
+		'suffix' => 'eero-stage.online',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
 	't3l3p0rt.net' => [
 		'suffix' => 't3l3p0rt.net',
 		'type' => 'PRIVATE',
 		'comments' => [
+			'concludes Amazon',
 			'Amune : https://amune.org/',
 			'Submitted by Team Amune <cert@amune.org>',
 		],
@@ -50402,20 +50427,6 @@ return [
 	],
 	'easypanel.host' => [
 		'suffix' => 'easypanel.host',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
-	'eero.online' => [
-		'suffix' => 'eero.online',
-		'type' => 'PRIVATE',
-		'comments' => [
-			'eero : https://eero.com/',
-			'Submitted by Yue Kang <eero-dynamic-dns@amazon.com>',
-		],
-	],
-	'eero-stage.online' => [
-		'suffix' => 'eero-stage.online',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
