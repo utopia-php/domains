@@ -37893,7 +37893,7 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'newGTLDs',
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-10-11T15:20:33Z',
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-10-15T15:17:51Z',
 			'This list is auto-generated, don\'t edit it manually.',
 			'aaa : 2015-02-26 American Automobile Association, Inc.',
 		],
@@ -38399,7 +38399,7 @@ return [
 		'suffix' => 'avianca',
 		'type' => 'ICANN',
 		'comments' => [
-			'avianca : 2015-01-08 Avianca Holdings S.A.',
+			'avianca : 2015-01-08 Avianca Inc.',
 		],
 	],
 	'aws' => [
