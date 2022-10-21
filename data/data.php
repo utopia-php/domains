@@ -37893,7 +37893,7 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'newGTLDs',
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-10-15T15:17:51Z',
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-10-20T15:22:15Z',
 			'This list is auto-generated, don\'t edit it manually.',
 			'aaa : 2015-02-26 American Automobile Association, Inc.',
 		],
@@ -38287,7 +38287,7 @@ return [
 		'suffix' => 'archi',
 		'type' => 'ICANN',
 		'comments' => [
-			'archi : 2014-02-06 Afilias Limited',
+			'archi : 2014-02-06 Identity Digital Limited',
 		],
 	],
 	'army' => [
@@ -38623,7 +38623,7 @@ return [
 		'suffix' => 'bet',
 		'type' => 'ICANN',
 		'comments' => [
-			'bet : 2015-05-07 Afilias Limited',
+			'bet : 2015-05-07 Identity Digital Limited',
 		],
 	],
 	'bharti' => [
@@ -38672,14 +38672,14 @@ return [
 		'suffix' => 'bio',
 		'type' => 'ICANN',
 		'comments' => [
-			'bio : 2014-03-06 Afilias Limited',
+			'bio : 2014-03-06 Identity Digital Limited',
 		],
 	],
 	'black' => [
 		'suffix' => 'black',
 		'type' => 'ICANN',
 		'comments' => [
-			'black : 2014-01-16 Afilias Limited',
+			'black : 2014-01-16 Identity Digital Limited',
 		],
 	],
 	'blackfriday' => [
@@ -38714,7 +38714,7 @@ return [
 		'suffix' => 'blue',
 		'type' => 'ICANN',
 		'comments' => [
-			'blue : 2013-11-07 Afilias Limited',
+			'blue : 2013-11-07 Identity Digital Limited',
 		],
 	],
 	'bms' => [
@@ -40828,7 +40828,7 @@ return [
 		'suffix' => 'green',
 		'type' => 'ICANN',
 		'comments' => [
-			'green : 2014-05-08 Afilias Limited',
+			'green : 2014-05-08 Identity Digital Limited',
 		],
 	],
 	'gripe' => [
@@ -41563,7 +41563,7 @@ return [
 		'suffix' => 'kim',
 		'type' => 'ICANN',
 		'comments' => [
-			'kim : 2013-09-23 Afilias Limited',
+			'kim : 2013-09-23 Identity Digital Limited',
 		],
 	],
 	'kinder' => [
@@ -41808,7 +41808,7 @@ return [
 		'suffix' => 'lgbt',
 		'type' => 'ICANN',
 		'comments' => [
-			'lgbt : 2014-05-08 Afilias Limited',
+			'lgbt : 2014-05-08 Identity Digital Limited',
 		],
 	],
 	'lidl' => [
@@ -41920,7 +41920,7 @@ return [
 		'suffix' => 'llc',
 		'type' => 'ICANN',
 		'comments' => [
-			'llc : 2017-12-14 Afilias Limited',
+			'llc : 2017-12-14 Identity Digital Limited',
 		],
 	],
 	'llp' => [
@@ -41990,7 +41990,7 @@ return [
 		'suffix' => 'lotto',
 		'type' => 'ICANN',
 		'comments' => [
-			'lotto : 2014-04-10 Afilias Limited',
+			'lotto : 2014-04-10 Identity Digital Limited',
 		],
 	],
 	'love' => [
@@ -42802,7 +42802,7 @@ return [
 		'suffix' => 'organic',
 		'type' => 'ICANN',
 		'comments' => [
-			'organic : 2014-03-27 Afilias Limited',
+			'organic : 2014-03-27 Identity Digital Limited',
 		],
 	],
 	'origins' => [
@@ -42914,7 +42914,7 @@ return [
 		'suffix' => 'pet',
 		'type' => 'ICANN',
 		'comments' => [
-			'pet : 2015-05-07 Afilias Limited',
+			'pet : 2015-05-07 Identity Digital Limited',
 		],
 	],
 	'pfizer' => [
@@ -43026,7 +43026,7 @@ return [
 		'suffix' => 'pink',
 		'type' => 'ICANN',
 		'comments' => [
-			'pink : 2013-10-01 Afilias Limited',
+			'pink : 2013-10-01 Identity Digital Limited',
 		],
 	],
 	'pioneer' => [
@@ -43096,7 +43096,7 @@ return [
 		'suffix' => 'poker',
 		'type' => 'ICANN',
 		'comments' => [
-			'poker : 2014-07-03 Afilias Limited',
+			'poker : 2014-07-03 Identity Digital Limited',
 		],
 	],
 	'politie' => [
@@ -43173,7 +43173,7 @@ return [
 		'suffix' => 'promo',
 		'type' => 'ICANN',
 		'comments' => [
-			'promo : 2014-12-18 Afilias Limited',
+			'promo : 2014-12-18 Identity Digital Limited',
 		],
 	],
 	'properties' => [
@@ -43299,7 +43299,7 @@ return [
 		'suffix' => 'red',
 		'type' => 'ICANN',
 		'comments' => [
-			'red : 2013-11-07 Afilias Limited',
+			'red : 2013-11-07 Identity Digital Limited',
 		],
 	],
 	'redstone' => [
@@ -43880,7 +43880,7 @@ return [
 		'suffix' => 'shiksha',
 		'type' => 'ICANN',
 		'comments' => [
-			'shiksha : 2013-11-14 Afilias Limited',
+			'shiksha : 2013-11-14 Identity Digital Limited',
 		],
 	],
 	'shoes' => [
@@ -43957,7 +43957,7 @@ return [
 		'suffix' => 'ski',
 		'type' => 'ICANN',
 		'comments' => [
-			'ski : 2015-04-09 Afilias Limited',
+			'ski : 2015-04-09 Identity Digital Limited',
 		],
 	],
 	'skin' => [
@@ -44986,7 +44986,7 @@ return [
 		'suffix' => 'watches',
 		'type' => 'ICANN',
 		'comments' => [
-			'watches : 2014-12-22 Afilias Limited',
+			'watches : 2014-12-22 Identity Digital Limited',
 		],
 	],
 	'weather' => [
@@ -45301,7 +45301,7 @@ return [
 		'suffix' => '移动',
 		'type' => 'ICANN',
 		'comments' => [
-			'xn--6frz82g : 2013-09-23 Afilias Limited',
+			'xn--6frz82g : 2013-09-23 Identity Digital Limited',
 		],
 	],
 	'我爱你' => [
