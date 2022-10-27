@@ -7,7 +7,7 @@ use Exception;
 class Domain
 {
     /**
-     * @var array
+     * @var array<string, array{suffix: string, type: string, comments: string[]}> $list
      */
     static protected $list = [];
 
@@ -49,7 +49,7 @@ class Domain
     /**
      * Domain Parts
      *
-     * @var array
+     * @var string[]
      */
     protected $parts = [];
 
@@ -93,6 +93,10 @@ class Domain
             return $this->TLD;
         }
 
+        if(empty($this->parts)) {
+            return '';
+        }
+        
         $this->TLD = \end($this->parts);
         
         return $this->TLD;
