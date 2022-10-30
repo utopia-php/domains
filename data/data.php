@@ -37893,7 +37893,7 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'newGTLDs',
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-10-20T15:22:15Z',
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-10-29T15:16:24Z',
 			'This list is auto-generated, don\'t edit it manually.',
 			'aaa : 2015-02-26 American Automobile Association, Inc.',
 		],
@@ -39302,7 +39302,7 @@ return [
 		'suffix' => 'click',
 		'type' => 'ICANN',
 		'comments' => [
-			'click : 2014-06-05 UNR Corp.',
+			'click : 2014-06-05 Internet Naming Company LLC',
 		],
 	],
 	'clinic' => [
