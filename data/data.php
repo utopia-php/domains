@@ -37893,7 +37893,7 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'newGTLDs',
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-10-29T15:16:24Z',
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-11-02T15:17:39Z',
 			'This list is auto-generated, don\'t edit it manually.',
 			'aaa : 2015-02-26 American Automobile Association, Inc.',
 		],
@@ -41017,7 +41017,7 @@ return [
 		'suffix' => 'hiv',
 		'type' => 'ICANN',
 		'comments' => [
-			'hiv : 2014-03-13 UNR Corp.',
+			'hiv : 2014-03-13 Internet Naming Company LLC',
 		],
 	],
 	'hkt' => [
@@ -41493,7 +41493,7 @@ return [
 		'suffix' => 'juegos',
 		'type' => 'ICANN',
 		'comments' => [
-			'juegos : 2014-03-20 UNR Corp.',
+			'juegos : 2014-03-20 Internet Naming Company LLC',
 		],
 	],
 	'juniper' => [
@@ -43187,7 +43187,7 @@ return [
 		'suffix' => 'property',
 		'type' => 'ICANN',
 		'comments' => [
-			'property : 2014-05-22 UNR Corp.',
+			'property : 2014-05-22 Internet Naming Company LLC',
 		],
 	],
 	'protection' => [
@@ -43831,7 +43831,7 @@ return [
 		'suffix' => 'sexy',
 		'type' => 'ICANN',
 		'comments' => [
-			'sexy : 2013-09-11 UNR Corp.',
+			'sexy : 2013-09-11 Internet Naming Company LLC',
 		],
 	],
 	'sfr' => [
@@ -44643,7 +44643,7 @@ return [
 		'suffix' => 'trust',
 		'type' => 'ICANN',
 		'comments' => [
-			'trust : 2014-10-16 UNR Corp.',
+			'trust : 2014-10-16 Internet Naming Company LLC',
 		],
 	],
 	'trv' => [
