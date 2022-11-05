@@ -53449,12 +53449,6 @@ return [
 			'Submitted by Oren Eini <oren@ravendb.net>',
 		],
 	],
-	'myravendb.com' => [
-		'suffix' => 'myravendb.com',
-		'type' => 'PRIVATE',
-		'comments' => [
-		],
-	],
 	'ravendb.community' => [
 		'suffix' => 'ravendb.community',
 		'type' => 'PRIVATE',
