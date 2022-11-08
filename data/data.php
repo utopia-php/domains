@@ -46134,6 +46134,14 @@ return [
 			'Submitted by Cyril <admin@alwaysdata.com>',
 		],
 	],
+	'myamaze.net' => [
+		'suffix' => 'myamaze.net',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'Amaze Software : https://amaze.co',
+			'Submitted by Domain Admin <domainadmin@amaze.co>',
+		],
+	],
 	'cloudfront.net' => [
 		'suffix' => 'cloudfront.net',
 		'type' => 'PRIVATE',
@@ -58308,14 +58316,6 @@ return [
 		'suffix' => '*.telebit.xyz',
 		'type' => 'PRIVATE',
 		'comments' => [
-		],
-	],
-	'gwiddle.co.uk' => [
-		'suffix' => 'gwiddle.co.uk',
-		'type' => 'PRIVATE',
-		'comments' => [
-			'The Gwiddle Foundation : https://gwiddlefoundation.org.uk',
-			'Submitted by Joshua Bayfield <joshua.bayfield@gwiddlefoundation.org.uk>',
 		],
 	],
 	'*.firenet.ch' => [
