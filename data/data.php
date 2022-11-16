@@ -58442,14 +58442,6 @@ return [
 		'comments' => [
 		],
 	],
-	'tbits.me' => [
-		'suffix' => 'tbits.me',
-		'type' => 'PRIVATE',
-		'comments' => [
-			'TradableBits: https://tradablebits.com',
-			'Submitted by Dmitry Khrisanov dmitry@tradablebits.com',
-		],
-	],
 	'12hp.at' => [
 		'suffix' => '12hp.at',
 		'type' => 'PRIVATE',
