@@ -47826,16 +47826,34 @@ return [
 			'Submitted by Kedarnath Waikar <security@cloudera.com>',
 		],
 	],
-	'pages.dev' => [
-		'suffix' => 'pages.dev',
+	'cf-ipfs.com' => [
+		'suffix' => 'cf-ipfs.com',
 		'type' => 'PRIVATE',
 		'comments' => [
 			'Cloudflare, Inc. : https://www.cloudflare.com/',
 			'Submitted by Cloudflare Team <publicsuffixlist@cloudflare.com>',
 		],
 	],
+	'cloudflare-ipfs.com' => [
+		'suffix' => 'cloudflare-ipfs.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
 	'trycloudflare.com' => [
 		'suffix' => 'trycloudflare.com',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'pages.dev' => [
+		'suffix' => 'pages.dev',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'r2.dev' => [
+		'suffix' => 'r2.dev',
 		'type' => 'PRIVATE',
 		'comments' => [
 		],
@@ -58221,6 +58239,18 @@ return [
 		'comments' => [
 			'Tabit Technologies Ltd. : https://tabit.cloud/',
 			'Submitted by Oren Agiv <oren@tabit.cloud>',
+		],
+	],
+	'mytabit.co.il' => [
+		'suffix' => 'mytabit.co.il',
+		'type' => 'PRIVATE',
+		'comments' => [
+		],
+	],
+	'mytabit.com' => [
+		'suffix' => 'mytabit.com',
+		'type' => 'PRIVATE',
+		'comments' => [
 		],
 	],
 	'taifun-dns.de' => [
