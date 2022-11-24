@@ -46014,6 +46014,14 @@ return [
 			'Submitted by Craig Jellick <domains@acorn.io>',
 		],
 	],
+	'activetrail.biz' => [
+		'suffix' => 'activetrail.biz',
+		'type' => 'PRIVATE',
+		'comments' => [
+			'ActiveTrail: https://www.activetrail.biz/',
+			'Submitted by Ofer Kalaora <postmaster@activetrail.com>',
+		],
+	],
 	'adobeaemcloud.com' => [
 		'suffix' => 'adobeaemcloud.com',
 		'type' => 'PRIVATE',
