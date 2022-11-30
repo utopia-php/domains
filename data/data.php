@@ -37893,7 +37893,7 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'newGTLDs',
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-11-02T15:17:39Z',
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-11-29T15:14:18Z',
 			'This list is auto-generated, don\'t edit it manually.',
 			'aaa : 2015-02-26 American Automobile Association, Inc.',
 		],
@@ -38001,13 +38001,6 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'actor : 2013-12-12 Dog Beach, LLC',
-		],
-	],
-	'adac' => [
-		'suffix' => 'adac',
-		'type' => 'ICANN',
-		'comments' => [
-			'adac : 2015-07-16 Allgemeiner Deutscher Automobil-Club e.V. (ADAC)',
 		],
 	],
 	'ads' => [
