@@ -37893,7 +37893,7 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'newGTLDs',
-			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-11-29T15:14:18Z',
+			'List of new gTLDs imported from https://www.icann.org/resources/registries/gtlds/v2/gtlds.json on 2022-12-07T15:13:11Z',
 			'This list is auto-generated, don\'t edit it manually.',
 			'aaa : 2015-02-26 American Automobile Association, Inc.',
 		],
@@ -45561,13 +45561,6 @@ return [
 		'type' => 'ICANN',
 		'comments' => [
 			'xn--jlq480n2rg : 2019-12-19 Amazon Registry Services, Inc.',
-		],
-	],
-	'诺基亚' => [
-		'suffix' => '诺基亚',
-		'type' => 'ICANN',
-		'comments' => [
-			'xn--jlq61u9w7b : 2015-01-08 Nokia Corporation',
 		],
 	],
 	'食品' => [
