@@ -1,8 +1,10 @@
 <?php
 
+namespace Utopia\Registrar;
+
 use Exception;
 
-abstract class RegistrarAdapter
+abstract class Adapter
 {
     protected bool $enabled = true;
 
@@ -14,9 +16,39 @@ abstract class RegistrarAdapter
     
     protected string $apiSecret;
 
+    protected string $shopperId;
+
     protected $headers = [
       'Content-Type' => '',
     ];
+
+
+    /**
+     * __construct
+     * Instantiate a new adapter.
+     *
+     * @param string $env
+     * @param string $apiKey
+     * @param string $apiSecret
+     */
+    public function __construct(string $env = 'DEV', string $apiKey, string $apiSecret, string $shopperId)
+    {
+        $this->endpoint = 
+          $env == 'DEV' 
+          ? 'https://api.ote-godaddy.com/v1/' 
+          : 'https://api.godaddy.com/v1/';
+        
+        $this->apiKey = $apiKey;
+        $this->apiSecret = $apiSecret;
+        $this->shopperId = $shopperId;
+
+        $this->headers = [
+          'Authorization' => 'sso-key ' . $this->apiKey . ':' . $this->apiSecret,
+          'Accept' => 'application/json',
+          'Content-Type' => 'application/json',
+          'X-Shopper-Id' => $this->shopperId,
+        ];
+    }
 
     /**
      * Call
@@ -30,7 +62,7 @@ abstract class RegistrarAdapter
      * @return array|string
      * @throws \Exception
      */
-    public function call(string $method, string $path = '', array $headers = array(), array $params = array()): array|string
+    public function call(string $method, string $path = '', array $params = array(), array $headers = array()): array|string
     {
         $headers            = array_merge($this->headers, $headers);
         $ch                 = curl_init((str_contains($path, 'http') ? $path : $this->endpoint . $path . (($method == 'GET' && !empty($params)) ? '?' . http_build_query($params) : '')));
@@ -133,51 +165,34 @@ abstract class RegistrarAdapter
       return $output;
   }
 
-  abstract public function getName(): string;
-
-  abstract public function domains();
   
-  abstract public function agreements();
+  abstract public function available(string $domain);
   
-  abstract public function available();
+  abstract public function purchase(string $domain, array $details);
   
-  abstract public function validateContacts();
+  abstract public function cancelPurchase(string $domain);
   
-  abstract public function purchase();
+  abstract public function suggest(array $query, array $tlds = array(),  $minLength = 1, $maxLength = 100);
   
-  abstract public function purchaseSchema($tld);
+  abstract public function tlds():array;
   
-  abstract public function validatePurchase();
+  abstract public function domain(string $domain);
   
-  abstract public function suggest();
+  abstract public function updateDomain(string $domain, array $details);
   
-  abstract public function tlds();
+  abstract public function updateRecords(string $domain, array $records);
   
-  abstract public function cancelPurchase();
+  abstract public function replaceRecords(string $domain, array $records);
   
-  abstract public function domain();
+  abstract public function domainRecord(string $domain, string $type, string $name);
   
-  abstract public function updateDomain();
+  abstract public function addDomainRecord(string $domain, string $type, string $name);
   
-  abstract public function domainContacts();
+  abstract public function updateDomainRecord(string $domain, string $type, string $name);
   
-  abstract public function domainPrivacy();
+  abstract public function deleteDomainRecord(string $domain, string $type, string $name);
   
-  abstract public function domainPrivacyPurchase();
+  abstract public function renew(string $domain, int $years);
   
-  abstract public function records();
-  
-  abstract public function replaceRecords();
-  
-  abstract public function domainRecord($type, $name);
-  
-  abstract public function addDomainRecord($type, $name);
-  
-  abstract public function updateDomainRecord($type, $name);
-  
-  abstract public function deleteDomainRecord($type, $name);
-  
-  abstract public function renew();
-  
-  abstract public function transfer();
+  abstract public function transfer(string $domain, array $details);
 }
