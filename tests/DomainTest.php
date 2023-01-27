@@ -2,20 +2,21 @@
 /**
  * Utopia PHP Framework
  *
- * @package Domains
- * @subpackage Tests
  *
  * @link https://github.com/utopia-php/framework
+ *
  * @author Eldad Fux <eldad@appwrite.io>
+ *
  * @version 1.0 RC4
+ *
  * @license The MIT License (MIT) <http://www.opensource.org/licenses/mit-license.php>
  */
 
 namespace Utopia\Tests;
 
 use Exception;
-use Utopia\Domains\Domain;
 use PHPUnit\Framework\TestCase;
+use Utopia\Domains\Domain;
 
 class DomainTest extends TestCase
 {
@@ -42,7 +43,7 @@ class DomainTest extends TestCase
     public function testExampleCoUk(): void
     {
         $domain = new Domain('demo.example.co.uk');
-       
+
         $this->assertEquals('demo.example.co.uk', $domain->get());
         $this->assertEquals('uk', $domain->getTLD());
         $this->assertEquals('co.uk', $domain->getSuffix());
@@ -58,7 +59,7 @@ class DomainTest extends TestCase
     public function testSubSubExampleCoUk(): void
     {
         $domain = new Domain('subsub.demo.example.co.uk');
-       
+
         $this->assertEquals('subsub.demo.example.co.uk', $domain->get());
         $this->assertEquals('uk', $domain->getTLD());
         $this->assertEquals('co.uk', $domain->getSuffix());
@@ -74,7 +75,7 @@ class DomainTest extends TestCase
     public function testLocalhost(): void
     {
         $domain = new Domain('localhost');
-       
+
         $this->assertEquals('localhost', $domain->get());
         $this->assertEquals('localhost', $domain->getTLD());
         $this->assertEquals('', $domain->getSuffix());
@@ -90,7 +91,7 @@ class DomainTest extends TestCase
     public function testDemoLocalhost(): void
     {
         $domain = new Domain('demo.localhost');
-       
+
         $this->assertEquals('demo.localhost', $domain->get());
         $this->assertEquals('localhost', $domain->getTLD());
         $this->assertEquals('', $domain->getSuffix());
@@ -106,7 +107,7 @@ class DomainTest extends TestCase
     public function testSubSubDemoLocalhost(): void
     {
         $domain = new Domain('sub.sub.demo.localhost');
-       
+
         $this->assertEquals('sub.sub.demo.localhost', $domain->get());
         $this->assertEquals('localhost', $domain->getTLD());
         $this->assertEquals('', $domain->getSuffix());
@@ -122,7 +123,7 @@ class DomainTest extends TestCase
     public function testSubDemoLocalhost(): void
     {
         $domain = new Domain('sub.demo.localhost');
-       
+
         $this->assertEquals('sub.demo.localhost', $domain->get());
         $this->assertEquals('localhost', $domain->getTLD());
         $this->assertEquals('', $domain->getSuffix());
@@ -138,7 +139,7 @@ class DomainTest extends TestCase
     public function testUTF(): void
     {
         $domain = new Domain('אשקלון.קום');
-       
+
         $this->assertEquals('אשקלון.קום', $domain->get());
         $this->assertEquals('קום', $domain->getTLD());
         $this->assertEquals('קום', $domain->getSuffix());
@@ -154,7 +155,7 @@ class DomainTest extends TestCase
     public function testUTFSubdomain(): void
     {
         $domain = new Domain('חדשות.אשקלון.קום');
-       
+
         $this->assertEquals('חדשות.אשקלון.קום', $domain->get());
         $this->assertEquals('קום', $domain->getTLD());
         $this->assertEquals('קום', $domain->getSuffix());
@@ -170,7 +171,7 @@ class DomainTest extends TestCase
     public function testPrivateTLD(): void
     {
         $domain = new Domain('blog.potager.org');
-       
+
         $this->assertEquals('blog.potager.org', $domain->get());
         $this->assertEquals('org', $domain->getTLD());
         $this->assertEquals('potager.org', $domain->getSuffix());

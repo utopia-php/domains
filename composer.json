@@ -11,7 +11,9 @@
         }
     ],
     "scripts": {
-      "check": "./vendor/bin/phpstan analyse --level max src tests"
+        "lint": "./vendor/bin/pint --test",
+        "format": "./vendor/bin/pint",
+        "check": "./vendor/bin/phpstan analyse --level max src tests"
     },
     "autoload": {
         "psr-4": {"Utopia\\Domains\\": "src/Domains"}
@@ -22,6 +24,7 @@
     "require-dev": {
         "phpunit/phpunit": "^9.3",
         "vimeo/psalm": "4.0.1",
+        "laravel/pint": "^1.2",
         "phpstan/phpstan": "1.9.x-dev"
     },
     "minimum-stability": "dev"

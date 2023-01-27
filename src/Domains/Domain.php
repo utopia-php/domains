@@ -7,9 +7,9 @@ use Exception;
 class Domain
 {
     /**
-     * @var array<string, array{suffix: string, type: string, comments: string[]}> $list
+     * @var array<string, array{suffix: string, type: string, comments: string[]}>
      */
-    static protected $list = [];
+    protected static $list = [];
 
     /**
      * Domain
@@ -56,7 +56,7 @@ class Domain
     /**
      * Domain constructor.
      *
-     * @param string $domain
+     * @param  string  $domain
      */
     public function __construct(string $domain)
     {
@@ -74,7 +74,7 @@ class Domain
 
     /**
      * Return top level domain
-     * 
+     *
      * @return string
      */
     public function get(): string
@@ -84,7 +84,7 @@ class Domain
 
     /**
      * Return top level domain
-     * 
+     *
      * @return string
      */
     public function getTLD(): string
@@ -93,18 +93,18 @@ class Domain
             return $this->TLD;
         }
 
-        if(empty($this->parts)) {
+        if (empty($this->parts)) {
             return '';
         }
-        
+
         $this->TLD = \end($this->parts);
-        
+
         return $this->TLD;
     }
 
     /**
      * Returns domain public suffix
-     * 
+     *
      * @return string
      */
     public function getSuffix(): string
@@ -112,12 +112,13 @@ class Domain
         if ($this->suffix) {
             return $this->suffix;
         }
-        
-        for ($i=3; $i > 0; $i--) {
+
+        for ($i = 3; $i > 0; $i--) {
             $joined = \implode('.', \array_slice($this->parts, $i * -1));
 
             if (\array_key_exists($joined, self::$list)) {
                 $this->suffix = $joined;
+
                 return $joined;
             }
         }
@@ -127,23 +128,23 @@ class Domain
 
     /**
      * Returns registerable domain name
-     * 
+     *
      * @return string
      */
     public function getRegisterable(): string
     {
-        if (!$this->isKnown()) {
+        if (! $this->isKnown()) {
             return '';
         }
 
         $registerable = $this->getName().'.'.$this->getSuffix();
-        
+
         return $registerable;
     }
 
     /**
      * Returns domain name
-     * 
+     *
      * @return string
      */
     public function getName(): string
@@ -153,40 +154,40 @@ class Domain
         }
 
         $suffix = $this->getSuffix();
-        $suffix = (!empty($suffix)) ? '.'.$suffix : '.'.$this->getTLD();
+        $suffix = (! empty($suffix)) ? '.'.$suffix : '.'.$this->getTLD();
 
         $name = \explode('.', \mb_substr($this->domain, 0, \mb_strlen($suffix) * -1));
 
         $this->name = \end($name);
-        
+
         return $this->name;
     }
 
     /**
      * Returns sub-domain name
-     * 
+     *
      * @return string
      */
     public function getSub(): string
     {
         $name = $this->getName();
-        $name = (!empty($name)) ? '.'.$name : '';
+        $name = (! empty($name)) ? '.'.$name : '';
 
         $suffix = $this->getSuffix();
-        $suffix = (!empty($suffix)) ? '.'.$suffix : '.'.$this->getTLD();
+        $suffix = (! empty($suffix)) ? '.'.$suffix : '.'.$this->getTLD();
 
         $domain = $name.$suffix;
 
         $sub = \explode('.', \mb_substr($this->domain, 0, \mb_strlen($domain) * -1));
-        
+
         $this->sub = \implode('.', $sub);
-        
+
         return $this->sub;
     }
 
     /**
      * Returns true if the public suffix is found;
-     * 
+     *
      * @return bool
      */
     public function isKnown(): bool
@@ -200,7 +201,7 @@ class Domain
 
     /**
      * Returns true if the public suffix is found using ICANN domains section
-     * 
+     *
      * @return bool
      */
     public function isICANN(): bool
@@ -214,7 +215,7 @@ class Domain
 
     /**
      * Returns true if the public suffix is found using PRIVATE domains section
-     * 
+     *
      * @return bool
      */
     public function isPrivate(): bool
@@ -228,7 +229,7 @@ class Domain
 
     /**
      * Returns true if the public suffix is reserved for testing purpose
-     * 
+     *
      * @return bool
      */
     public function isTest(): bool
