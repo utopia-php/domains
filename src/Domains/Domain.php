@@ -56,10 +56,7 @@ class Domain
     /**
      * Domain constructor.
      *
-<<<<<<< HEAD
-     * @param  string  $name
      * @param  string  $domain
->>>>>>> e8bfecfb04e5a9fd2048e5284fdd410eac1b5b70
      */
     public function __construct(string $domain)
     {
