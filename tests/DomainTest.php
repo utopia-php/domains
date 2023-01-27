@@ -20,32 +20,27 @@ use Utopia\Domains\Domain;
 
 class DomainTest extends TestCase
 {
-    /**
-     * @var Test
-     */
-    protected $test = null;
-
-    public function testEdgecaseDomains()
+    public function testEdgecaseDomains(): void
     {
         $domain = new Domain('httpmydomain.com');
         $this->assertEquals('httpmydomain.com', $domain->getRegisterable());
     }
 
-    public function testEdgecaseDomainsError()
+    public function testEdgecaseDomainsError(): void
     {
         $this->expectException('Exception');
         $this->expectExceptionMessage("'http://httpmydomain.com' must be a valid domain or hostname");
         $domain = new Domain('http://httpmydomain.com');
     }
 
-    public function testEdgecaseDomainsError2()
+    public function testEdgecaseDomainsError2(): void
     {
         $this->expectException('Exception');
         $this->expectExceptionMessage("'https://httpmydomain.com' must be a valid domain or hostname");
         $domain = new Domain('https://httpmydomain.com');
     }
 
-    public function testExampleCoUk()
+    public function testExampleCoUk(): void
     {
         $domain = new Domain('demo.example.co.uk');
 
@@ -61,7 +56,7 @@ class DomainTest extends TestCase
         $this->assertEquals(false, $domain->isTest());
     }
 
-    public function testSubSubExampleCoUk()
+    public function testSubSubExampleCoUk(): void
     {
         $domain = new Domain('subsub.demo.example.co.uk');
 
@@ -77,7 +72,7 @@ class DomainTest extends TestCase
         $this->assertEquals(false, $domain->isTest());
     }
 
-    public function testLocalhost()
+    public function testLocalhost(): void
     {
         $domain = new Domain('localhost');
 
@@ -93,7 +88,7 @@ class DomainTest extends TestCase
         $this->assertEquals(true, $domain->isTest());
     }
 
-    public function testDemoLocalhost()
+    public function testDemoLocalhost(): void
     {
         $domain = new Domain('demo.localhost');
 
@@ -109,7 +104,7 @@ class DomainTest extends TestCase
         $this->assertEquals(true, $domain->isTest());
     }
 
-    public function testSubSubDemoLocalhost()
+    public function testSubSubDemoLocalhost(): void
     {
         $domain = new Domain('sub.sub.demo.localhost');
 
@@ -125,7 +120,7 @@ class DomainTest extends TestCase
         $this->assertEquals(true, $domain->isTest());
     }
 
-    public function testSubDemoLocalhost()
+    public function testSubDemoLocalhost(): void
     {
         $domain = new Domain('sub.demo.localhost');
 
@@ -141,7 +136,7 @@ class DomainTest extends TestCase
         $this->assertEquals(true, $domain->isTest());
     }
 
-    public function testUTF()
+    public function testUTF(): void
     {
         $domain = new Domain('אשקלון.קום');
 
@@ -157,7 +152,7 @@ class DomainTest extends TestCase
         $this->assertEquals(false, $domain->isTest());
     }
 
-    public function testUTFSubdomain()
+    public function testUTFSubdomain(): void
     {
         $domain = new Domain('חדשות.אשקלון.קום');
 
@@ -173,7 +168,7 @@ class DomainTest extends TestCase
         $this->assertEquals(false, $domain->isTest());
     }
 
-    public function testPrivateTLD()
+    public function testPrivateTLD(): void
     {
         $domain = new Domain('blog.potager.org');
 
@@ -189,28 +184,28 @@ class DomainTest extends TestCase
         $this->assertEquals(false, $domain->isTest());
     }
 
-    public function testHTTPException1()
+    public function testHTTPException1(): void
     {
         $this->expectException(Exception::class);
 
         new Domain('http://www.facbook.com');
     }
 
-    public function testHTTPException2()
+    public function testHTTPException2(): void
     {
         $this->expectException(Exception::class);
 
         new Domain('http://facbook.com');
     }
 
-    public function testHTTPSException1()
+    public function testHTTPSException1(): void
     {
         $this->expectException(Exception::class);
 
         new Domain('https://www.facbook.com');
     }
 
-    public function testHTTPSException2()
+    public function testHTTPSException2(): void
     {
         $this->expectException(Exception::class);
 
