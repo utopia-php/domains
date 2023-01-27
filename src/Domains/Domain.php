@@ -7,7 +7,7 @@ use Exception;
 class Domain
 {
     /**
-     * @var array<string, array{suffix: string, type: string, comments: string[]}> $list
+     * @var array<string, array{suffix: string, type: string, comments: string[]}>
      */
     protected static $list = [];
 
@@ -58,8 +58,7 @@ class Domain
      *
 <<<<<<< HEAD
      * @param  string  $name
-=======
-     * @param string $domain
+     * @param  string  $domain
 >>>>>>> e8bfecfb04e5a9fd2048e5284fdd410eac1b5b70
      */
     public function __construct(string $domain)
@@ -97,10 +96,10 @@ class Domain
             return $this->TLD;
         }
 
-        if(empty($this->parts)) {
+        if (empty($this->parts)) {
             return '';
         }
-        
+
         $this->TLD = \end($this->parts);
 
         return $this->TLD;
