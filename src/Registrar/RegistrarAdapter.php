@@ -1,10 +1,10 @@
 <?php
 
-namespace Utopia\Registrar;
+namespace Utopia\Registrars;
 
 use Exception;
 
-abstract class Adapter
+abstract class RegistrarAdapter
 {
     protected bool $enabled = true;
 
@@ -24,33 +24,6 @@ abstract class Adapter
 
 
     /**
-     * __construct
-     * Instantiate a new adapter.
-     *
-     * @param string $env
-     * @param string $apiKey
-     * @param string $apiSecret
-     */
-    public function __construct(string $env = 'DEV', string $apiKey, string $apiSecret, string $shopperId)
-    {
-        $this->endpoint = 
-          $env == 'DEV' 
-          ? 'https://api.ote-godaddy.com/v1/' 
-          : 'https://api.godaddy.com/v1/';
-        
-        $this->apiKey = $apiKey;
-        $this->apiSecret = $apiSecret;
-        $this->shopperId = $shopperId;
-
-        $this->headers = [
-          'Authorization' => 'sso-key ' . $this->apiKey . ':' . $this->apiSecret,
-          'Accept' => 'application/json',
-          'Content-Type' => 'application/json',
-          'X-Shopper-Id' => $this->shopperId,
-        ];
-    }
-
-    /**
      * Call
      *
      * Make an API call
@@ -62,7 +35,7 @@ abstract class Adapter
      * @return array|string
      * @throws \Exception
      */
-    public function call(string $method, string $path = '', array $params = array(), array $headers = array()): array|string
+    public function call(string $method, string $path = '', array|string $params = [], array $headers = array()): array|string
     {
         $headers            = array_merge($this->headers, $headers);
         $ch                 = curl_init((str_contains($path, 'http') ? $path : $this->endpoint . $path . (($method == 'GET' && !empty($params)) ? '?' . http_build_query($params) : '')));
@@ -71,18 +44,20 @@ abstract class Adapter
         $responseType       = '';
         $responseBody       = '';
 
-        switch ($headers['Content-Type']) {
-            case 'application/json':
-                $query = json_encode($params);
-                break;
-
-            case 'multipart/form-data':
-                $query = $this->flatten($params);
-                break;
-
-            default:
-                $query = http_build_query($params);
-                break;
+        if(!empty($params)) {
+          switch ($headers['Content-Type']) {
+              case 'application/json':
+                  $query = json_encode($params);
+                  break;
+  
+              case 'multipart/form-data':
+                  $query = $this->flatten($params);
+                  break;
+  
+              default:
+                  $query = http_build_query($params);
+                  break;
+          }
         }
 
         foreach ($headers as $i => $header) {

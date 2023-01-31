@@ -1,11 +1,11 @@
 <?php
 
-namespace Utopia\Registrar;
+namespace Utopia\Registrars;
 
-use Utopia\Registrar\Adapter;
+use Utopia\Registrars\RegistrarAdapter;
 
 
-class GoDaddy extends Adapter {
+class OpenSRS extends RegistrarAdapter {
 
   private array $sources = [
     'CC_TLD', 
@@ -17,6 +17,103 @@ class GoDaddy extends Adapter {
     'keywordspin', 
     'premium'
   ];
+
+  /**
+   * __construct
+   * Instantiate a new adapter.
+   *
+   * @param string $env
+   * @param string $apiKey
+   * @param string $apiSecret - for OpenSRS your reseller_username is your apiSecret.
+   */
+  public function __construct(string $env = 'DEV', string $apiKey, string $apiSecret, string $shopperId)
+  {
+      $this->endpoint = 
+        $env == 'DEV' 
+        ? 'https://horizon.opensrs.net:55443' 
+        : 'https://rr-n1-tor.opensrs.net:55443';
+      
+      $this->apiKey = $apiKey;
+      $this->apiSecret = $apiSecret;
+      $this->shopperId = $shopperId;
+
+      $this->headers = [
+        'Content-Type' => 'text/xml',
+        'X-Username:' => $this->apiSecret,
+      ];
+  }
+
+  public function call(string $method, string $path = '', array|string $params = [], array $headers = array()): array|string
+  {
+    $xml = '';
+
+    $headers = array_merge(
+      $this->headers, array_merge(
+        $headers,
+        [
+          'X-Signature:' => md5(md5($xml . $this->apiKey) .  $this->apiKey)
+        ]
+      )
+    );
+
+    $body = $this->buildBody($params);
+
+    return parent::call($method, $path, $body, $headers);
+  }
+  
+  /**
+   * Build an XML body for the request.
+   * @param array $params 
+   * @return string 
+   * 
+   * params must contain the following:
+   * - object
+   * - action
+   * - attributes : assoc array of params for the object and action
+   */
+  private function buildBody(array $params):string
+  {
+    if(empty($params)) {
+      return '';
+    }
+    
+    $xml = <<<EOD
+      <?xml version='1.0' encoding='UTF-8' standalone='no' ?>
+      <!DOCTYPE OPS_envelope SYSTEM 'ops.dtd'>
+      <OPS_envelope>
+      <header>
+          <version>0.9</version>
+      </header>
+      <body>
+      <data_block>
+          <dt_assoc>
+              <item key="protocol">XCP</item>
+              <item key="object">{object}</item>
+              <item key="action">{action}</item>
+              <item key="attributes">
+              <dt_assoc>
+                      {attributes}
+              </dt_assoc>
+              </item>
+          </dt_assoc>
+      </data_block>
+      </body>
+      </OPS_envelope> 
+    EOD;
+
+    $object = $params['object'];
+    $action = $params['action'];
+    $attributes = array_map(
+      fn($key, $value):string => "<item key=\"{$key}\">{$value}</item>",
+      $params['attributes']
+    );
+
+    return str_replace(
+      ['{object}', '{action}', '{attributes}'],
+      [$object, $action, implode('', $attributes)],
+      $xml
+    );
+  }
 
   public function available(string $domain)
   {
