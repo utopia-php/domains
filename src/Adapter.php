@@ -1,10 +1,10 @@
 <?php
 
-namespace Utopia\Registrars;
+namespace Utopia\Domains;
 
 use Exception;
 
-abstract class RegistrarAdapter
+abstract class Adapter
 {
     protected bool $enabled = true;
 
@@ -16,11 +16,31 @@ abstract class RegistrarAdapter
     
     protected string $apiSecret;
 
-    protected string $shopperId;
-
     protected $headers = [
-      'Content-Type' => '',
+      'Content-Type' => 'application/json',
     ];
+
+      /**
+   * __construct
+   * Instantiate a new adapter.
+   *
+   * @param string $env
+   * @param string $apiKey
+   * @param string $apiSecret
+   */
+  public function __construct(string $endpoint, string $apiKey, string $apiSecret)
+  {
+      $this->endpoint = $endpoint;
+      $this->apiKey = $apiKey;
+      $this->apiSecret = $apiSecret;
+
+      $this->headers = [
+        'Authorization' => 'sso-key ' . $this->apiKey . ':' . $this->apiSecret,
+        'Accept' => 'application/json',
+        'Content-Type' => 'application/json',
+      ];
+  }
+
 
 
     /**
@@ -141,33 +161,5 @@ abstract class RegistrarAdapter
   }
 
   
-  abstract public function available(string $domain);
-  
-  abstract public function purchase(string $domain, array $details);
-  
-  abstract public function cancelPurchase(string $domain);
-  
-  abstract public function suggest(array $query, array $tlds = array(),  $minLength = 1, $maxLength = 100);
-  
-  abstract public function tlds():array;
-  
-  abstract public function domain(string $domain);
-  
-  abstract public function updateDomain(string $domain, array $details);
-  
-  abstract public function updateRecords(string $domain, array $records);
-  
-  abstract public function replaceRecords(string $domain, array $records);
-  
-  abstract public function domainRecord(string $domain, string $type, string $name);
-  
-  abstract public function addDomainRecord(string $domain, string $type, string $name);
-  
-  abstract public function updateDomainRecord(string $domain, string $type, string $name);
-  
-  abstract public function deleteDomainRecord(string $domain, string $type, string $name);
-  
-  abstract public function renew(string $domain, int $years);
-  
-  abstract public function transfer(string $domain, array $details);
+
 }

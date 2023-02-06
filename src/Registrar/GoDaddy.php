@@ -1,12 +1,13 @@
 <?php
 
-namespace Utopia\Registrars;
+namespace Utopia\Domains\Registrar;
 
-use Utopia\Registrars\RegistrarAdapter;
+use Utopia\Domains\Registrar\Adapter;
 
 
-class GoDaddy extends RegistrarAdapter {
+class GoDaddy extends Adapter {
 
+  private string $shopperId;
   private array $sources = [
     'CC_TLD', 
     'EXTENSION', 
@@ -26,23 +27,24 @@ class GoDaddy extends RegistrarAdapter {
    * @param string $apiKey
    * @param string $apiSecret
    */
-  public function __construct(string $env = 'DEV', string $apiKey, string $apiSecret, string $shopperId)
+  public function __construct(string $env = 'DEV', string $apiKey, string $apiSecret, string $shopperId = '')
   {
-      $this->endpoint = 
+      $endpoint = 
         $env == 'DEV' 
         ? 'https://api.ote-godaddy.com/v1/' 
         : 'https://api.godaddy.com/v1/';
       
       $this->apiKey = $apiKey;
       $this->apiSecret = $apiSecret;
+
+      parent::__construct($endpoint, $apiKey, $apiSecret);
+
       $this->shopperId = $shopperId;
 
-      $this->headers = [
+      $this->headers = array_merge([
         'Authorization' => 'sso-key ' . $this->apiKey . ':' . $this->apiSecret,
-        'Accept' => 'application/json',
-        'Content-Type' => 'application/json',
         'X-Shopper-Id' => $this->shopperId,
-      ];
+      ], $this->headers);
   }
 
   public function available(string $domain)
@@ -104,53 +106,6 @@ class GoDaddy extends RegistrarAdapter {
     return $result;
   }
   
-  public function updateRecords(string $domain, array $records)
-  {
-    $result = $this->call('PATCH', 'domains/' . $domain . '/records', $records);
-
-    return $result;
-  }
-  
-  public function replaceRecords(string $domain, array $records)
-  {
-    $result = $this->call('PUT', 'domains/' . $domain . '/records', $records);
-
-    return $result;
-  }
-  
-  public function domainRecord(string $domain, string $type, string $name)
-  {
-    $result = $this->call('GET', 'domains/' . $domain . '/records/' . $type . '/' . $name);
-  }
-  
-  public function addDomainRecord(string $domain, string $type, string $name)
-  {
-    $result = $this->call('POST', 'domains/' . $domain . '/records/' . $type . '/' . $name);
-
-    return $result;
-  }
-  
-  public function updateDomainRecord(string $domain, string $type, string $name)
-  {
-    $result = $this->call('PATCH', 'domains/' . $domain . '/records/' . $type . '/' . $name);
-
-    return $result;
-  }
-  
-  public function deleteDomainRecord(string $domain, string $type, string $name)
-  {
-    $result = $this->call('DELETE', 'domains/' . $domain . '/records/' . $type . '/' . $name);
-
-    return $result;
-  }
-  
-  public function replaceDomainRecords(string $domain, string $type, array $records)
-  {
-    $result = $this->call('PUT', 'domains/' . $domain . '/records/' . $type, $records);
-
-    return $result;
-  }
-
   public function renew(string $domain, int $years)
   { 
     $result = $this->call('POST', 'domains/' . $domain . '/renew', [

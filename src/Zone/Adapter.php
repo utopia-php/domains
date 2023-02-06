@@ -1,10 +1,10 @@
 <?php
 
-namespace Utopia\Zones;
+namespace Utopia\Domains\Zones;
 
-use Exception;
+use Utopia\Domains\Adapter as DomainsAdapter;
 
-abstract class ZoneAdapter
+abstract class Adapter extends DomainsAdapter
 {
   abstract public function updateRecords(string $domain, array $records);
   

@@ -1,11 +1,11 @@
 <?php
 
-namespace Utopia\Registrars;
+namespace Utopia\Domains\Registrar;
 
-use Utopia\Registrars\RegistrarAdapter;
+use Utopia\Domains\Registrar\Adapter;
 
 
-class OpenSRS extends RegistrarAdapter {
+class OpenSRS extends Adapter {
 
   private array $sources = [
     'CC_TLD', 
@@ -28,19 +28,21 @@ class OpenSRS extends RegistrarAdapter {
    */
   public function __construct(string $env = 'DEV', string $apiKey, string $apiSecret, string $shopperId)
   {
-      $this->endpoint = 
+      $endpoint = 
         $env == 'DEV' 
         ? 'https://horizon.opensrs.net:55443' 
         : 'https://rr-n1-tor.opensrs.net:55443';
       
       $this->apiKey = $apiKey;
       $this->apiSecret = $apiSecret;
-      $this->shopperId = $shopperId;
 
-      $this->headers = [
+      parent::__construct($endpoint, $apiKey, $apiSecret);
+      
+      $this->headers = array_merge([
         'Content-Type' => 'text/xml',
         'X-Username:' => $this->apiSecret,
-      ];
+      ], $this->headers);
+
   }
 
   public function call(string $method, string $path = '', array|string $params = [], array $headers = array()): array|string
