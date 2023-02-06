@@ -19,6 +19,7 @@ RUN apt-get update && \
     wget \
     gnupg \
     gnupg2 \
+    direnv \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -32,5 +33,7 @@ ADD . /app
 WORKDIR /app
 
 ENV TERM xterm-256color
+
+RUN eval "$(direnv hook zsh)"
 
 CMD ["/bin/zsh"]

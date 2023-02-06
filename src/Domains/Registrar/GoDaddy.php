@@ -12,7 +12,7 @@ class GoDaddy extends Adapter {
     'CC_TLD', 
     'EXTENSION', 
     'KEYWORD_SPIN', 
-    'PREMIUM', 
+    'PREMIUM',
     'cctld', 
     'extension', 
     'keywordspin', 
@@ -27,7 +27,7 @@ class GoDaddy extends Adapter {
    * @param string $apiKey
    * @param string $apiSecret
    */
-  public function __construct(string $env = 'DEV', string $apiKey, string $apiSecret, string $shopperId = '')
+  public function __construct(string $env, string $apiKey, string $apiSecret, string $shopperId = '')
   {
       $endpoint = 
         $env == 'DEV' 
@@ -39,12 +39,23 @@ class GoDaddy extends Adapter {
 
       parent::__construct($endpoint, $apiKey, $apiSecret);
 
-      $this->shopperId = $shopperId;
+      $headers = [
+        'Authorization' => 'sso-key ' . $this->apiKey . ':' . $this->apiSecret,        
+      ];
 
-      $this->headers = array_merge([
-        'Authorization' => 'sso-key ' . $this->apiKey . ':' . $this->apiSecret,
-        'X-Shopper-Id' => $this->shopperId,
-      ], $this->headers);
+      if($shopperId !== '')
+        $headers = array_merge($headers, ['X-Shopper-Id' => $shopperId]);
+        
+
+      $this->headers = array_merge($headers, $this->headers);
+  }
+
+  public function list()
+  {
+    $result = $this->call('GET', 'domains');
+    $result = json_decode($result, true);
+
+    return $result;
   }
 
   public function available(string $domain)
@@ -55,46 +66,66 @@ class GoDaddy extends Adapter {
       'forTransfer' => 'false',
     ]);
 
+    $result = json_decode($result, true);
+
     return key_exists('available', $result) && $result['available'] == true;
   }
   
+  public function agreements(array|string $tlds, bool $privacy = true)
+  {
+    $tlds = is_array($tlds) ? $tlds : [$tlds];
+
+    $result = $this->call('GET', 'domains/agreements', [
+      'tlds' => implode(',', $tlds),
+      'privacy' => $privacy,
+    ]);
+
+    $result = json_decode($result, true);
+    $result = array_map(function($item) {
+      return $item['agreementKey'];
+    }, $result);
+
+    return $result;
+  }
+
   public function purchase(string $domain, array $details)
   {
     $result = $this->call('POST', 'domains/purchase', $details);
+    $result = json_decode($result, true);
 
     return $result;
   }
   
-  public function cancelPurchase(string $domain)
-  {
-    $result = $this->call('DELETE', 'domains/' . $domain, [
-    ]);
-
-    return $result;
-  }
-  
-  public function suggest(array $query, array $tlds = array(), $minLength = 1, $maxLength = 100)
+  public function suggest(array $keywords, array $tlds = array(), $minLength = 1, $maxLength = 100)
   {
     $result = $this->call('GET', 'domains/suggest', [
-      'query' => $query,
+      'query' => implode(',', $keywords),
       'tlds' => $tlds,
-      'minLength' => $minLength,
-      'maxLength' => $maxLength,
-      'sources' => $this->sources,
-      'limit' => 100,
     ]);
+
+    $result = json_decode($result, true);
+    $result = array_map(function($item) {
+      return $item['domain'];
+    }, $result);
 
     return $result;
   }
   
   public function tlds():array
   {
-    return $this->call('GET', 'domains/tlds');
+    $result = $this->call('GET', 'domains/tlds');
+    $result = json_decode($result, true);
+    $result = array_map(function($item) {
+      return $item['name'];
+    }, $result);
+
+    return $result;
   }
   
   public function domain(string $domain)
   {
     $result = $this->call('GET', 'domains/' . $domain);
+    $result = json_decode($result, true);
 
     return $result;
   }
@@ -102,6 +133,7 @@ class GoDaddy extends Adapter {
   public function updateDomain(string $domain, array $details)
   {
     $result = $this->call('PATCH', 'domains/' . $domain, $details);
+    $result = json_decode($result, true);
 
     return $result;
   }
@@ -112,6 +144,8 @@ class GoDaddy extends Adapter {
       'period' => $years,
     ]);
 
+    $result = json_decode($result, true);
+
     return $result;
   }
   
@@ -119,6 +153,8 @@ class GoDaddy extends Adapter {
   {
     $result = $this->call('POST', 'domains/' . $domain . '/transfer', $details);
 
+    $result = json_decode($result, true);
+    
     return $result;
   }
   

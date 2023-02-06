@@ -64,10 +64,12 @@ abstract class Adapter
         $responseType       = '';
         $responseBody       = '';
 
+        $query = null;
+        
         if(!empty($params)) {
           switch ($headers['Content-Type']) {
               case 'application/json':
-                  $query = json_encode($params);
+                  $query = json_encode($params, JSON_UNESCAPED_SLASHES);
                   break;
   
               case 'multipart/form-data':
@@ -82,6 +84,7 @@ abstract class Adapter
 
         foreach ($headers as $i => $header) {
             $headers[] = $i . ':' . $header;
+
             unset($headers[$i]);
         }
 
@@ -123,6 +126,11 @@ abstract class Adapter
         }
         
         curl_close($ch);
+
+        if($method == 'DELETE') {
+          var_dump($responseBody);
+          die;
+        }
 
         if($responseStatus >= 400) {
             if(is_array($responseBody)) {
