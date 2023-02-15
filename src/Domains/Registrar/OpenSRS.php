@@ -26,41 +26,39 @@ class OpenSRS extends Adapter {
    * @param string $apiKey
    * @param string $apiSecret - for OpenSRS your reseller_username is your apiSecret.
    */
-  public function __construct(string $env = 'DEV', string $apiKey, string $apiSecret, string $shopperId)
+  public function __construct(string $env, string $apiKey, string $username)
   {
-      $endpoint = 
+      $this->endpoint = 
         $env == 'DEV' 
         ? 'https://horizon.opensrs.net:55443' 
         : 'https://rr-n1-tor.opensrs.net:55443';
       
       $this->apiKey = $apiKey;
-      $this->apiSecret = $apiSecret;
+      $this->apiSecret = $username;
 
-      parent::__construct($endpoint, $apiKey, $apiSecret);
-      
-      $this->headers = array_merge([
-        'Content-Type' => 'text/xml',
-        'X-Username:' => $this->apiSecret,
-      ], $this->headers);
+      $this->headers = [
+        'Content-Type:text/xml',
+        'X-Username:' . $this->apiSecret,
+      ];
 
   }
 
-  public function call(string $method, string $path = '', array|string $params = [], array $headers = array()): array|string
+  public function send(array|string $params = []): array|string
   {
-    $xml = '';
+    $xml = $this->buildBody($params);
 
-    $headers = array_merge(
-      $this->headers, array_merge(
-        $headers,
-        [
-          'X-Signature:' => md5(md5($xml . $this->apiKey) .  $this->apiKey)
-        ]
-      )
-    );
+    $headers = array_merge($this->headers, [
+      'X-Signature:' . md5(md5($xml . $this->apiKey) .  $this->apiKey)
+    ]);
 
-    $body = $this->buildBody($params);
+    
+    $ch = curl_init($this->endpoint);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
 
-    return parent::call($method, $path, $body, $headers);
+    return curl_exec($ch);
   }
   
   /**
@@ -105,10 +103,12 @@ class OpenSRS extends Adapter {
 
     $object = $params['object'];
     $action = $params['action'];
-    $attributes = array_map(
-      fn($key, $value):string => "<item key=\"{$key}\">{$value}</item>",
-      $params['attributes']
-    );
+    $attributes = [];
+
+    foreach(($params['attributes'] ?? []) as $key => $value) {
+      array_push($attributes, "<item key=\"{$key}\">{$value}</item>");
+    }
+
 
     return str_replace(
       ['{object}', '{action}', '{attributes}'],
@@ -119,12 +119,16 @@ class OpenSRS extends Adapter {
 
   public function available(string $domain)
   {
-    $result = $this->call('GET', 'domains/available', [
-      'domain' => $domain,
-      'checkType' => 'FAST',
-      'forTransfer' => 'false',
+    $result = $this->send([
+      'object' => 'DOMAIN',
+      'action' => 'LOOKUP',
+      'attributes' => [
+        'domain' => $domain,
+      ]
     ]);
 
+    var_dump($result);
+die;
     return key_exists('available', $result) && $result['available'] == true;
   }
   

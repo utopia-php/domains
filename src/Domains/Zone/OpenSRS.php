@@ -1,11 +1,11 @@
 <?php
 
-namespace Utopia\Domains\Zones;
+namespace Utopia\Domains\Zone;
 
-use Utopia\Domains\Zones\Adapter;
+use Utopia\Domains\Zone\Adapter;
 
 
-class OpenSRSAdapter extends Adapter 
+class OpenSRS extends Adapter 
 {
   public function updateRecords(string $domain, array $records)
   {
@@ -22,7 +22,7 @@ class OpenSRSAdapter extends Adapter
     
   }
   
-  public function addDomainRecord(string $domain, string $type, string $name)
+  public function addDomainRecord(string $domain, string $destination, string $type, string $name)
   {
     
   }

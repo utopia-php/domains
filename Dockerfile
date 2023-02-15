@@ -34,6 +34,4 @@ WORKDIR /app
 
 ENV TERM xterm-256color
 
-RUN eval "$(direnv hook zsh)"
-
 CMD ["/bin/zsh"]

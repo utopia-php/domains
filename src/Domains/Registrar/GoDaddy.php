@@ -132,6 +132,8 @@ class GoDaddy extends Adapter {
   
   public function updateDomain(string $domain, array $details)
   {
+    var_dump($this->headers);
+
     $result = $this->call('PATCH', 'domains/' . $domain, $details);
     $result = json_decode($result, true);
 

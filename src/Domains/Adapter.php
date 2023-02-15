@@ -58,14 +58,25 @@ abstract class Adapter
     public function call(string $method, string $path = '', array|string $params = [], array $headers = array()): array|string
     {
         $headers            = array_merge($this->headers, $headers);
-        $ch                 = curl_init((str_contains($path, 'http') ? $path : $this->endpoint . $path . (($method == 'GET' && !empty($params)) ? '?' . http_build_query($params) : '')));
+        $ch                 = curl_init(
+          (
+            str_contains($path, 'http') 
+            ? $path 
+            : $this->endpoint . $path . (
+                ($method == 'GET' && !empty($params) && $headers['Content-Type'] != 'text/xml') 
+                ? '?' . http_build_query($params) 
+                : ''
+              )
+            )
+        );
+
         $responseHeaders    = [];
         $responseStatus     = -1;
         $responseType       = '';
         $responseBody       = '';
 
         $query = null;
-        
+
         if(!empty($params)) {
           switch ($headers['Content-Type']) {
               case 'application/json':
@@ -75,7 +86,11 @@ abstract class Adapter
               case 'multipart/form-data':
                   $query = $this->flatten($params);
                   break;
-  
+
+              case 'text/xml':
+                  $query = $params;
+                  break;
+
               default:
                   $query = http_build_query($params);
                   break;

@@ -31,4 +31,4 @@ run: build ## Run live environment
 	&& docker run -it --privileged=true --network=host --rm --volume ${SRC_VOLUME}:/app  ${LC_PROJECT}:${VERSION}
 
 test:
-	@./vendor/bin/phpunit --configuration phpunit.xml tests/Registrar/GoDaddyTest.php
+	@./vendor/bin/phpunit --configuration phpunit.xml tests/OpenSRSTest.php
