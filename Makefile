@@ -32,3 +32,6 @@ run: build ## Run live environment
 
 test:
 	@./vendor/bin/phpunit --configuration phpunit.xml tests/OpenSRSTest.php
+
+direnv: ## Runs Direnv's hook command
+	@eval "$(direnv hook zsh)"
