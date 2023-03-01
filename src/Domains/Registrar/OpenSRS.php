@@ -594,7 +594,7 @@ class OpenSRS extends Adapter
         return implode(PHP_EOL, $result);
     }
 
-    private function buildEnvelop(string $object, string $action, array $attributes, string $domain = null)
+    private function buildEnvelop(string $object, string $action, array $attributes, string $domain = null):string
     {
         $result = [
             '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
