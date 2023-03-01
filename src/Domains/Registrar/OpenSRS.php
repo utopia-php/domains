@@ -196,7 +196,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function cancelPurchase(string $_domain)
+    public function cancelPurchase()
     {
         $timestamp = date('Y-m-d\TH:i:s.000');
         $timestamp = strtotime($timestamp);
