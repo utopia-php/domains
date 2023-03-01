@@ -385,7 +385,7 @@ class OpenSRS extends Adapter
         return $results;
     }
 
-    private function response($xml): array
+    private function response(string $xml): array
     {
         $doc = simplexml_load_string($xml);
         $elements = $doc->xpath('//data_block/dt_assoc/item[@key="response_code"]');
