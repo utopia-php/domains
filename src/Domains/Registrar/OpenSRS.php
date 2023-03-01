@@ -86,7 +86,7 @@ class OpenSRS extends Adapter
         return $available;
     }
 
-    public function updateNameservers(string $domain, array $nameservers)
+    public function updateNameservers(string $domain, array $nameservers): array
     {
         $message = [
             'object' => 'DOMAIN',
@@ -97,10 +97,6 @@ class OpenSRS extends Adapter
                 'op_type' => 'add_remove',
             ],
         ];
-
-        // $xml = $this->buildEnvelop($message['object'], $message['action'], $message['attributes'], $message['domain']);
-        // var_dump($xml);
-        // die;
 
         $result = $this->send($message);
         $result = simplexml_load_string($result);
@@ -121,7 +117,7 @@ class OpenSRS extends Adapter
         ];
     }
 
-    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [])
+    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = []): string
     {
         $hasNameservers = empty($nameservers) ? 0 : 1;
 
@@ -196,7 +192,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function cancelPurchase()
+    public function cancelPurchase(): bool
     {
         $timestamp = date('Y-m-d\TH:i:s.000');
         $timestamp = strtotime($timestamp);
@@ -309,7 +305,7 @@ class OpenSRS extends Adapter
         return $results;
     }
 
-    public function updateDomain(string $domain, array $details)
+    public function updateDomain(string $domain, array $details): bool
     {
         $message = [
             'object' => 'domain',
@@ -389,7 +385,7 @@ class OpenSRS extends Adapter
         return $results;
     }
 
-    private function response($xml):array
+    private function response($xml): array
     {
         $doc = simplexml_load_string($xml);
         $elements = $doc->xpath('//data_block/dt_assoc/item[@key="response_code"]');
@@ -412,7 +408,7 @@ class OpenSRS extends Adapter
         ];
     }
 
-    private function createArray(string $key, array $ary):string
+    private function createArray(string $key, array $ary): string
     {
         $result = [
             '<item key="'.$key.'">',
@@ -429,7 +425,7 @@ class OpenSRS extends Adapter
         return implode(PHP_EOL, $result);
     }
 
-    private function createEnvelopItem(string $key, string|int|array $value):string
+    private function createEnvelopItem(string $key, string|int|array $value): string
     {
         if (is_array($value)) {
             return $this->createArray($key, $value);
@@ -438,7 +434,7 @@ class OpenSRS extends Adapter
         return "<item key='{$key}'>{$value}</item>";
     }
 
-    private function validateContact(array $contact):array
+    private function validateContact(array $contact): array
     {
         $required = [
             'firstname',
@@ -478,7 +474,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    private function createContact(string $type, array $contact):string
+    private function createContact(string $type, array $contact): string
     {
         $contact = $this->validateContact($contact);
         $result = [
@@ -498,7 +494,7 @@ class OpenSRS extends Adapter
         return $xml;
     }
 
-    private function createContactSet(array $contacts):string
+    private function createContactSet(array $contacts): string
     {
         $result = [
             '<item key="contact_set">',
@@ -515,7 +511,7 @@ class OpenSRS extends Adapter
         return implode(PHP_EOL, $result);
     }
 
-    private function createNameserver(string $name, int $sortOrder):string
+    private function createNameserver(string $name, int $sortOrder): string
     {
         return implode(PHP_EOL, [
             '<dt_assoc>',
@@ -525,7 +521,7 @@ class OpenSRS extends Adapter
         ]);
     }
 
-    private function createNameserverList(array $nameservers):string
+    private function createNameserverList(array $nameservers): string
     {
         $result = [
             '<item key="nameserver_list">',
@@ -542,7 +538,7 @@ class OpenSRS extends Adapter
         return implode(PHP_EOL, $result);
     }
 
-    private function createNamespaceAssign(array $nameservers):string
+    private function createNamespaceAssign(array $nameservers): string
     {
         $result = [
             '<item key="add_ns">',
@@ -559,7 +555,7 @@ class OpenSRS extends Adapter
         return implode(PHP_EOL, $result);
     }
 
-    private function buildEnvelop(string $object, string $action, array $attributes, string $domain = null):string
+    private function buildEnvelop(string $object, string $action, array $attributes, string $domain = null): string
     {
         $result = [
             '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
