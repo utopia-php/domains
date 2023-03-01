@@ -34,4 +34,4 @@ test:
 	@./vendor/bin/phpunit --configuration phpunit.xml tests/OpenSRSTest.php
 
 direnv: ## Runs Direnv's hook command
-	@eval "$(direnv hook zsh)"
+	@eval "$(direnv hook zsh)" && direnv allow
