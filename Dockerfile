@@ -25,6 +25,7 @@ RUN apt-get update && \
 
 RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
 
+RUN composer require laravel/pint --dev --ignore-platform-reqs
 
 RUN sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 

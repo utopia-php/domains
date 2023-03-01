@@ -22,7 +22,8 @@
   "require-dev": {
       "phpunit/phpunit": "^9.3",
       "vimeo/psalm": "4.0.1",
-      "phpstan/phpstan": "1.9.x-dev"
+      "phpstan/phpstan": "1.9.x-dev",
+    "laravel/pint": "dev-main"
   },
   "minimum-stability": "dev"
 }

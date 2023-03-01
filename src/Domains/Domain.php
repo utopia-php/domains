@@ -55,8 +55,6 @@ class Domain
 
     /**
      * Domain constructor.
-     *
-     * @param  string  $domain
      */
     public function __construct(string $domain)
     {
@@ -74,8 +72,6 @@ class Domain
 
     /**
      * Return top level domain
-     *
-     * @return string
      */
     public function get(): string
     {
@@ -84,8 +80,6 @@ class Domain
 
     /**
      * Return top level domain
-     *
-     * @return string
      */
     public function getTLD(): string
     {
@@ -104,8 +98,6 @@ class Domain
 
     /**
      * Returns domain public suffix
-     *
-     * @return string
      */
     public function getSuffix(): string
     {
@@ -128,8 +120,6 @@ class Domain
 
     /**
      * Returns registerable domain name
-     *
-     * @return string
      */
     public function getRegisterable(): string
     {
@@ -144,8 +134,6 @@ class Domain
 
     /**
      * Returns domain name
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -165,8 +153,6 @@ class Domain
 
     /**
      * Returns sub-domain name
-     *
-     * @return string
      */
     public function getSub(): string
     {
@@ -187,8 +173,6 @@ class Domain
 
     /**
      * Returns true if the public suffix is found;
-     *
-     * @return bool
      */
     public function isKnown(): bool
     {
@@ -201,8 +185,6 @@ class Domain
 
     /**
      * Returns true if the public suffix is found using ICANN domains section
-     *
-     * @return bool
      */
     public function isICANN(): bool
     {
@@ -215,8 +197,6 @@ class Domain
 
     /**
      * Returns true if the public suffix is found using PRIVATE domains section
-     *
-     * @return bool
      */
     public function isPrivate(): bool
     {
@@ -229,8 +209,6 @@ class Domain
 
     /**
      * Returns true if the public suffix is reserved for testing purpose
-     *
-     * @return bool
      */
     public function isTest(): bool
     {
