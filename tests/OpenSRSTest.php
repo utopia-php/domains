@@ -9,9 +9,6 @@ use Utopia\Domains\Zone\OpenSRS as OpenSRSZone;
 class OpenSRSTest extends TestCase
 {
     private OpenSRS $client;
-
-    private OpenSRSZone $zoneClient;
-
     private string $domain;
 
     protected function setUp(): void
@@ -25,7 +22,6 @@ class OpenSRSTest extends TestCase
 
         $this->domain = self::generateRandomString().'.net';
         $this->client = new OpenSRS($env, $key, $secret);
-        $this->zoneClient = new OpenSRSZone($env, $key, $secret);
     }
 
     public function testAvailable(): void
