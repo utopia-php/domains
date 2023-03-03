@@ -53,10 +53,9 @@ class OpenSRSTest extends TestCase
         $this->assertArrayHasKey('registry_createdate', $result);
     }
 
-    /** @depends testPurchase */
     public function testCancelPurchase(): void
     {
-        $result = $this->client->cancelPurchase($this->domain);
+        $result = $this->client->cancelPurchase();
 
         $this->assertTrue($result);
     }
@@ -110,7 +109,7 @@ class OpenSRSTest extends TestCase
     }
 
     /** @depends testPurchase */
-    public function testTransfer(string $domain)
+    public function testTransfer(string $domain): void
     {
         $result = $this->client->transfer($domain, [
             'contacts' => self::purchaseContact(),

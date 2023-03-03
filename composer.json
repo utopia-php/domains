@@ -10,9 +10,6 @@
           "email": "eldad@appwrite.io"
       }
   ],
-  "scripts": {
-    "check": "./vendor/bin/phpstan analyse --level max src tests"
-  },
   "autoload": {
       "psr-4": {"Utopia\\Domains\\": "src/Domains"}
   },
