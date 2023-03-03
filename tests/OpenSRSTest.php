@@ -28,14 +28,14 @@ class OpenSRSTest extends TestCase
         $this->zoneClient = new OpenSRSZone($env, $key, $secret);
     }
 
-    public function testAvailable()
+    public function testAvailable(): void
     {
         $result = $this->client->available($this->domain);
 
         $this->assertTrue($result);
     }
 
-    public function testPurchase()
+    public function testPurchase(): string
     {
         $domain = $this->domain;
 
@@ -49,7 +49,7 @@ class OpenSRSTest extends TestCase
     }
 
     /** @depends testPurchase */
-    public function testDomainInfo($domain)
+    public function testDomainInfo(string $domain): void
     {
         $result = $this->client->domain($domain);
 
@@ -58,14 +58,14 @@ class OpenSRSTest extends TestCase
     }
 
     /** @depends testPurchase */
-    public function testCancelPurchase()
+    public function testCancelPurchase(): void
     {
         $result = $this->client->cancelPurchase($this->domain);
 
         $this->assertTrue($result);
     }
 
-    public function testSuggest()
+    public function testSuggest(): void
     {
         $result = $this->client->suggest(
             [
@@ -83,7 +83,7 @@ class OpenSRSTest extends TestCase
     }
 
     /** @depends testPurchase */
-    public function testUpdateNameservers($domain)
+    public function testUpdateNameservers(string $domain): void
     {
         $result = $this->client->updateNameservers($domain, [
             'ns1.hover.com',
@@ -94,7 +94,7 @@ class OpenSRSTest extends TestCase
     }
 
     /** @depends testPurchase */
-    public function testUpdateDomain($domain)
+    public function testUpdateDomain(string $domain): void
     {
         $result = $this->client->updateDomain($domain, [
             'affect_domains' => 0,
@@ -106,7 +106,7 @@ class OpenSRSTest extends TestCase
     }
 
     /** @depends testPurchase */
-    public function testRenewDomain($domain)
+    public function testRenewDomain(string $domain): void
     {
         $result = $this->client->renew($domain, 1);
 
@@ -114,7 +114,7 @@ class OpenSRSTest extends TestCase
     }
 
     /** @depends testPurchase */
-    public function testTransfer($domain)
+    public function testTransfer(string $domain)
     {
         $result = $this->client->transfer($domain, [
             'contacts' => self::purchaseContact(),
@@ -132,7 +132,7 @@ class OpenSRSTest extends TestCase
         $this->assertFalse($result['successful']);
     }
 
-    private static function purchaseContact(string $suffix = '')
+    private static function purchaseContact(string $suffix = ''): array
     {
         $contact = [
             'firstname' => 'Test'.$suffix,
@@ -158,7 +158,7 @@ class OpenSRSTest extends TestCase
         ];
     }
 
- private function generateRandomString($length = 10)
+ private function generateRandomString(int $length = 10): string
  {
      $characters = 'abcdefghijklmnopqrstuvwxyz';
      $charactersLength = strlen($characters);
