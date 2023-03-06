@@ -4,7 +4,6 @@ namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Utopia\Domains\Registrar\OpenSRS;
-use Utopia\Domains\Zone\OpenSRS as OpenSRSZone;
 
 class OpenSRSTest extends TestCase
 {
