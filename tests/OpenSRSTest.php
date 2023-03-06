@@ -8,6 +8,7 @@ use Utopia\Domains\Registrar\OpenSRS;
 class OpenSRSTest extends TestCase
 {
     private OpenSRS $client;
+
     private string $domain;
 
     protected function setUp(): void
