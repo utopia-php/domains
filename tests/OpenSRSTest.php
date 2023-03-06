@@ -14,7 +14,7 @@ class OpenSRSTest extends TestCase
     protected function setUp(): void
     {
         $env = 'DEV';
-        $key = getenv('OPENSRS_DEV_KEY');
+        $key = getenv('OPENSRS_KEY');
         $secret = getenv('OPENSRS_USERNAME');
 
         $this->assertNotEmpty($key);
