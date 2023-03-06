@@ -1,4 +1,9 @@
- name: Linter
+name: "Linter"
+
+on: [pull_request]
+jobs:
+  lint:
+    name: Linter
     runs-on: ubuntu-latest
 
     steps:

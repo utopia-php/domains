@@ -8,12 +8,17 @@
       {
           "name": "Eldad Fux",
           "email": "eldad@appwrite.io"
+      },
+      {
+          "name": "Wess Cope",
+          "email": "wess@appwrite.io"
       }
   ],
   "autoload": {
       "psr-4": {"Utopia\\Domains\\": "src/Domains"}
   },
   "scripts": {
+    "test": "vendor/bin/phpunit",
     "lint": "./vendor/bin/pint --test",
     "format": "./vendor/bin/pint"
   },
