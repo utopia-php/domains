@@ -3,6 +3,7 @@
 namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Utopia\Domains\Contact;
 use Utopia\Domains\Registrar\OpenSRS;
 
 class OpenSRSTest extends TestCase
@@ -13,7 +14,6 @@ class OpenSRSTest extends TestCase
 
     protected function setUp(): void
     {
-        $env = 'DEV';
         $key = getenv('OPENSRS_KEY');
         $secret = getenv('OPENSRS_USERNAME');
 
@@ -21,7 +21,16 @@ class OpenSRSTest extends TestCase
         $this->assertNotEmpty($secret);
 
         $this->domain = self::generateRandomString().'.net';
-        $this->client = new OpenSRS($env, $key, $secret);
+        $this->client = new OpenSRS(
+            $key,
+            $secret,
+            'appwrite',
+            self::generateRandomString(),
+            [
+                'ns1.appwrite.io',
+                'ns2.appwrite.io',
+            ]
+        );
     }
 
     public function testAvailable(): void
@@ -35,9 +44,7 @@ class OpenSRSTest extends TestCase
     {
         $domain = $this->domain;
 
-        $result = $this->client->purchase($domain, [
-            'contacts' => self::purchaseContact(),
-        ]);
+        $result = $this->client->purchase($domain, self::purchaseContact());
 
         $this->assertTrue($result['successful']);
 
@@ -91,11 +98,14 @@ class OpenSRSTest extends TestCase
     /** @depends testPurchase */
     public function testUpdateDomain(string $domain): void
     {
-        $result = $this->client->updateDomain($domain, [
-            'affect_domains' => 0,
-            'data' => 'contact_info',
-            'contact_set' => self::purchaseContact('2'),
-        ]);
+        $result = $this->client->updateDomain(
+            $domain,
+            self::purchaseContact('2'),
+            [
+                'affect_domains' => 0,
+                'data' => 'contact_info',
+                'contact_set' => self::purchaseContact('2'),
+            ]);
 
         $this->assertTrue($result);
     }
@@ -111,9 +121,7 @@ class OpenSRSTest extends TestCase
     /** @depends testPurchase */
     public function testTransfer(string $domain): void
     {
-        $result = $this->client->transfer($domain, [
-            'contacts' => self::purchaseContact(),
-        ]);
+        $result = $this->client->transfer($domain, self::purchaseContact());
 
         // This will always fail mainly because it's a test env,
         // but also because:
@@ -129,21 +137,21 @@ class OpenSRSTest extends TestCase
 
     private static function purchaseContact(string $suffix = ''): array
     {
-        $contact = [
-            'firstname' => 'Test'.$suffix,
-            'lastname' => 'Tester'.$suffix,
-            'phone' => '+1.8031234567'.$suffix,
-            'email' => 'testing@test.com'.$suffix,
-            'address1' => '123 Main St'.$suffix,
-            'address2' => 'Suite 100'.$suffix,
-            'address3' => ''.$suffix,
-            'city' => 'San Francisco'.$suffix,
-            'state' => 'CA',
-            'country' => 'US',
-            'postalcode' => '94105',
-            'org' => 'Test Inc'.$suffix,
-            'owner' => 'Test Tester'.$suffix,
-        ];
+        $contact = new Contact(
+            'Test'.$suffix,
+            'Tester'.$suffix,
+            '+1.8031234567'.$suffix,
+            'testing@test.com'.$suffix,
+            '123 Main St'.$suffix,
+            'Suite 100'.$suffix,
+            ''.$suffix,
+            'San Francisco'.$suffix,
+            'CA',
+            'US',
+            '94105',
+            'Test Inc'.$suffix,
+            'Test Tester'.$suffix,
+        );
 
         return [
             'owner' => $contact,

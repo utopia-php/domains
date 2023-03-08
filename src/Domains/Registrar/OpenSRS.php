@@ -6,32 +6,37 @@ use Exception;
 
 class OpenSRS extends Adapter
 {
-    private array $sources = [
-        'CC_TLD',
-        'EXTENSION',
-        'KEYWORD_SPIN',
-        'PREMIUM',
-        'cctld',
-        'extension',
-        'keywordspin',
-        'premium',
-    ];
+    protected array $defaultNameservers;
+
+    protected array $user;
 
     /**
      * __construct
      * Instantiate a new adapter.
      *
-     * @param  string  $apiSecret - for OpenSRS your reseller_username is your apiSecret.
+     * @param  string  $apiKey
+     * @param  string  $apiSecret
+     * @param  string  $username
+     * @param  string  $password
+     * @param  array  $defaultNameservers
+     * @param  bool  $production
+     * @return void
      */
-    public function __construct(string $env, string $apiKey, string $username)
+    public function __construct(string $apiKey, string $apiSecret, string $username, string $password, array $defaultNameservers, bool $production = false)
     {
         $this->endpoint =
-          $env == 'DEV'
+          $production == false
           ? 'https://horizon.opensrs.net:55443'
           : 'https://rr-n1-tor.opensrs.net:55443';
 
         $this->apiKey = $apiKey;
-        $this->apiSecret = $username;
+        $this->apiSecret = $apiSecret;
+        $this->defaultNameservers = $defaultNameservers;
+
+        $this->user = [
+            'username' => $username,
+            'password' => $password,
+        ];
 
         $this->headers = [
             'Content-Type:text/xml',
@@ -148,45 +153,36 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array $details): array
+    public function purchase(string $domain, array $contacts, array $nameservers = []): array
     {
-        $nameservers = $details['nameservers'] ?? [
-            'ns1.appwrite.com',
-            'ns2.appwrite.com',
-        ];
+        $nameservers =
+          empty($nameservers)
+          ? $this->defaultNameservers
+          : $nameservers;
 
-        $contacts = $details['contacts'];
-
-        $user = $details['user'] ?? [
-            'username' => 'appwrite',
-            'password' => 'abdcefghijk',
-        ];
+        $contacts = $this->sanitizeContacts($contacts);
 
         $regType = 'new';
 
-        $result = $this->register($domain, $regType, $user, $contacts, $nameservers);
+        $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
+
         $result = $this->response($result);
 
         return $result;
     }
 
-    public function transfer(string $domain, array $details): array
+    public function transfer(string $domain, array $contacts, array $nameservers = []): array
     {
-        $nameservers = $details['nameservers'] ?? [
-            'ns1.appwrite.com',
-            'ns2.appwrite.com',
-        ];
+        $nameservers =
+          empty($nameservers)
+          ? $this->defaultNameservers
+          : $nameservers;
 
-        $contacts = $details['contacts'];
-
-        $user = $details['user'] ?? [
-            'username' => 'appwrite',
-            'password' => 'abdcefghijk',
-        ];
+        $contacts = $this->sanitizeContacts($contacts);
 
         $regType = 'transfer';
 
-        $result = $this->register($domain, $regType, $user, $contacts, $nameservers);
+        $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
         $result = $this->response($result);
 
         return $result;
@@ -305,8 +301,10 @@ class OpenSRS extends Adapter
         return $results;
     }
 
-    public function updateDomain(string $domain, array $details): bool
+    public function updateDomain(string $domain, array $contacts, array $details): bool
     {
+        $contacts = $this->sanitizeContacts($contacts);
+
         $message = [
             'object' => 'domain',
             'action' => 'modify',
@@ -314,7 +312,7 @@ class OpenSRS extends Adapter
                 'domain' => $domain,
                 'affect_domains' => 0,
                 'data' => $details['data'],
-                'contact_set' => $details['contact_set'],
+                'contact_set' => $contacts,
             ],
         ];
 
@@ -616,5 +614,24 @@ class OpenSRS extends Adapter
         $xml = implode(PHP_EOL, $result);
 
         return $xml;
+    }
+
+    private function sanitizeContacts(array $contacts): array
+    {
+        if (count(array_keys($contacts)) == 1) {
+            return [
+                'owner' => $contacts[0]->toArray(),
+                'admin' => $contacts[0]->toArray(),
+                'tech' => $contacts[0]->toArray(),
+                'billing' => $contacts[0]->toArray(),
+            ];
+        }
+
+        $result = [];
+        foreach ($contacts as $key => $val) {
+            $result[$key] = $val->toArray();
+        }
+
+        return $result;
     }
 }
