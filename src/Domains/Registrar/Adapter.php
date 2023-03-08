@@ -6,17 +6,59 @@ use Utopia\Domains\Adapter as DomainsAdapter;
 
 abstract class Adapter extends DomainsAdapter
 {
+  /**
+   * 
+   * @param string $domain 
+   * @return bool 
+   */
     abstract public function available(string $domain): bool;
 
-    abstract public function purchase(string $domain, array $details): array;
+    /**
+     * 
+     * @param string $domain 
+     * @param array $contacts 
+     * @param array $nameservers 
+     * @return array 
+     */
+    abstract public function purchase(string $domain, array $contacts, array $nameservers = []): array;
 
+    /**
+     * 
+     * @param array $query 
+     * @param array $tlds 
+     * @param int $minLength 
+     * @param int $maxLength 
+     * @return array 
+     */
     abstract public function suggest(array $query, array $tlds = [], $minLength = 1, $maxLength = 100): array;
 
+    /**
+     * 
+     * @return array 
+     */
     abstract public function tlds(): array;
 
+    /**
+     * 
+     * @param string $domain 
+     * @return array 
+     */
     abstract public function domain(string $domain): array;
 
+    /**
+     * 
+     * @param string $domain 
+     * @param int $years 
+     * @return array 
+     */
     abstract public function renew(string $domain, int $years): array;
 
-    abstract public function transfer(string $domain, array $details): array;
+    /**
+     * 
+     * @param string $domain 
+     * @param Contact[] $contacts 
+     * @param array $nameservers 
+     * @return array 
+     */
+    abstract public function transfer(string $domain, array $contacts, array $nameservers = []): array;
 }
