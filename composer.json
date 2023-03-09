@@ -28,7 +28,6 @@
   },
   "require-dev": {
       "phpunit/phpunit": "^9.3",
-      "vimeo/psalm": "4.0.1",
       "laravel/pint": "1.2.*"
   },
   "minimum-stability": "dev"

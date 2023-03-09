@@ -105,7 +105,8 @@ class OpenSRSTest extends TestCase
                 'affect_domains' => 0,
                 'data' => 'contact_info',
                 'contact_set' => self::purchaseContact('2'),
-            ]);
+            ]
+        );
 
         $this->assertTrue($result);
     }
