@@ -27,7 +27,7 @@ abstract class Adapter extends DomainsAdapter
      * @param  int  $maxLength
      * @return array
      */
-    abstract public function suggest(array $query, array $tlds = [], $minLength = 1, $maxLength = 100): array;
+    abstract public function suggest(array|string $query, array $tlds = [], $minLength = 1, $maxLength = 100): array;
 
     /**
      * @return array
@@ -38,7 +38,7 @@ abstract class Adapter extends DomainsAdapter
      * @param  string  $domain
      * @return array
      */
-    abstract public function domain(string $domain): array;
+    abstract public function getDomain(string $domain): array;
 
     /**
      * @param  string  $domain

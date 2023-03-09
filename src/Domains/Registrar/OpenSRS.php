@@ -76,19 +76,27 @@ class OpenSRS extends Adapter
             ],
         ]);
 
-        $result = simplexml_load_string($result);
-        $result = $result->body->data_block->dt_assoc->item;
+        
+        $result = $this->sanitizeResponse($result);
+        $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
+        
+        return "{$elements[0]}" === '210' ? true : false;
+    }
 
-        $available = false;
+    private function sanitizeResponse(string $response)
+    {
+      $result = simplexml_load_string($response);
+      $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
+      $code = (int) "{$elements[0]}";
 
-        foreach ($result as $r) {
-            if ($r === 'Domain available') {
-                $available = true;
-                break;
-            }
-        }
+      if($code > 299) {
+        $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_text"]');
+        $text = "{$elements[0]}";
+       
+        throw new Exception($text, $code);
+      }
 
-        return $available;
+      return $result;
     }
 
     public function updateNameservers(string $domain, array $nameservers): array
@@ -104,7 +112,7 @@ class OpenSRS extends Adapter
         ];
 
         $result = $this->send($message);
-        $result = simplexml_load_string($result);
+        $result = $this->sanitizeResponse($result);
 
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="is_success"]');
         $successful = "{$elements[0]}" === '1' ? true : false;
@@ -206,7 +214,7 @@ class OpenSRS extends Adapter
         ];
 
         $result = $this->send($message);
-        $result = simplexml_load_string($result);
+        $result = $this->sanitizeResponse($result);
 
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="is_success"]');
         $successful = "{$elements[0]}" === '1' ? true : false;
@@ -214,8 +222,10 @@ class OpenSRS extends Adapter
         return $successful;
     }
 
-    public function suggest(array $query, array $tlds = [], $minLength = 1, $maxLength = 100): array
+    public function suggest(array|string $query, array $tlds = [], $minLength = 1, $maxLength = 100): array
     {
+        $query = is_array($query) ? $query : [$query];
+
         $message = [
             'object' => 'DOMAIN',
             'action' => 'name_suggest',
@@ -242,7 +252,7 @@ class OpenSRS extends Adapter
         ]);
 
         $result = $this->send($message);
-        $result = simplexml_load_string($result);
+        $result = $this->sanitizeResponse($result);
         $elements = $result->xpath($xpath);
 
         $items = [];
@@ -264,7 +274,7 @@ class OpenSRS extends Adapter
         return [];
     }
 
-    public function domain(string $domain): array
+    public function getDomain(string $domain): array
     {
         $message = [
             'object' => 'domain',
@@ -286,7 +296,7 @@ class OpenSRS extends Adapter
         ]);
 
         $result = $this->send($message);
-        $result = simplexml_load_string($result);
+        $result = $this->sanitizeResponse($result);
         $elements = $result->xpath($xpath);
 
         $results = [];
@@ -330,7 +340,7 @@ class OpenSRS extends Adapter
         ]);
 
         $result = $this->send($message);
-        $result = simplexml_load_string($result);
+        $result = $this->sanitizeResponse($result);
         $elements = $result->xpath($xpath);
 
         return "{$elements[0]}" === '1' ? true : false;
@@ -385,7 +395,7 @@ class OpenSRS extends Adapter
 
     private function response(string $xml): array
     {
-        $doc = simplexml_load_string($xml);
+        $doc = $this->sanitizeResponse($xml);
         $elements = $doc->xpath('//data_block/dt_assoc/item[@key="response_code"]');
         $responseCode = "{$elements[0]}";
 
