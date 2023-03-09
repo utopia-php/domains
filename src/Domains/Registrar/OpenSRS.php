@@ -25,7 +25,7 @@ class OpenSRS extends Adapter
     public function __construct(string $apiKey, string $apiSecret, string $username, string $password, array $defaultNameservers, bool $production = false)
     {
         $this->endpoint =
-          $production == false
+          $production === false
           ? 'https://horizon.opensrs.net:55443'
           : 'https://rr-n1-tor.opensrs.net:55443';
 
