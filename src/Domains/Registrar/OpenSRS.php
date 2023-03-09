@@ -76,27 +76,27 @@ class OpenSRS extends Adapter
             ],
         ]);
 
-        
+
         $result = $this->sanitizeResponse($result);
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
-        
+
         return "{$elements[0]}" === '210' ? true : false;
     }
 
     private function sanitizeResponse(string $response)
     {
-      $result = simplexml_load_string($response);
-      $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
-      $code = (int) "{$elements[0]}";
+        $result = simplexml_load_string($response);
+        $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
+        $code = (int) "{$elements[0]}";
 
-      if($code > 299) {
-        $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_text"]');
-        $text = "{$elements[0]}";
-       
-        throw new Exception($text, $code);
-      }
+        if ($code > 299) {
+            $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_text"]');
+            $text = "{$elements[0]}";
 
-      return $result;
+            throw new Exception($text, $code);
+        }
+
+        return $result;
     }
 
     public function updateNameservers(string $domain, array $nameservers): array
