@@ -82,7 +82,7 @@ class OpenSRS extends Adapter
         $available = false;
 
         foreach ($result as $r) {
-            if ($r == 'Domain available') {
+            if ($r === 'Domain available') {
                 $available = true;
                 break;
             }
@@ -107,7 +107,7 @@ class OpenSRS extends Adapter
         $result = simplexml_load_string($result);
 
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="is_success"]');
-        $successful = "{$elements[0]}" == '1' ? true : false;
+        $successful = "{$elements[0]}" === '1' ? true : false;
 
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_text"]');
         $text = "{$elements[0]}";
@@ -209,7 +209,7 @@ class OpenSRS extends Adapter
         $result = simplexml_load_string($result);
 
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="is_success"]');
-        $successful = "{$elements[0]}" == '1' ? true : false;
+        $successful = "{$elements[0]}" === '1' ? true : false;
 
         return $successful;
     }
@@ -250,7 +250,7 @@ class OpenSRS extends Adapter
         foreach ($elements as $element) {
             $item = $element->xpath('dt_assoc/item');
             $domain = "{$item[0]}";
-            $available = "{$item[1]}" == 'available' ? true : false;
+            $available = "{$item[1]}" === 'available' ? true : false;
 
             $items[$domain] = $available;
         }
@@ -333,7 +333,7 @@ class OpenSRS extends Adapter
         $result = simplexml_load_string($result);
         $elements = $result->xpath($xpath);
 
-        return "{$elements[0]}" == '1' ? true : false;
+        return "{$elements[0]}" === '1' ? true : false;
     }
 
     public function renew(string $domain, int $years): array
@@ -369,7 +369,7 @@ class OpenSRS extends Adapter
         foreach ($elements as $item) {
             $key = "{$item['key']}";
 
-            if ($key == 'registration expiration date') {
+            if ($key === 'registration expiration date') {
                 $result['new_expiration'] = "{$item}";
 
                 continue;
