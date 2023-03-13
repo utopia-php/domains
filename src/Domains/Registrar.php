@@ -33,9 +33,9 @@ class Registrar
         return $this->adapter->tlds();
     }
 
-    public function domain(string $domain): array
+    public function getDomain(string $domain): array
     {
-        return $this->adapter->domain($domain);
+        return $this->adapter->getDomain($domain);
     }
 
     public function renew(string $domain, int $years): array
