@@ -80,7 +80,7 @@ class OpenSRS extends Adapter
         $result = $this->sanitizeResponse($result);
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
 
-        return "{$elements[0]}" === '210' ? true : false;
+        return (string) $elements[0] === '210';
     }
 
     private function sanitizeResponse(string $response)
