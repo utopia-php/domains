@@ -343,7 +343,7 @@ class OpenSRS extends Adapter
         $result = $this->sanitizeResponse($result);
         $elements = $result->xpath($xpath);
 
-        return "{$elements[0]}" === '1' ? true : false;
+        return (string) $elements[0] === '1';
     }
 
     public function renew(string $domain, int $years): array
