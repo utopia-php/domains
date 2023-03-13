@@ -4,8 +4,6 @@ namespace Utopia\Domains;
 
 abstract class Adapter
 {
-    protected bool $enabled = true;
-
     protected string $userAgent = 'Utopia PHP Framework';
 
     protected string $endpoint;
