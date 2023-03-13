@@ -260,7 +260,7 @@ class OpenSRS extends Adapter
         foreach ($elements as $element) {
             $item = $element->xpath('dt_assoc/item');
             $domain = (string) $item[0];
-            $available = "{$item[1]}" === 'available' ? true : false;
+            $available = (string) $item[1] === 'available';
 
             $items[$domain] = $available;
         }
