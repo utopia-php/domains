@@ -131,11 +131,6 @@ abstract class Adapter
 
           curl_close($ch);
 
-          if ($method == 'DELETE') {
-              var_dump($responseBody);
-              exit;
-          }
-
           if ($responseStatus >= 400) {
               if (is_array($responseBody)) {
                   throw new \Exception(json_encode($responseBody));
