@@ -75,6 +75,65 @@ php ./data/import.php
 
 > If you want to parse ordinary web urls then use `$host = parse_url($return, PHP_URL_HOST); $domain = new Utopia\Domains\Domain($host);` to get the domain object. 
 
+
+## Using the Registrar API
+```php
+<?php
+
+use Utopia\Domains\Registrar;
+use Utopia\Domains\Contact;
+use Utopia\Domains\Registrar\OpenSRS;
+
+$opensrs = new OpenSRS(
+  'apikey', 
+  'apisecret', 
+  'username', 
+  'password', 
+  [
+    'ns1.nameserver.com',
+    'ns2.nameserver.com',
+  ]
+);
+
+
+$reg = new Registrar($opensrs);
+
+$contact = new Contact(
+  'firstname',
+  'lastname',
+  'phone',
+  'email',
+  'address1',
+  'address2',
+  'address3',
+  'city',
+  'state',
+  'country',
+  'postalcode',
+  'org',
+  'owner',
+);
+
+$domain = 'yourname.com';
+
+$available = $reg->available($domain);
+$purchase = $reg->purchase($domain, $contact); 
+$suggest = $reg->suggest(['yourname', 'yourname1.com'], ['com', 'net', 'org']);
+$domainDetails = $reg->getDomain($domain);
+$renew = $reg->renew($domain, 1);
+$transfer = $reg->transfer($domain, [$contact]);
+
+```
+
+## Library Registrar API
+* **available(string $domain): bool** - Checks to see if a domain is available for registration.
+* **purchase(string $domain, array $contacts, array $nameservers = []): array** - Purchase a domain name.
+* **suggest(array $query, array $tlds = [], $minLength = 1, $maxLength = 100): array** - Suggest or search for domain names.
+* **getDomain(string $domain): array** - Get domain details.
+* **renew(string $domain, int $years): array** - Renew a domain name.
+* **transfer(string $domain, array $contacts, array $nameservers = []): array** - Transfer a domain name.
+
+
 ## System Requirements
 
 Utopia Framework requires PHP 8.0 or later. We recommend using the latest PHP version whenever possible.
