@@ -151,7 +151,6 @@ class OpenSRSTest extends TestCase
             'US',
             '94105',
             'Test Inc'.$suffix,
-            'Test Tester'.$suffix,
         );
 
         return [

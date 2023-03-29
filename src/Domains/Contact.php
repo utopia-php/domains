@@ -17,11 +17,14 @@ class Contact
         public string $country,
         public string $postalcode,
         public string $org,
+        public ?string $owner = null,
     ) {
     }
 
     public function toArray()
     {
+        $owner = $this->owner ?? $this->firstname . ' ' . $this->lastname;
+
         return [
             'firstname' => $this->firstname,
             'lastname' => $this->lastname,
@@ -35,6 +38,7 @@ class Contact
             'country' => $this->country,
             'postalcode' => $this->postalcode,
             'org' => $this->org,
+            'owner' => $owner,
         ];
     }
 }
