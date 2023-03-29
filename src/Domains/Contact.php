@@ -17,7 +17,6 @@ class Contact
         public string $country,
         public string $postalcode,
         public string $org,
-        public string $owner,
     ) {
     }
 
@@ -36,7 +35,6 @@ class Contact
             'country' => $this->country,
             'postalcode' => $this->postalcode,
             'org' => $this->org,
-            'owner' => $this->owner,
         ];
     }
 }
