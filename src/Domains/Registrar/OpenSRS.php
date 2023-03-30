@@ -3,6 +3,7 @@
 namespace Utopia\Domains\Registrar;
 
 use Exception;
+use Utopia\Domains\Contact;
 
 class OpenSRS extends Adapter
 {
@@ -161,8 +162,10 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array $contacts, array $nameservers = []): array
+    public function purchase(string $domain, array|Contact $contacts, array $nameservers = []): array
     {
+        $contacts = is_array($contacts) ? $contacts : [$contacts];
+
         $nameservers =
           empty($nameservers)
           ? $this->defaultNameservers
@@ -179,8 +182,10 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function transfer(string $domain, array $contacts, array $nameservers = []): array
+    public function transfer(string $domain, array|Contact $contacts, array $nameservers = []): array
     {
+        $contacts = is_array($contacts) ? $contacts : [$contacts];
+
         $nameservers =
           empty($nameservers)
           ? $this->defaultNameservers
