@@ -30346,11 +30346,65 @@ return [
 		'comments' => [
 		],
 	],
-	'*.np' => [
-		'suffix' => '*.np',
+	'np' => [
+		'suffix' => 'np',
 		'type' => 'ICANN',
 		'comments' => [
 			'np : http://www.mos.com.np/register.html',
+		],
+	],
+	'com.np' => [
+		'suffix' => 'com.np',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'edu.np' => [
+		'suffix' => 'edu.np',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'gov.np' => [
+		'suffix' => 'gov.np',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'net.np' => [
+		'suffix' => 'net.np',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'org.np' => [
+		'suffix' => 'org.np',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'info.np' => [
+		'suffix' => 'info.np',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'mil.np' => [
+		'suffix' => 'mil.np',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'name.np' => [
+		'suffix' => 'name.np',
+		'type' => 'ICANN',
+		'comments' => [
+		],
+	],
+	'coop.np' => [
+		'suffix' => 'coop.np',
+		'type' => 'ICANN',
+		'comments' => [
 		],
 	],
 	'nr' => [
