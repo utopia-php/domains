@@ -47,6 +47,13 @@ class Domain
     protected $sub = '';
 
     /**
+     * PSL rule matching suffix
+     *
+     * @var string
+     */
+    protected $rule = '';
+
+    /**
      * Domain Parts
      *
      * @var string[]
@@ -105,17 +112,43 @@ class Domain
             return $this->suffix;
         }
 
-        for ($i = 3; $i > 0; $i--) {
-            $joined = \implode('.', \array_slice($this->parts, $i * -1));
+        for ($i = 0; $i < count($this->parts); $i++) {
+            $joined = \implode('.', \array_slice($this->parts, $i));
+            $next = \implode('.', \array_slice($this->parts, $i + 1));
+            $exception = '!'.$joined;
+            $wildcard = '*.'.$next;
+
+            if (\array_key_exists($exception, self::$list)) {
+                $this->suffix = $next;
+                $this->rule = $exception;
+
+                return $next;
+            }
 
             if (\array_key_exists($joined, self::$list)) {
                 $this->suffix = $joined;
+                $this->rule = $joined;
+
+                return $joined;
+            }
+
+            if (\array_key_exists($wildcard, self::$list)) {
+                $this->suffix = $joined;
+                $this->rule = $wildcard;
 
                 return $joined;
             }
         }
 
         return '';
+    }
+
+    public function getRule(): string
+    {
+        if (! $this->rule) {
+            $this->getSuffix();
+        }
+        return $this->rule;
     }
 
     /**
@@ -176,7 +209,7 @@ class Domain
      */
     public function isKnown(): bool
     {
-        if (\array_key_exists($this->getSuffix(), self::$list)) {
+        if (\array_key_exists($this->getRule(), self::$list)) {
             return true;
         }
 
@@ -188,7 +221,7 @@ class Domain
      */
     public function isICANN(): bool
     {
-        if (isset(self::$list[$this->getSuffix()]) && self::$list[$this->getSuffix()]['type'] === 'ICANN') {
+        if (isset(self::$list[$this->getRule()]) && self::$list[$this->getRule()]['type'] === 'ICANN') {
             return true;
         }
 
@@ -200,7 +233,7 @@ class Domain
      */
     public function isPrivate(): bool
     {
-        if (isset(self::$list[$this->getSuffix()]) && self::$list[$this->getSuffix()]['type'] === 'PRIVATE') {
+        if (isset(self::$list[$this->getRule()]) && self::$list[$this->getRule()]['type'] === 'PRIVATE') {
             return true;
         }
 
