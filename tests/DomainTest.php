@@ -211,4 +211,68 @@ class DomainTest extends TestCase
 
         new Domain('https://facbook.com');
     }
+
+    public function testExampleExampleCk(): void
+    {
+        $domain = new Domain('example.example.ck');
+
+        $this->assertEquals('example.example.ck', $domain->get());
+        $this->assertEquals('ck', $domain->getTLD());
+        $this->assertEquals('example.ck', $domain->getSuffix());
+        $this->assertEquals('example.example.ck', $domain->getRegisterable());
+        $this->assertEquals('example', $domain->getName());
+        $this->assertEquals('', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(true, $domain->isICANN());
+        $this->assertEquals(false, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testSubSubExampleExampleCk(): void
+    {
+        $domain = new Domain('subsub.demo.example.example.ck');
+
+        $this->assertEquals('subsub.demo.example.example.ck', $domain->get());
+        $this->assertEquals('ck', $domain->getTLD());
+        $this->assertEquals('example.ck', $domain->getSuffix());
+        $this->assertEquals('example.example.ck', $domain->getRegisterable());
+        $this->assertEquals('example', $domain->getName());
+        $this->assertEquals('subsub.demo', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(true, $domain->isICANN());
+        $this->assertEquals(false, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testWwwCk(): void
+    {
+        $domain = new Domain('www.ck');
+
+        $this->assertEquals('www.ck', $domain->get());
+        $this->assertEquals('ck', $domain->getTLD());
+        $this->assertEquals('ck', $domain->getSuffix());
+        $this->assertEquals('www.ck', $domain->getRegisterable());
+        $this->assertEquals('www', $domain->getName());
+        $this->assertEquals('', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(true, $domain->isICANN());
+        $this->assertEquals(false, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testSubSubWwwCk(): void
+    {
+        $domain = new Domain('subsub.demo.www.ck');
+
+        $this->assertEquals('subsub.demo.www.ck', $domain->get());
+        $this->assertEquals('ck', $domain->getTLD());
+        $this->assertEquals('ck', $domain->getSuffix());
+        $this->assertEquals('www.ck', $domain->getRegisterable());
+        $this->assertEquals('www', $domain->getName());
+        $this->assertEquals('subsub.demo', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(true, $domain->isICANN());
+        $this->assertEquals(false, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
 }
