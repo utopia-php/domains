@@ -66,7 +66,7 @@ php ./data/import.php
 * **getTLD()** - Return only the top-level-domain.
 * **getSuffix()** - Return only the public suffix of your domain, for example: co.uk, ac.be, org.il, com, org.
 * **getRegisterable()** - Return the registered or registrable domain, which is the public suffix plus one additional label.
-* **getName()** - Returns only the regiterable domain name. For example, blog.example.com will return 'example', and demo.co.uk will return 'demo'.
+* **getName()** - Returns only the registerable domain name. For example, blog.example.com will return 'example', and demo.co.uk will return 'demo'.
 * **getSub()** - Returns the full sub domain path for you domain. For example, blog.example.com will return 'blog', and subdomain.demo.co.uk will return 'subdomain.demo'.
 * **isKnown()** - Returns true if public suffix is know and false otherwise.
 * **isICANN()** - Returns true if the public suffix is found in the ICANN DOMAINS section of the public suffix list.
