@@ -211,4 +211,148 @@ class DomainTest extends TestCase
 
         new Domain('https://facbook.com');
     }
+
+    public function testExampleExampleCk(): void
+    {
+        $domain = new Domain('example.example.ck');
+
+        $this->assertEquals('example.example.ck', $domain->get());
+        $this->assertEquals('ck', $domain->getTLD());
+        $this->assertEquals('example.ck', $domain->getSuffix());
+        $this->assertEquals('example.example.ck', $domain->getRegisterable());
+        $this->assertEquals('example', $domain->getName());
+        $this->assertEquals('', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(true, $domain->isICANN());
+        $this->assertEquals(false, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testSubSubExampleExampleCk(): void
+    {
+        $domain = new Domain('subsub.demo.example.example.ck');
+
+        $this->assertEquals('subsub.demo.example.example.ck', $domain->get());
+        $this->assertEquals('ck', $domain->getTLD());
+        $this->assertEquals('example.ck', $domain->getSuffix());
+        $this->assertEquals('example.example.ck', $domain->getRegisterable());
+        $this->assertEquals('example', $domain->getName());
+        $this->assertEquals('subsub.demo', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(true, $domain->isICANN());
+        $this->assertEquals(false, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testWwwCk(): void
+    {
+        $domain = new Domain('www.ck');
+
+        $this->assertEquals('www.ck', $domain->get());
+        $this->assertEquals('ck', $domain->getTLD());
+        $this->assertEquals('ck', $domain->getSuffix());
+        $this->assertEquals('www.ck', $domain->getRegisterable());
+        $this->assertEquals('www', $domain->getName());
+        $this->assertEquals('', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(true, $domain->isICANN());
+        $this->assertEquals(false, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testSubSubWwwCk(): void
+    {
+        $domain = new Domain('subsub.demo.www.ck');
+
+        $this->assertEquals('subsub.demo.www.ck', $domain->get());
+        $this->assertEquals('ck', $domain->getTLD());
+        $this->assertEquals('ck', $domain->getSuffix());
+        $this->assertEquals('www.ck', $domain->getRegisterable());
+        $this->assertEquals('www', $domain->getName());
+        $this->assertEquals('subsub.demo', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(true, $domain->isICANN());
+        $this->assertEquals(false, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testWildcardNomBr(): void
+    {
+        $domain = new Domain('sub.example.com.nom.br');
+
+        $this->assertEquals('sub.example.com.nom.br', $domain->get());
+        $this->assertEquals('br', $domain->getTLD());
+        $this->assertEquals('com.nom.br', $domain->getSuffix());
+        $this->assertEquals('example.com.nom.br', $domain->getRegisterable());
+        $this->assertEquals('example', $domain->getName());
+        $this->assertEquals('sub', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(true, $domain->isICANN());
+        $this->assertEquals(false, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testWildcardKawasakiJp(): void
+    {
+        $domain = new Domain('sub.example.com.kawasaki.jp');
+
+        $this->assertEquals('sub.example.com.kawasaki.jp', $domain->get());
+        $this->assertEquals('jp', $domain->getTLD());
+        $this->assertEquals('com.kawasaki.jp', $domain->getSuffix());
+        $this->assertEquals('example.com.kawasaki.jp', $domain->getRegisterable());
+        $this->assertEquals('example', $domain->getName());
+        $this->assertEquals('sub', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(true, $domain->isICANN());
+        $this->assertEquals(false, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testExceptionKawasakiJp(): void
+    {
+        $domain = new Domain('sub.city.kawasaki.jp');
+
+        $this->assertEquals('sub.city.kawasaki.jp', $domain->get());
+        $this->assertEquals('jp', $domain->getTLD());
+        $this->assertEquals('kawasaki.jp', $domain->getSuffix());
+        $this->assertEquals('city.kawasaki.jp', $domain->getRegisterable());
+        $this->assertEquals('city', $domain->getName());
+        $this->assertEquals('sub', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(true, $domain->isICANN());
+        $this->assertEquals(false, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testWildcardPrivateDomain(): void
+    {
+        $domain = new Domain('sub.example.com.dev.adobeaemcloud.com');
+
+        $this->assertEquals('sub.example.com.dev.adobeaemcloud.com', $domain->get());
+        $this->assertEquals('com', $domain->getTLD());
+        $this->assertEquals('com.dev.adobeaemcloud.com', $domain->getSuffix());
+        $this->assertEquals('example.com.dev.adobeaemcloud.com', $domain->getRegisterable());
+        $this->assertEquals('example', $domain->getName());
+        $this->assertEquals('sub', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(false, $domain->isICANN());
+        $this->assertEquals(true, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
+
+    public function testPrivateDomain(): void
+    {
+        $domain = new Domain('sub.example.adobeaemcloud.net');
+
+        $this->assertEquals('sub.example.adobeaemcloud.net', $domain->get());
+        $this->assertEquals('net', $domain->getTLD());
+        $this->assertEquals('adobeaemcloud.net', $domain->getSuffix());
+        $this->assertEquals('example.adobeaemcloud.net', $domain->getRegisterable());
+        $this->assertEquals('example', $domain->getName());
+        $this->assertEquals('sub', $domain->getSub());
+        $this->assertEquals(true, $domain->isKnown());
+        $this->assertEquals(false, $domain->isICANN());
+        $this->assertEquals(true, $domain->isPrivate());
+        $this->assertEquals(false, $domain->isTest());
+    }
 }
