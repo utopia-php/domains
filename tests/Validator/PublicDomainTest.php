@@ -6,32 +6,32 @@ use PHPUnit\Framework\TestCase;
 
 class PublicDomainTest extends TestCase
 {
-    protected ?PublicDomain $url;
+    protected ?PublicDomain $domain;
 
     public function setUp(): void
     {
-        $this->url = new PublicDomain();
+        $this->domain = new PublicDomain();
     }
 
     public function tearDown(): void
     {
-        $this->url = null;
+        $this->domain = null;
     }
 
     public function testIsValid(): void
     {
-        $this->assertEquals('Value must be a valid URL', $this->url->getDescription());
-        $this->assertEquals(true, $this->url->isValid('http://example.com'));
-        $this->assertEquals(true, $this->url->isValid('https://example.com'));
-        $this->assertEquals(true, $this->url->isValid('htts://example.com')); // does not validate protocol
-        $this->assertEquals(false, $this->url->isValid('example.com')); // though, requires some kind of protocol
-        $this->assertEquals(false, $this->url->isValid('http:/example.com'));
-        $this->assertEquals(true, $this->url->isValid('http://exa-mple.com'));
-        $this->assertEquals(false, $this->url->isValid('htt@s://example.com'));
-        $this->assertEquals(true, $this->url->isValid('http://www.example.com/foo%2\u00c2\u00a9zbar'));
-        $this->assertEquals(true, $this->url->isValid('http://www.example.com/?q=%3Casdf%3E'));
-        $this->assertEquals(false, $this->url->isValid('http://sub.demo.localhost'));
-        $this->assertEquals(true, $this->url->isValid('https://sub.example.com.nom.br'));
-        $this->assertEquals(false, $this->url->isValid('http://localhost'));
+        $this->assertEquals('Value must be a public domain', $this->domain->getDescription());
+        $this->assertEquals(true, $this->domain->isValid('example.com'));
+        $this->assertEquals(true, $this->domain->isValid('google.com'));
+        $this->assertEquals(true, $this->domain->isValid('bbc.co.uk'));
+        $this->assertEquals(true, $this->domain->isValid('appwrite.io'));
+        $this->assertEquals(true, $this->domain->isValid('usa.gov'));
+        $this->assertEquals(true, $this->domain->isValid('stanford.edu'));
+        $this->assertEquals(false, $this->domain->isValid('localhost'));
+        $this->assertEquals(false, $this->domain->isValid('sub.demo.localhost'));
+        $this->assertEquals(false, $this->domain->isValid('test.app.internal'));
+        $this->assertEquals(false, $this->domain->isValid('home.local'));
+        $this->assertEquals(false, $this->domain->isValid('qa.testing.internal'));
+        $this->assertEquals(false, $this->domain->isValid('wiki.team.local'));
     }
 }

@@ -3,38 +3,66 @@
 namespace Utopia\Domains\Validator;
 
 use Utopia\Domains\Domain;
-use Utopia\Validator\URL;
+use Utopia\Validator;
 
 /**
  * PublicDomain
  *
- * Validate that a URL has a public domain
+ * Validate that a domain is a public domain
  */
-class PublicDomain extends URL
+class PublicDomain extends Validator
 {
+    /**
+     * Get Description
+     *
+     * Returns validator description
+     *
+     * @return string
+     */
+    public function getDescription(): string
+    {
+        return 'Value must be a public domain';
+    }
+
     /**
      * Is valid
      *
-     * Validation will pass when $value is valid URL and has a public domain
+     * Validation will pass when $value is a public domain
      *
      * @param  mixed $value
      * @return bool
      */
     public function isValid($value): bool
     {
-        if (\filter_var($value, FILTER_VALIDATE_URL) === false) {
-            return false;
-        }
-
-        if (!empty($this->allowedSchemes) && !\in_array(\parse_url($value, PHP_URL_SCHEME), $this->allowedSchemes)) {
-            return false;
-        }
-
-        $domain = new Domain(\parse_url($value, PHP_URL_HOST));
+        $domain = new Domain($value);
         if (!$domain->isKnown()) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * Is array
+     *
+     * Function will return true if object is array.
+     *
+     * @return bool
+     */
+    public function isArray(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Get Type
+     *
+     * Returns validator type.
+     *
+     * @return string
+     */
+    public function getType(): string
+    {
+        return self::TYPE_STRING;
     }
 }
