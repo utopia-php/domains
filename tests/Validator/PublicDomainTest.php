@@ -3,15 +3,14 @@
 namespace Utopia\Domains\Validator;
 
 use PHPUnit\Framework\TestCase;
-use Utopia\Validator\URL;
 
 class PublicDomainTest extends TestCase
 {
-    protected ?URL $url;
+    protected ?PublicDomain $url;
 
     public function setUp(): void
     {
-        $this->url = new URL();
+        $this->url = new PublicDomain();
     }
 
     public function tearDown(): void
@@ -31,6 +30,8 @@ class PublicDomainTest extends TestCase
         $this->assertEquals(false, $this->url->isValid('htt@s://example.com'));
         $this->assertEquals(true, $this->url->isValid('http://www.example.com/foo%2\u00c2\u00a9zbar'));
         $this->assertEquals(true, $this->url->isValid('http://www.example.com/?q=%3Casdf%3E'));
-        $this->assertEquals(false, $this->url->isValid('sub.demo.localhost'));
+        $this->assertEquals(false, $this->url->isValid('http://sub.demo.localhost'));
+        $this->assertEquals(true, $this->url->isValid('https://sub.example.com.nom.br'));
+        $this->assertEquals(false, $this->url->isValid('http://localhost'));
     }
 }
