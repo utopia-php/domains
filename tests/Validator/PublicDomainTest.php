@@ -33,5 +33,6 @@ class PublicDomainTest extends TestCase
         $this->assertEquals(false, $this->domain->isValid('home.local'));
         $this->assertEquals(false, $this->domain->isValid('qa.testing.internal'));
         $this->assertEquals(false, $this->domain->isValid('wiki.team.local'));
+        $this->assertEquals(false, $this->domain->isValid('example.test'));
     }
 }
