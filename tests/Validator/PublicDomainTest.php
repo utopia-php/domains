@@ -27,7 +27,11 @@ class PublicDomainTest extends TestCase
         $this->assertEquals(true, $this->domain->isValid('appwrite.io'));
         $this->assertEquals(true, $this->domain->isValid('usa.gov'));
         $this->assertEquals(true, $this->domain->isValid('stanford.edu'));
+        $this->assertEquals(true, $this->domain->isValid('http://google.com'));
+        $this->assertEquals(true, $this->domain->isValid('http://www.google.com'));
+        $this->assertEquals(true, $this->domain->isValid('https://example.com'));
         $this->assertEquals(false, $this->domain->isValid('localhost'));
+        $this->assertEquals(false, $this->domain->isValid('http://localhost'));
         $this->assertEquals(false, $this->domain->isValid('sub.demo.localhost'));
         $this->assertEquals(false, $this->domain->isValid('test.app.internal'));
         $this->assertEquals(false, $this->domain->isValid('home.local'));
