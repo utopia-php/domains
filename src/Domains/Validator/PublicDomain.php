@@ -13,19 +13,6 @@ use Utopia\Validator;
 class PublicDomain extends Validator
 {
     /**
-     * @var Domain
-     */
-    protected Domain $domain;
-
-    /**
-     *
-     * @param Domain $domain
-     */
-    public function __construct(Domain $domain = null)
-    {
-        $this->domain = $domain;
-    }
-    /**
      * Get Description
      *
      * Returns validator description
