@@ -36,9 +36,7 @@ class PublicDomain extends Validator
     {
         // Extract domain from URL if provided
         if (filter_var($value, FILTER_VALIDATE_URL)) {
-            $domain = parse_url($value, PHP_URL_HOST);
-        } else {
-            $domain = $value;
+            $value = parse_url($value, PHP_URL_HOST);
         }
 
         $domain = new Domain($value);
