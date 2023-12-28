@@ -13,6 +13,19 @@ use Utopia\Validator;
 class PublicDomain extends Validator
 {
     /**
+     * @var Domain
+     */
+    protected Domain $domain;
+
+    /**
+     *
+     * @param Domain $domain
+     */
+    public function __construct(Domain $domain = null)
+    {
+        $this->domain = $domain;
+    }
+    /**
      * Get Description
      *
      * Returns validator description
@@ -34,6 +47,13 @@ class PublicDomain extends Validator
      */
     public function isValid($value): bool
     {
+        // Extract domain from URL if provided
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            $domain = parse_url($value, PHP_URL_HOST);
+        } else {
+            $domain = $value;
+        }
+
         $domain = new Domain($value);
         if (!$domain->isKnown()) {
             return false;
