@@ -13,6 +13,10 @@ use Utopia\Validator;
 class PublicDomain extends Validator
 {
     /**
+     * @var array
+     */
+    protected static $allowedDomains = [];
+    /**
      * Get Description
      *
      * Returns validator description
@@ -27,7 +31,7 @@ class PublicDomain extends Validator
     /**
      * Is valid
      *
-     * Validation will pass when $value is a public domain
+     * Validation will pass when $value is either a known domain or in the list of allowed domains
      *
      * @param  mixed $value
      * @return bool
@@ -40,11 +44,8 @@ class PublicDomain extends Validator
         }
 
         $domain = new Domain($value);
-        if (!$domain->isKnown()) {
-            return false;
-        }
 
-        return true;
+        return $domain->isKnown() || in_array($domain->get(), self::$allowedDomains);
     }
 
     /**
@@ -69,5 +70,17 @@ class PublicDomain extends Validator
     public function getType(): string
     {
         return self::TYPE_STRING;
+    }
+
+    /**
+     * Allow domains
+     *
+     * Add domains to the allowed domains array
+     *
+     * @param array $domains
+     */
+    public static function allow(array $domains): void
+    {
+        self::$allowedDomains = array_merge(self::$allowedDomains, $domains);
     }
 }
