@@ -81,6 +81,6 @@ class PublicDomain extends Validator
      */
     public static function allow(array $domains): void
     {
-        self::$allowedDomains = array_merge(self::$allowedDomains, $domains);
+        self::$allowedDomains[] = $domains;
     }
 }
