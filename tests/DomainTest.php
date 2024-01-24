@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Utopia PHP Framework
  *
@@ -210,6 +211,27 @@ class DomainTest extends TestCase
         $this->expectException(Exception::class);
 
         new Domain('https://facbook.com');
+    }
+
+    public function testDomainWithSpaces(): void
+    {
+        $this->expectException('Exception');
+        $this->expectExceptionMessage("Spaces and shell metacharacters not allowed in rm -f -r * domain");
+        $domain = new Domain('rm -f -r *');
+    }
+
+    public function testDomainWithShellMetaCharacters(): void
+    {
+        $this->expectException('Exception');
+        $this->expectExceptionMessage("Spaces and shell metacharacters not allowed in ls; cat /etc/passwd domain");
+        $domain = new Domain('ls; cat /etc/passwd');
+    }
+
+    public function testDomainWithHypens(): void
+    {
+        $this->expectException('Exception');
+        $this->expectExceptionMessage("Hyphens not allowed at label edges in domain -my--domain.com");
+        $domain = new Domain('-my--domain.com');
     }
 
     public function testExampleExampleCk(): void

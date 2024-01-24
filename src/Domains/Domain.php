@@ -69,6 +69,17 @@ class Domain
             throw new Exception("'{$domain}' must be a valid domain or hostname");
         }
 
+        if (strpos($domain, ' ') !== false || strpos($domain, ';') !== false || strpos($domain, '|') !== false || strpos($domain, '&') !== false || strpos($domain, '>') !== false || strpos($domain, '<') !== false) {
+            throw new Exception("Spaces and shell metacharacters not allowed in {$domain} domain");
+        }
+
+        $labels = explode('.', $domain);
+        foreach ($labels as $label) {
+            if (strpos($label, '-') === 0 || strpos($label, '-') === strlen($label) - 1) {
+                throw new Exception("Hyphens not allowed at label edges in domain {$domain}");
+            }
+        }
+
         $this->domain = \mb_strtolower($domain);
         $this->parts = \explode('.', $this->domain);
 
