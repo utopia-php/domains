@@ -216,21 +216,21 @@ class DomainTest extends TestCase
     public function testDomainWithSpaces(): void
     {
         $this->expectException('Exception');
-        $this->expectExceptionMessage("Spaces and shell metacharacters not allowed in rm -f -r * domain");
+        $this->expectExceptionMessage("'rm -f -r *' must be a valid domain or hostname");
         $domain = new Domain('rm -f -r *');
     }
 
     public function testDomainWithShellMetaCharacters(): void
     {
         $this->expectException('Exception');
-        $this->expectExceptionMessage("Spaces and shell metacharacters not allowed in ls; cat /etc/passwd domain");
+        $this->expectExceptionMessage("'ls; cat /etc/passwd' must be a valid domain or hostname");
         $domain = new Domain('ls; cat /etc/passwd');
     }
 
     public function testDomainWithHypens(): void
     {
         $this->expectException('Exception');
-        $this->expectExceptionMessage("Hyphens not allowed at label edges in domain -my--domain.com");
+        $this->expectExceptionMessage("'-my--domain.com' must be a valid domain or hostname");
         $domain = new Domain('-my--domain.com');
     }
 

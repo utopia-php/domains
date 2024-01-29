@@ -65,19 +65,8 @@ class Domain
      */
     public function __construct(string $domain)
     {
-        if ((strpos($domain, 'http://') === 0) || (strpos($domain, 'https://') === 0)) {
+        if ((strpos($domain, 'http://') === 0) || (strpos($domain, 'https://') === 0 || !filter_var($domain, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME))) {
             throw new Exception("'{$domain}' must be a valid domain or hostname");
-        }
-
-        if (strpos($domain, ' ') !== false || strpos($domain, ';') !== false || strpos($domain, '|') !== false || strpos($domain, '&') !== false || strpos($domain, '>') !== false || strpos($domain, '<') !== false) {
-            throw new Exception("Spaces and shell metacharacters not allowed in {$domain} domain");
-        }
-
-        $labels = explode('.', $domain);
-        foreach ($labels as $label) {
-            if (strpos($label, '-') === 0 || strpos($label, '-') === strlen($label) - 1) {
-                throw new Exception("Hyphens not allowed at label edges in domain {$domain}");
-            }
         }
 
         $this->domain = \mb_strtolower($domain);
