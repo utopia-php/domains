@@ -355,4 +355,13 @@ class DomainTest extends TestCase
         $this->assertEquals(true, $domain->isPrivate());
         $this->assertEquals(false, $domain->isTest());
     }
+
+    public function testIsExternal()
+    {
+        $internalDomain = new Domain('127.0.0.1.nip.io');
+        $this->assertFalse($internalDomain->isExternal());
+
+        $externalDomain = new Domain('example.com');
+        $this->assertTrue($externalDomain->isExternal());
+    }
 }

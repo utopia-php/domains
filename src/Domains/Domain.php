@@ -73,7 +73,7 @@ class Domain
         $this->parts = \explode('.', $this->domain);
 
         if (empty(self::$list)) {
-            self::$list = include __DIR__.'/../../data/data.php';
+            self::$list = include __DIR__ . '/../../data/data.php';
         }
     }
 
@@ -115,8 +115,8 @@ class Domain
         for ($i = 0; $i < count($this->parts); $i++) {
             $joined = \implode('.', \array_slice($this->parts, $i));
             $next = \implode('.', \array_slice($this->parts, $i + 1));
-            $exception = '!'.$joined;
-            $wildcard = '*.'.$next;
+            $exception = '!' . $joined;
+            $wildcard = '*.' . $next;
 
             if (\array_key_exists($exception, self::$list)) {
                 $this->suffix = $next;
@@ -145,7 +145,7 @@ class Domain
 
     public function getRule(): string
     {
-        if (! $this->rule) {
+        if (!$this->rule) {
             $this->getSuffix();
         }
         return $this->rule;
@@ -156,11 +156,11 @@ class Domain
      */
     public function getRegisterable(): string
     {
-        if (! $this->isKnown()) {
+        if (!$this->isKnown()) {
             return '';
         }
 
-        $registerable = $this->getName().'.'.$this->getSuffix();
+        $registerable = $this->getName() . '.' . $this->getSuffix();
 
         return $registerable;
     }
@@ -175,7 +175,7 @@ class Domain
         }
 
         $suffix = $this->getSuffix();
-        $suffix = (! empty($suffix)) ? '.'.$suffix : '.'.$this->getTLD();
+        $suffix = (!empty($suffix)) ? '.' . $suffix : '.' . $this->getTLD();
 
         $name = \explode('.', \mb_substr($this->domain, 0, \mb_strlen($suffix) * -1));
 
@@ -190,12 +190,12 @@ class Domain
     public function getSub(): string
     {
         $name = $this->getName();
-        $name = (! empty($name)) ? '.'.$name : '';
+        $name = (!empty($name)) ? '.' . $name : '';
 
         $suffix = $this->getSuffix();
-        $suffix = (! empty($suffix)) ? '.'.$suffix : '.'.$this->getTLD();
+        $suffix = (!empty($suffix)) ? '.' . $suffix : '.' . $this->getTLD();
 
-        $domain = $name.$suffix;
+        $domain = $name . $suffix;
 
         $sub = \explode('.', \mb_substr($this->domain, 0, \mb_strlen($domain) * -1));
 
@@ -238,6 +238,31 @@ class Domain
         }
 
         return false;
+    }
+
+    /**
+     * Performs a DNS Lookup to check if the domain is valid and isn't within the private or reserved IP ranges
+     */
+    public function isExternal(): bool
+    {
+        $ipV4s = dns_get_record($this->get(), DNS_A);
+        $ipV6s = dns_get_record($this->get(), DNS_AAAA);
+
+        $ips = array_merge($ipV4s, $ipV6s);
+
+        if (empty($ips)) {
+            return false;
+        }
+
+        foreach ($ips as $record) {
+            $ipAddress = $record['ip'] ?? $record['ipv6'] ?? null;
+
+            if ($ipAddress && !filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
