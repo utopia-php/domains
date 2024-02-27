@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "utopia-php/framework",
-            "version": "0.31.x-dev",
+            "version": "0.x-dev",
             "source": {
                 "type": "git",
-                "url": "https://github.com/utopia-php/framework.git",
-                "reference": "32e18aff924149221d660a5387bccd6d2b5e9ee7"
+                "url": "https://github.com/utopia-php/http.git",
+                "reference": "e3ff6b933082d57b48e7c4267bb605c0bf2250fd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/utopia-php/framework/zipball/32e18aff924149221d660a5387bccd6d2b5e9ee7",
-                "reference": "32e18aff924149221d660a5387bccd6d2b5e9ee7",
+                "url": "https://api.github.com/repos/utopia-php/http/zipball/e3ff6b933082d57b48e7c4267bb605c0bf2250fd",
+                "reference": "e3ff6b933082d57b48e7c4267bb605c0bf2250fd",
                 "shasum": ""
             },
             "require": {
@@ -46,10 +46,10 @@
                 "upf"
             ],
             "support": {
-                "issues": "https://github.com/utopia-php/framework/issues",
-                "source": "https://github.com/utopia-php/framework/tree/0.31.x"
+                "issues": "https://github.com/utopia-php/http/issues",
+                "source": "https://github.com/utopia-php/http/tree/0.33.0"
             },
-            "time": "2023-12-08T18:46:26+00:00"
+            "time": "2024-01-08T13:30:27+00:00"
         }
     ],
     "packages-dev": [
@@ -196,12 +196,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "202aaf6b7c2e1e0a622b0298e9f3f537e4d84018"
+                "reference": "2f5294676c802a62b0549f6bc8983f14294ce369"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/202aaf6b7c2e1e0a622b0298e9f3f537e4d84018",
-                "reference": "202aaf6b7c2e1e0a622b0298e9f3f537e4d84018",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/2f5294676c802a62b0549f6bc8983f14294ce369",
+                "reference": "2f5294676c802a62b0549f6bc8983f14294ce369",
                 "shasum": ""
             },
             "require": {
@@ -249,7 +249,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-11-01T08:01:43+00:00"
+            "time": "2024-02-10T11:10:03+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -257,12 +257,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "1eeeb2d5252d6d8706c5a8d9d88b8d1e7ecf2109"
+                "reference": "af14fdb282aa0e288bfe7eb3b57893484b68dc27"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/1eeeb2d5252d6d8706c5a8d9d88b8d1e7ecf2109",
-                "reference": "1eeeb2d5252d6d8706c5a8d9d88b8d1e7ecf2109",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/af14fdb282aa0e288bfe7eb3b57893484b68dc27",
+                "reference": "af14fdb282aa0e288bfe7eb3b57893484b68dc27",
                 "shasum": ""
             },
             "require": {
@@ -308,7 +308,7 @@
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
                 "source": "https://github.com/nikic/PHP-Parser/tree/master"
             },
-            "time": "2023-12-22T18:57:32+00:00"
+            "time": "2024-02-21T20:13:45+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -754,12 +754,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "37dcc921d6b2fdf5c3b8191d6bc9c9431abb05e8"
+                "reference": "92ff05570f3725ebbe69e10a704a1ae3fd904ade"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/37dcc921d6b2fdf5c3b8191d6bc9c9431abb05e8",
-                "reference": "37dcc921d6b2fdf5c3b8191d6bc9c9431abb05e8",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/92ff05570f3725ebbe69e10a704a1ae3fd904ade",
+                "reference": "92ff05570f3725ebbe69e10a704a1ae3fd904ade",
                 "shasum": ""
             },
             "require": {
@@ -849,7 +849,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-12-22T07:28:31+00:00"
+            "time": "2024-02-24T05:49:11+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -1875,5 +1875,5 @@
         "php": ">=8.0"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.6.0"
 }
