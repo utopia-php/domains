@@ -12,7 +12,7 @@ abstract class Adapter
 
     protected string $apiSecret;
 
-    /** @var array<string, string> */
+    /** @var array<mixed> */
     protected $headers = [
         'Content-Type' => 'application/json',
     ];
