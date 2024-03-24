@@ -20,7 +20,8 @@
   "scripts": {
     "test": "vendor/bin/phpunit",
     "lint": "./vendor/bin/pint --test",
-    "format": "./vendor/bin/pint"
+    "format": "./vendor/bin/pint",
+    "check": "./vendor/bin/phpstan analyse --level 8 src tests"
   },
   "require": {
       "php": ">=8.0",
@@ -28,7 +29,8 @@
   },
   "require-dev": {
       "phpunit/phpunit": "^9.3",
-      "laravel/pint": "1.2.*"
+      "laravel/pint": "1.2.*",
+      "phpstan/phpstan": "1.9.x-dev"
   },
   "minimum-stability": "dev"
 }
