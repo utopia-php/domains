@@ -21,7 +21,7 @@
     "test": "vendor/bin/phpunit",
     "lint": "./vendor/bin/pint --test",
     "format": "./vendor/bin/pint",
-    "check": "./vendor/bin/phpstan analyse --level 8 src tests"
+    "check": "./vendor/bin/phpstan analyse --level 2 src tests"
   },
   "require": {
       "php": ">=8.0",

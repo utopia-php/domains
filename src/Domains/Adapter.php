@@ -12,6 +12,7 @@ abstract class Adapter
 
     protected string $apiSecret;
 
+    /** @var array<string, string> */
     protected $headers = [
         'Content-Type' => 'application/json',
     ];
@@ -20,7 +21,9 @@ abstract class Adapter
      * __construct
      * Instantiate a new adapter.
      *
-     * @param  string  $env
+     * @param  string  $endpoint
+     * @param string $apiKey
+     * @param string $apiSecret
      */
     public function __construct(string $endpoint, string $apiKey, string $apiSecret)
     {
@@ -40,7 +43,11 @@ abstract class Adapter
        *
        * Make an API call
        *
-       * @param  array  $params
+       * @param  string  $method
+       * @param string $path
+       * @param array|string $params
+       * @param array $headers
+       * @retury array|string
        *
        * @throws \Exception
        */
@@ -144,6 +151,9 @@ abstract class Adapter
 
       /**
        * Flatten params array to PHP multiple format
+       * @param array $data
+       * @param string $prefix
+       * @return array
        */
       protected function flatten(array $data, string $prefix = ''): array
       {
