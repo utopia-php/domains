@@ -360,7 +360,6 @@ class OpenSRS extends Adapter
                 'domain' => $domain,
                 'auto_renew' => 0,
                 'currentexpirationyear' => '2022',
-                'domain' => $domain,
                 'period' => $years,
                 'handle' => 'process',
             ],

@@ -20,7 +20,7 @@ class OpenSRSTest extends TestCase
         $this->assertNotEmpty($key);
         $this->assertNotEmpty($secret);
 
-        $this->domain = self::generateRandomString().'.net';
+        $this->domain = self::generateRandomString() . '.net';
         $this->client = new OpenSRS(
             $key,
             $secret,
@@ -139,18 +139,18 @@ class OpenSRSTest extends TestCase
     private static function purchaseContact(string $suffix = ''): array
     {
         $contact = new Contact(
-            'Test'.$suffix,
-            'Tester'.$suffix,
-            '+1.8031234567'.$suffix,
-            'testing@test.com'.$suffix,
-            '123 Main St'.$suffix,
-            'Suite 100'.$suffix,
-            ''.$suffix,
-            'San Francisco'.$suffix,
+            'Test' . $suffix,
+            'Tester' . $suffix,
+            '+1.8031234567' . $suffix,
+            'testing@test.com' . $suffix,
+            '123 Main St' . $suffix,
+            'Suite 100' . $suffix,
+            '' . $suffix,
+            'San Francisco' . $suffix,
             'CA',
             'US',
             '94105',
-            'Test Inc'.$suffix,
+            'Test Inc' . $suffix,
         );
 
         return [
@@ -161,16 +161,16 @@ class OpenSRSTest extends TestCase
         ];
     }
 
- private function generateRandomString(int $length = 10): string
- {
-     $characters = 'abcdefghijklmnopqrstuvwxyz';
-     $charactersLength = strlen($characters);
-     $randomString = '';
+    private function generateRandomString(int $length = 10): string
+    {
+        $characters = 'abcdefghijklmnopqrstuvwxyz';
+        $charactersLength = strlen($characters);
+        $randomString = '';
 
-     for ($i = 0; $i < $length; $i++) {
-         $randomString .= $characters[random_int(0, $charactersLength - 1)];
-     }
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[random_int(0, $charactersLength - 1)];
+        }
 
-     return $randomString;
- }
+        return $randomString;
+    }
 }
