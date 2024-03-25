@@ -25,4 +25,7 @@ jobs:
       run: composer install --ignore-platform-reqs
 
     - name: Run tests
-      run: composer test
+      run: |
+        export OPENSRS_KEY=${{ secrets.OPENSRS_KEY }}
+        export OPENSRS_USERNAME=${{ secrets.OPENSRS_USERNAME }}
+        composer test
