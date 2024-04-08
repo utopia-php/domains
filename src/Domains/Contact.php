@@ -21,7 +21,7 @@ class Contact
     ) {
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         $owner = $this->owner ?? $this->firstname . ' ' . $this->lastname;
 
