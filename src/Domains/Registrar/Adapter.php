@@ -14,7 +14,7 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
-     * @param  Utopia\Domains\Contact[]  $contacts
+     * @param  array<\Utopia\Domains\Contact>  $contacts
      * @param  array  $nameservers
      * @return array
      */
@@ -49,7 +49,7 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
-     * @param  Utopia\Domains\Contact[]  $contacts
+     * @param  array<\Utopia\Domains\Contact>  $contacts
      * @param  array  $nameservers
      * @return array
      */
