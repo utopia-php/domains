@@ -25,12 +25,12 @@
   },
   "require": {
       "php": ">=8.0",
-      "utopia-php/framework": "0.34.*"
+      "utopia-php/framework": "1.0.*"
   },
   "require-dev": {
       "phpunit/phpunit": "^9.3",
       "laravel/pint": "1.2.*",
       "phpstan/phpstan": "1.9.x-dev"
   },
-  "minimum-stability": "dev"
+  "minimum-stability": "RC"
 }
