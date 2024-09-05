@@ -32,5 +32,5 @@
       "laravel/pint": "1.2.*",
       "phpstan/phpstan": "1.9.x-dev"
   },
-  "minimum-stability": "RC"
+  "minimum-stability": "stable"
 }
