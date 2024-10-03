@@ -28,16 +28,25 @@ class DomainTest extends TestCase
 
     public function testEdgecaseDomainsError(): void
     {
-        $this->expectException('Exception');
-        $this->expectExceptionMessage("'http://httpmydomain.com' must be a valid domain or hostname");
-        $domain = new Domain('http://httpmydomain.com');
+        try {
+            $domain = new Domain('http://httpmydomain.com');
+            $this->fail('Expected exception was not thrown');
+        } catch (Exception $e) {
+            $this->assertEquals(
+                "'http://httpmydomain.com' must be a valid domain or hostname",
+                $e->getMessage()
+            );
+        }
     }
 
     public function testEdgecaseDomainsError2(): void
     {
-        $this->expectException('Exception');
-        $this->expectExceptionMessage("'https://httpmydomain.com' must be a valid domain or hostname");
-        $domain = new Domain('https://httpmydomain.com');
+        try {
+            $domain = new Domain('https://httpmydomain.com');
+            $this->fail("Expected exception not thrown.");
+        } catch (Exception $e) {
+            $this->assertEquals("'https://httpmydomain.com' must be a valid domain or hostname", $e->getMessage());
+        }
     }
 
     public function testExampleCoUk(): void
@@ -186,30 +195,42 @@ class DomainTest extends TestCase
 
     public function testHTTPException1(): void
     {
-        $this->expectException(Exception::class);
-
-        new Domain('http://www.facbook.com');
+        try {
+            new Domain('http://www.facbook.com');
+            $this->fail('Expected exception was not thrown');
+        } catch (Exception $e) {
+            $this->assertInstanceOf(Exception::class, $e);
+        }
     }
 
     public function testHTTPException2(): void
     {
-        $this->expectException(Exception::class);
-
-        new Domain('http://facbook.com');
+        try {
+            new Domain('http://facbook.com');
+            $this->fail('Expected exception was not thrown');
+        } catch (Exception $e) {
+            $this->assertInstanceOf(Exception::class, $e);
+        }
     }
 
     public function testHTTPSException1(): void
     {
-        $this->expectException(Exception::class);
-
-        new Domain('https://www.facbook.com');
+        try {
+            new Domain('https://www.facbook.com');
+            $this->fail('Expected exception was not thrown');
+        } catch (Exception $e) {
+            $this->assertInstanceOf(Exception::class, $e);
+        }
     }
 
     public function testHTTPSException2(): void
     {
-        $this->expectException(Exception::class);
-
-        new Domain('https://facbook.com');
+        try {
+            new Domain('https://facbook.com');
+            $this->fail('Expected exception was not thrown');
+        } catch (Exception $e) {
+            $this->assertInstanceOf(Exception::class, $e);
+        }
     }
 
     public function testExampleExampleCk(): void
