@@ -78,11 +78,19 @@ class Domain
     }
 
     /**
-     * Return top level domain
+     * Return domain
      */
     public function get(): string
     {
         return $this->domain;
+    }
+
+    /**
+     * Return apex domain
+     */
+    public function getApex(): string
+    {
+        return $this->getName() . '.' . $this->getSuffix();
     }
 
     /**

@@ -46,6 +46,7 @@ class DomainTest extends TestCase
 
         $this->assertEquals('demo.example.co.uk', $domain->get());
         $this->assertEquals('uk', $domain->getTLD());
+        $this->assertEquals('example.co.uk', $domain->getApex());
         $this->assertEquals('co.uk', $domain->getSuffix());
         $this->assertEquals('example.co.uk', $domain->getRegisterable());
         $this->assertEquals('example', $domain->getName());
@@ -62,6 +63,7 @@ class DomainTest extends TestCase
 
         $this->assertEquals('subsub.demo.example.co.uk', $domain->get());
         $this->assertEquals('uk', $domain->getTLD());
+        $this->assertEquals('example.co.uk', $domain->getApex());
         $this->assertEquals('co.uk', $domain->getSuffix());
         $this->assertEquals('example.co.uk', $domain->getRegisterable());
         $this->assertEquals('example', $domain->getName());
@@ -174,6 +176,7 @@ class DomainTest extends TestCase
 
         $this->assertEquals('blog.potager.org', $domain->get());
         $this->assertEquals('org', $domain->getTLD());
+        $this->assertEquals('blog.potager.org', $domain->getApex());
         $this->assertEquals('potager.org', $domain->getSuffix());
         $this->assertEquals('blog.potager.org', $domain->getRegisterable());
         $this->assertEquals('blog', $domain->getName());
@@ -219,6 +222,7 @@ class DomainTest extends TestCase
         $this->assertEquals('example.example.ck', $domain->get());
         $this->assertEquals('ck', $domain->getTLD());
         $this->assertEquals('example.ck', $domain->getSuffix());
+        $this->assertEquals('example.example.ck', $domain->getApex());
         $this->assertEquals('example.example.ck', $domain->getRegisterable());
         $this->assertEquals('example', $domain->getName());
         $this->assertEquals('', $domain->getSub());
@@ -234,6 +238,7 @@ class DomainTest extends TestCase
 
         $this->assertEquals('subsub.demo.example.example.ck', $domain->get());
         $this->assertEquals('ck', $domain->getTLD());
+        $this->assertEquals('example.example.ck', $domain->getApex());
         $this->assertEquals('example.ck', $domain->getSuffix());
         $this->assertEquals('example.example.ck', $domain->getRegisterable());
         $this->assertEquals('example', $domain->getName());
@@ -250,6 +255,7 @@ class DomainTest extends TestCase
 
         $this->assertEquals('www.ck', $domain->get());
         $this->assertEquals('ck', $domain->getTLD());
+        $this->assertEquals('www.ck', $domain->getApex());
         $this->assertEquals('ck', $domain->getSuffix());
         $this->assertEquals('www.ck', $domain->getRegisterable());
         $this->assertEquals('www', $domain->getName());
@@ -266,6 +272,7 @@ class DomainTest extends TestCase
 
         $this->assertEquals('subsub.demo.www.ck', $domain->get());
         $this->assertEquals('ck', $domain->getTLD());
+        $this->assertEquals('www.ck', $domain->getApex());
         $this->assertEquals('ck', $domain->getSuffix());
         $this->assertEquals('www.ck', $domain->getRegisterable());
         $this->assertEquals('www', $domain->getName());
@@ -282,6 +289,7 @@ class DomainTest extends TestCase
 
         $this->assertEquals('sub.example.com.nom.br', $domain->get());
         $this->assertEquals('br', $domain->getTLD());
+        $this->assertEquals('example.com.nom.br', $domain->getApex());
         $this->assertEquals('com.nom.br', $domain->getSuffix());
         $this->assertEquals('example.com.nom.br', $domain->getRegisterable());
         $this->assertEquals('example', $domain->getName());
@@ -298,6 +306,7 @@ class DomainTest extends TestCase
 
         $this->assertEquals('sub.example.com.kawasaki.jp', $domain->get());
         $this->assertEquals('jp', $domain->getTLD());
+        $this->assertEquals('example.com.kawasaki.jp', $domain->getApex());
         $this->assertEquals('com.kawasaki.jp', $domain->getSuffix());
         $this->assertEquals('example.com.kawasaki.jp', $domain->getRegisterable());
         $this->assertEquals('example', $domain->getName());
