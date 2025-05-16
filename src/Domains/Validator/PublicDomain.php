@@ -3,7 +3,7 @@
 namespace Utopia\Domains\Validator;
 
 use Utopia\Domains\Domain;
-use Utopia\Http\Validator;
+use Utopia\Validator;
 
 /**
  * PublicDomain
