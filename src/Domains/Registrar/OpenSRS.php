@@ -41,7 +41,7 @@ class OpenSRS extends Adapter
 
         $this->headers = [
             'Content-Type:text/xml',
-            'X-Username:'.$this->apiSecret,
+            'X-Username: '.$this->apiSecret,
         ];
     }
 
