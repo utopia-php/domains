@@ -227,6 +227,24 @@ class OpenSRS extends Adapter
         return $successful;
     }
 
+    /**
+     * Suggest domain names based on search query
+     *
+     * This method uses OpenSRS's name suggestion API with multiple services:
+     * - 'suggestion': Returns algorithmically generated domain suggestions
+     * - 'premium': Returns premium domain names available for purchase at higher prices
+     * - 'lookup': Performs availability checks on exact matches and variations
+     *
+     * @param array|string $query Search terms to generate suggestions from
+     * @param array $tlds Top-level domains to search within (e.g., ['com', 'net', 'org'])
+     * @param int $minLength Minimum length for suggested domains (default: 1)
+     * @param int $maxLength Maximum length for suggested domains (default: 100)
+     * @return array Associative array with domain names as keys and metadata as values
+     *               Each domain entry contains:
+     *               - 'available': boolean indicating if domain is available
+     *               - 'price': float|null price for premium domains, null for regular suggestions
+     *               - 'type': string either 'suggestion' or 'premium' indicating the source service
+     */
     public function suggest(array|string $query, array $tlds = [], $minLength = 1, $maxLength = 100): array
     {
         $query = is_array($query) ? $query : [$query];
@@ -236,9 +254,9 @@ class OpenSRS extends Adapter
             'action' => 'name_suggest',
             'attributes' => [
                 'services' => [
-                    'suggestion',
-                    'premium',
-                    'lookup'
+                    'suggestion',  // Algorithmic domain suggestions
+                    'premium',     // Premium domain names with pricing
+                    'lookup'       // Availability lookup for exact matches
                 ],
                 'searchstring' => implode(' ', $query),
                 'tlds' => $tlds,
@@ -270,7 +288,7 @@ class OpenSRS extends Adapter
 
             $items[$domain] = [
                 'available' => $available,
-                'price' => 0,
+                'price' => null,
                 'type' => 'suggestion'
             ];
         }
@@ -309,7 +327,7 @@ class OpenSRS extends Adapter
                         $available = $value === 'available';
                         break;
                     case 'price':
-                        $price = is_numeric($value) ? (float) $value : $value;
+                        $price = is_numeric($value) ? (float) $value : null;
                         break;
                 }
             }
