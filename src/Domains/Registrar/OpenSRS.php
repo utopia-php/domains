@@ -308,7 +308,7 @@ class OpenSRS extends Adapter
                         $available = $value === 'available';
                         break;
                     case 'price':
-                        $price = (int) $value;
+                        $price = is_numeric($value) ? (float) $value : $value;
                         break;
                 }
             }
