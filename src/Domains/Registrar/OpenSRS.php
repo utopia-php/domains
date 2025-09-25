@@ -244,7 +244,12 @@ class OpenSRS extends Adapter
             ],
         ];
 
-        $xpath = implode('/', [
+        $result = $this->send($message);
+        $result = $this->sanitizeResponse($result);
+
+        $items = [];
+
+        $suggestionXpath = implode('/', [
             '//body',
             'data_block',
             'dt_assoc',
@@ -256,19 +261,65 @@ class OpenSRS extends Adapter
             'dt_array',
             'item',
         ]);
-
-        $result = $this->send($message);
-        $result = $this->sanitizeResponse($result);
-        $elements = $result->xpath($xpath);
-
-        $items = [];
-
-        foreach ($elements as $element) {
+        $suggestionElements = $result->xpath($suggestionXpath);
+        foreach ($suggestionElements as $element) {
             $item = $element->xpath('dt_assoc/item');
             $domain = (string) $item[0];
             $available = (string) $item[1] === 'available';
 
-            $items[$domain] = $available;
+            $items[$domain] = [
+                'available' => $available,
+                'price' => 0,
+                'type' => 'suggestion'
+            ];
+        }
+
+        $premiumXpath = implode('/', [
+            '//body',
+            'data_block',
+            'dt_assoc',
+            'item[@key="attributes"]',
+            'dt_assoc',
+            'item[@key="premium"]',
+            'dt_assoc',
+            'item[@key="items"]',
+            'dt_array',
+            'item',
+        ]);
+
+        $premiumElements = $result->xpath($premiumXpath);
+
+        foreach ($premiumElements as $element) {
+            $item = $element->xpath('dt_assoc/item');
+
+            $domain = null;
+            $available = false;
+            $price = null;
+
+            foreach ($item as $field) {
+                $key = (string) $field['key'];
+                $value = (string) $field;
+
+                switch ($key) {
+                    case 'domain':
+                        $domain = $value;
+                        break;
+                    case 'status':
+                        $available = $value === 'available';
+                        break;
+                    case 'price':
+                        $price = (int) $value;
+                        break;
+                }
+            }
+
+            if ($domain) {
+                $items[$domain] = [
+                    'available' => $available,
+                    'price' => $price,
+                    'type' => 'premium'
+                ];
+            }
         }
 
         return $items;

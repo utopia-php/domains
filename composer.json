@@ -32,5 +32,11 @@
       "laravel/pint": "1.2.*",
       "phpstan/phpstan": "1.9.x-dev"
   },
-  "minimum-stability": "stable"
+  "minimum-stability": "stable",
+  "config": {
+    "allow-plugins": {
+      "php-http/discovery": true,
+      "tbachert/spi": true
+    }
+  }
 }
