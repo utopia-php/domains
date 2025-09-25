@@ -27,8 +27,8 @@ class OpenSRSTest extends TestCase
             'appwrite',
             self::generateRandomString(),
             [
-                'ns1.appwrite.io',
-                'ns2.appwrite.io',
+                'ns1.systemdns.com',
+                'ns2.systemdns.com',
             ]
         );
     }
