@@ -237,7 +237,8 @@ class OpenSRS extends Adapter
             'attributes' => [
                 'services' => [
                     'suggestion',
-                    'premium'
+                    'premium',
+                    'lookup'
                 ],
                 'searchstring' => implode(' ', $query),
                 'tlds' => $tlds,
