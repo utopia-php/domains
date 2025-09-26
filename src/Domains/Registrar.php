@@ -23,9 +23,9 @@ class Registrar
         return $this->adapter->purchase($domain, $contacts, $nameservers);
     }
 
-    public function suggest(array $query, array $tlds = [], $minLength = 1, $maxLength = 100): array
+    public function suggest(array $query, array $tlds = []): array
     {
-        return $this->adapter->suggest($query, $tlds, $minLength, $maxLength);
+        return $this->adapter->suggest($query, $tlds);
     }
 
     public function tlds(): array

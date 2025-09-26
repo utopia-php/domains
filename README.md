@@ -128,7 +128,7 @@ $transfer = $reg->transfer($domain, [$contact]);
 ## Library Registrar API
 * **available(string $domain): bool** - Checks to see if a domain is available for registration.
 * **purchase(string $domain, array $contacts, array $nameservers = []): array** - Purchase a domain name.
-* **suggest(array $query, array $tlds = [], $minLength = 1, $maxLength = 100): array** - Suggest or search for domain names.
+* **suggest(array $query, array $tlds = []): array** - Suggest or search for domain names.
 * **getDomain(string $domain): array** - Get domain details.
 * **renew(string $domain, int $years): array** - Renew a domain name.
 * **transfer(string $domain, array $contacts, array $nameservers = []): array** - Transfer a domain name.
