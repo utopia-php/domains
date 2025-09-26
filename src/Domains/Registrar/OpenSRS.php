@@ -353,8 +353,8 @@ class OpenSRS extends Adapter
         $message = [
             'object' => 'domain',
             'action' => 'get',
+            'domain' => $domain,
             'attributes' => [
-                'domain' => $domain,
                 'type' => 'all_info',
                 'clean_ca_subset' => 1,
             ],
