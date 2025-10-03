@@ -228,18 +228,12 @@ class OpenSRS extends Adapter
     /**
      * Suggest domain names based on search query
      *
-     * This method uses OpenSRS's name suggestion API with multiple services:
-     * - `suggestion`: Returns algorithmically generated domain suggestions
-     * - `premium`: Returns premium domain names available for purchase at higher prices
-     * - `lookup`: Performs availability checks on exact matches and variations
-     *
      * @param array|string $query Search terms to generate suggestions from
      * @param array $tlds Top-level domains to search within (e.g., ['com', 'net', 'org'])
-     * @return array Associative array with domain names as keys and metadata as values
-     *               Each domain entry contains:
-     *               - `available`: boolean indicating if domain is available
-     *               - `price`: float|null price for premium domains, null for regular suggestions
-     *               - `type`: string either `suggestion` or `premium` indicating the source service
+     * @param int|null $limit Maximum number of results to return
+     * @param int|null $priceMax Maximum price for premium domains
+     * @param int|null $priceMin Minimum price for premium domains
+     * @return array Domains with metadata: `available` (bool), `price` (float|null), `type` (string)
      */
     public function suggest(array|string $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array
     {
