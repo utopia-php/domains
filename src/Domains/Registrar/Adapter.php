@@ -23,9 +23,12 @@ abstract class Adapter extends DomainsAdapter
     /**
      * @param  array  $query
      * @param  array  $tlds
+     * @param  int|null $limit
+     * @param  int|null $priceMax
+     * @param  int|null $priceMin
      * @return array
      */
-    abstract public function suggest(array|string $query, array $tlds = []): array;
+    abstract public function suggest(array|string $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array;
 
     /**
      * @return array
