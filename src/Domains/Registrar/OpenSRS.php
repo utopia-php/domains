@@ -16,14 +16,13 @@ class OpenSRS extends Adapter
      * Instantiate a new adapter.
      *
      * @param  string  $apiKey
-     * @param  string  $apiSecret
      * @param  string  $username
      * @param  string  $password
      * @param  array  $defaultNameservers
      * @param  bool  $production
      * @return void
      */
-    public function __construct(string $apiKey, string $apiSecret, string $username, string $password, array $defaultNameservers, bool $production = false)
+    public function __construct(string $apiKey, string $username, string $password, array $defaultNameservers, bool $production = false)
     {
         $this->endpoint =
           $production === false
@@ -31,7 +30,6 @@ class OpenSRS extends Adapter
           : 'https://rr-n1-tor.opensrs.net:55443';
 
         $this->apiKey = $apiKey;
-        $this->apiSecret = $apiSecret;
         $this->defaultNameservers = $defaultNameservers;
 
         $this->user = [
@@ -41,7 +39,7 @@ class OpenSRS extends Adapter
 
         $this->headers = [
             'Content-Type:text/xml',
-            'X-Username: '.$this->apiSecret,
+            'X-Username: ' . $username,
         ];
     }
 
@@ -243,23 +241,65 @@ class OpenSRS extends Adapter
      *               - `price`: float|null price for premium domains, null for regular suggestions
      *               - `type`: string either `suggestion` or `premium` indicating the source service
      */
-    public function suggest(array|string $query, array $tlds = []): array
+    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array
     {
         $query = is_array($query) ? $query : [$query];
+
+        // Determine which services to use based on parameters
+        $hasPriceFilter = $priceMax !== null || $priceMin !== null;
+
+        if ($hasPriceFilter) {
+            $services = ['premium'];
+        } elseif ($limit) {
+            $services = ['lookup', 'suggestion'];
+        } else {
+            $services = ['suggestion', 'premium', 'lookup'];
+        }
 
         $message = [
             'object' => 'DOMAIN',
             'action' => 'name_suggest',
             'attributes' => [
-                'services' => [
-                    'suggestion',  // Algorithmic domain suggestions
-                    'premium',     // Premium domain names with pricing
-                    'lookup'       // Availability lookup for exact matches
-                ],
+                'services' => $services,
                 'searchstring' => implode(' ', $query),
-                'tlds' => $tlds,
+                'skip_registry_lookup' => 1,
             ],
         ];
+
+        if (!empty($tlds)) {
+            $message['attributes']['tlds'] = $tlds;
+        }
+
+        if ($limit || $hasPriceFilter) {
+            $formattedTlds = !empty($tlds) ? array_map(fn ($tld) => '.' . ltrim($tld, '.'), $tlds) : [];
+
+            if ($hasPriceFilter) {
+                $message['attributes']['service_override']['premium'] = [];
+
+                if (!empty($formattedTlds)) {
+                    $message['attributes']['service_override']['premium']['tlds'] = $formattedTlds;
+                }
+
+                if ($limit) {
+                    $message['attributes']['service_override']['premium']['maximum'] = $limit;
+                }
+
+                if ($priceMin !== null) {
+                    $message['attributes']['service_override']['premium']['price_min'] = $priceMin;
+                }
+
+                if ($priceMax !== null) {
+                    $message['attributes']['service_override']['premium']['price_max'] = $priceMax;
+                }
+            } elseif ($limit) {
+                $message['attributes']['service_override']['suggestion']['maximum'] = $limit;
+
+                if (!empty($formattedTlds)) {
+                    $message['attributes']['service_override']['suggestion']['tlds'] = $formattedTlds;
+                    $message['attributes']['service_override']['lookup']['tlds'] = $formattedTlds;
+                }
+            }
+        }
 
         $result = $this->send($message);
         $result = $this->sanitizeResponse($result);
@@ -280,15 +320,17 @@ class OpenSRS extends Adapter
         ]);
         $suggestionElements = $result->xpath($suggestionXpath);
         foreach ($suggestionElements as $element) {
-            $item = $element->xpath('dt_assoc/item');
-            $domain = (string) $item[0];
-            $available = (string) $item[1] === 'available';
-
-            $items[$domain] = [
-                'available' => $available,
-                'price' => null,
-                'type' => 'suggestion'
-            ];
+            $domainNode = $element->xpath('dt_assoc/item[@key="domain"]');
+            $statusNode = $element->xpath('dt_assoc/item[@key="status"] | dt_assoc/item[@key="availability"]');
+            $domain = isset($domainNode[0]) ? (string) $domainNode[0] : null;
+            $status = isset($statusNode[0]) ? strtolower((string) $statusNode[0]) : '';
+            if ($domain) {
+                $items[$domain] = [
+                    'available' => in_array($status, ['available', 'true', '1'], true),
+                    'price' => null,
+                    'type' => 'suggestion'
+                ];
+            }
         }
 
         $premiumXpath = implode('/', [
@@ -506,6 +548,48 @@ class OpenSRS extends Adapter
         return implode(PHP_EOL, $result);
     }
 
+    private function createAssoc(string $key, array $assoc): string
+    {
+        $result = [
+            '<item key="'.$key.'">',
+            '<dt_assoc>',
+        ];
+
+        foreach ($assoc as $itemKey => $itemValue) {
+            if (is_array($itemValue)) {
+                if (array_keys($itemValue) === range(0, count($itemValue) - 1)) {
+                    $result[] = $this->createArray($itemKey, $itemValue);
+                } else {
+                    $result[] = $this->createAssoc($itemKey, $itemValue);
+                }
+            } else {
+                $result[] = $this->createEnvelopItem($itemKey, $itemValue);
+            }
+        }
+
+        $result[] = '</dt_assoc>';
+        $result[] = '</item>';
+
+        return implode(PHP_EOL, $result);
+    }
+
+    private function createServiceOverride(array $overrides): string
+    {
+        $result = [
+            '<item key="service_override">',
+            '<dt_assoc>',
+        ];
+
+        foreach ($overrides as $serviceName => $serviceConfig) {
+            $result[] = $this->createAssoc($serviceName, $serviceConfig);
+        }
+
+        $result[] = '</dt_assoc>';
+        $result[] = '</item>';
+
+        return implode(PHP_EOL, $result);
+    }
+
     private function createEnvelopItem(string $key, string|int|array $value): string
     {
         if (is_array($value)) {
@@ -672,6 +756,9 @@ class OpenSRS extends Adapter
                 case 'add_ns':
                 case 'remove_ns':
                     $result[] = $this->createNamespaceAssign($value);
+                    break;
+                case 'service_override':
+                    $result[] = $this->createServiceOverride($value);
                     break;
                 default:
                     $result[] =

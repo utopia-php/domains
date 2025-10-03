@@ -15,16 +15,15 @@ class OpenSRSTest extends TestCase
     protected function setUp(): void
     {
         $key = getenv('OPENSRS_KEY');
-        $secret = getenv('OPENSRS_USERNAME');
+        $username = getenv('OPENSRS_USERNAME');
 
         $this->assertNotEmpty($key);
-        $this->assertNotEmpty($secret);
+        $this->assertNotEmpty($username);
 
         $this->domain = 'kffsfudlvc.net';
         $this->client = new OpenSRS(
             $key,
-            $secret,
-            'appwrite',
+            $username,
             self::generateRandomString(),
             [
                 'ns1.systemdns.com',
@@ -69,6 +68,7 @@ class OpenSRSTest extends TestCase
 
     public function testSuggest(): void
     {
+        // Test 1: Basic suggestion without filters
         $result = $this->client->suggest(
             [
                 'monkeys',
@@ -82,6 +82,50 @@ class OpenSRSTest extends TestCase
         );
 
         $this->assertIsArray($result);
+        foreach ($result as $domain => $data) {
+            if ($data['type'] === 'premium') {
+                $this->assertGreaterThan(0, $data['price']);
+            } else {
+                $this->assertEquals(null, $data['price']);
+            }
+        }
+
+        // Test 2: Suggestion with limit
+        $result = $this->client->suggest(
+            'monkeys',
+            [
+                'com',
+                'net',
+                'org',
+            ],
+            10
+        );
+
+        $this->assertIsArray($result);
+        $this->assertCount(10, $result);
+
+        // Test 3: Premium suggestions with price filters
+        $result = $this->client->suggest(
+            'computer',
+            [
+                'com',
+                'net',
+            ],
+            10,
+            10000,
+            100
+        );
+
+        $this->assertIsArray($result);
+        $this->assertLessThanOrEqual(10, count($result));
+
+        foreach ($result as $domain => $data) {
+            $this->assertEquals('premium', $data['type']);
+            if ($data['price'] !== null) {
+                $this->assertGreaterThanOrEqual(100, $data['price']);
+                $this->assertLessThanOrEqual(10000, $data['price']);
+            }
+        }
     }
 
     public function testUpdateNameservers(): void
