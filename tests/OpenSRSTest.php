@@ -15,34 +15,34 @@ class OpenSRSTest extends TestCase
     protected function setUp(): void
     {
         $key = getenv('OPENSRS_KEY');
-        $secret = getenv('OPENSRS_USERNAME');
+        $username = getenv('OPENSRS_USERNAME');
 
         $this->assertNotEmpty($key);
-        $this->assertNotEmpty($secret);
+        $this->assertNotEmpty($username);
 
-        $this->domain = self::generateRandomString() . '.net';
+        $this->domain = 'kffsfudlvc.net';
         $this->client = new OpenSRS(
             $key,
-            $secret,
-            'appwrite',
+            $username,
             self::generateRandomString(),
             [
-                'ns1.appwrite.io',
-                'ns2.appwrite.io',
+                'ns1.systemdns.com',
+                'ns2.systemdns.com',
             ]
         );
     }
 
     public function testAvailable(): void
     {
-        $result = $this->client->available($this->domain);
+        $domain = self::generateRandomString() . '.net';
+        $result = $this->client->available($domain);
 
         $this->assertTrue($result);
     }
 
     public function testPurchase(): string
     {
-        $domain = $this->domain;
+        $domain = self::generateRandomString() . '.net';
 
         $result = $this->client->purchase($domain, self::purchaseContact());
 
@@ -51,10 +51,9 @@ class OpenSRSTest extends TestCase
         return $domain;
     }
 
-    /** @depends testPurchase */
-    public function testDomainInfo(string $domain): void
+    public function testDomainInfo(): void
     {
-        $result = $this->client->getDomain($domain);
+        $result = $this->client->getDomain($this->domain);
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('registry_createdate', $result);
@@ -69,6 +68,7 @@ class OpenSRSTest extends TestCase
 
     public function testSuggest(): void
     {
+        // Test 1: Basic suggestion without filters
         $result = $this->client->suggest(
             [
                 'monkeys',
@@ -82,12 +82,55 @@ class OpenSRSTest extends TestCase
         );
 
         $this->assertIsArray($result);
+        foreach ($result as $domain => $data) {
+            if ($data['type'] === 'premium') {
+                $this->assertGreaterThan(0, $data['price']);
+            } else {
+                $this->assertEquals(null, $data['price']);
+            }
+        }
+
+        // Test 2: Suggestion with limit
+        $result = $this->client->suggest(
+            'monkeys',
+            [
+                'com',
+                'net',
+                'org',
+            ],
+            10
+        );
+
+        $this->assertIsArray($result);
+        $this->assertCount(10, $result);
+
+        // Test 3: Premium suggestions with price filters
+        $result = $this->client->suggest(
+            'computer',
+            [
+                'com',
+                'net',
+            ],
+            10,
+            10000,
+            100
+        );
+
+        $this->assertIsArray($result);
+        $this->assertLessThanOrEqual(10, count($result));
+
+        foreach ($result as $domain => $data) {
+            $this->assertEquals('premium', $data['type']);
+            if ($data['price'] !== null) {
+                $this->assertGreaterThanOrEqual(100, $data['price']);
+                $this->assertLessThanOrEqual(10000, $data['price']);
+            }
+        }
     }
 
-    /** @depends testPurchase */
-    public function testUpdateNameservers(string $domain): void
+    public function testUpdateNameservers(): void
     {
-        $result = $this->client->updateNameservers($domain, [
+        $result = $this->client->updateNameservers($this->domain, [
             'ns1.hover.com',
             'ns2.hover.com',
         ]);
@@ -95,11 +138,10 @@ class OpenSRSTest extends TestCase
         $this->assertTrue($result['successful']);
     }
 
-    /** @depends testPurchase */
-    public function testUpdateDomain(string $domain): void
+    public function testUpdateDomain(): void
     {
         $result = $this->client->updateDomain(
-            $domain,
+            $this->domain,
             self::purchaseContact('2'),
             [
                 'affect_domains' => 0,
@@ -111,16 +153,18 @@ class OpenSRSTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /** @depends testPurchase */
-    public function testRenewDomain(string $domain): void
+    public function testRenewDomain(): void
     {
-        $result = $this->client->renew($domain, 1);
+        $result = $this->client->renew($this->domain, 1);
+
+        if (array_key_exists('forced_pending', $result)) {
+            $this->markTestSkipped("Account doesn't have sufficient funds to renew.");
+        }
 
         $this->assertArrayHasKey('order_id', $result);
     }
 
-    /** @depends testPurchase */
-    public function testTransfer(string $domain): void
+    public function testTransfer(): void
     {
         // $result = $this->client->transfer($domain, self::purchaseContact());
 
@@ -161,7 +205,7 @@ class OpenSRSTest extends TestCase
         ];
     }
 
-    private function generateRandomString(int $length = 10): string
+    private static function generateRandomString(int $length = 10): string
     {
         $characters = 'abcdefghijklmnopqrstuvwxyz';
         $charactersLength = strlen($characters);
