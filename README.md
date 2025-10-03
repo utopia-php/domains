@@ -118,7 +118,7 @@ $domain = 'yourname.com';
 
 $available = $reg->available($domain);
 $purchase = $reg->purchase($domain, $contact); 
-$suggest = $reg->suggest(['yourname', 'yourname1.com'], ['com', 'net', 'org']);
+$suggest = $reg->suggest(['yourname', 'yourname1.com'], ['com', 'net', 'org'], 10, 10000, 100);
 $domainDetails = $reg->getDomain($domain);
 $renew = $reg->renew($domain, 1);
 $transfer = $reg->transfer($domain, [$contact]);
@@ -128,7 +128,7 @@ $transfer = $reg->transfer($domain, [$contact]);
 ## Library Registrar API
 * **available(string $domain): bool** - Checks to see if a domain is available for registration.
 * **purchase(string $domain, array $contacts, array $nameservers = []): array** - Purchase a domain name.
-* **suggest(array $query, array $tlds = []): array** - Suggest or search for domain names.
+* **suggest(array $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array** - Suggest or search for domain names.
 * **getDomain(string $domain): array** - Get domain details.
 * **renew(string $domain, int $years): array** - Renew a domain name.
 * **transfer(string $domain, array $contacts, array $nameservers = []): array** - Transfer a domain name.

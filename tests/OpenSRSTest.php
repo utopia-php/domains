@@ -205,7 +205,7 @@ class OpenSRSTest extends TestCase
         ];
     }
 
-    private function generateRandomString(int $length = 10): string
+    private static function generateRandomString(int $length = 10): string
     {
         $characters = 'abcdefghijklmnopqrstuvwxyz';
         $charactersLength = strlen($characters);
