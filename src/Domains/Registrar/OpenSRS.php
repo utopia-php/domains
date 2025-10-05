@@ -352,7 +352,7 @@ class OpenSRS extends Adapter
 
         // Process premium domains
         if (
-            ($filterType === 'premium' || $filterType === null) && 
+            ($filterType === 'premium' || $filterType === null) &&
             !($limit && count($items) >= $limit)
         ) {
             $premiumXpath = implode('/', [
@@ -413,15 +413,19 @@ class OpenSRS extends Adapter
         }
 
         if ($sortOrder !== null) {
-            uasort($items, function($a, $b) use ($sortOrder) {
+            uasort($items, function ($a, $b) use ($sortOrder) {
                 $priceA = $a['price'] !== null ? $a['price'] : PHP_FLOAT_MAX;
                 $priceB = $b['price'] !== null ? $b['price'] : PHP_FLOAT_MAX;
 
                 if ($sortOrder === 'asc') {
-                    if ($priceA === $priceB) return 0;
+                    if ($priceA === $priceB) {
+                        return 0;
+                    }
                     return $priceA < $priceB ? -1 : 1;
                 } else {
-                    if ($priceA === $priceB) return 0;
+                    if ($priceA === $priceB) {
+                        return 0;
+                    }
                     return $priceA > $priceB ? -1 : 1;
                 }
             });
