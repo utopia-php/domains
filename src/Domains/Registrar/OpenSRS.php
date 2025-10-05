@@ -238,61 +238,35 @@ class OpenSRS extends Adapter
     public function suggest(array|string $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array
     {
         $query = is_array($query) ? $query : [$query];
-
-        // Determine which services to use based on parameters
-        $hasPriceFilter = $priceMax !== null || $priceMin !== null;
-
-        if ($hasPriceFilter) {
-            $services = ['premium'];
-        } elseif ($limit) {
-            $services = ['lookup', 'suggestion'];
-        } else {
-            $services = ['suggestion', 'premium', 'lookup'];
-        }
-
         $message = [
             'object' => 'DOMAIN',
             'action' => 'name_suggest',
             'attributes' => [
-                'services' => $services,
+                'services' => ['suggestion', 'premium', 'lookup'],
                 'searchstring' => implode(' ', $query),
                 'skip_registry_lookup' => 1,
             ],
         ];
+        $tlds = !empty($tlds) ? array_map(fn ($tld) => '.' . ltrim($tld, '.'), $tlds) : [];
 
         if (!empty($tlds)) {
             $message['attributes']['tlds'] = $tlds;
+            $message['attributes']['service_override']['premium']['tlds'] = $tlds;
+            $message['attributes']['service_override']['suggestion']['tlds'] = $tlds;
+            $message['attributes']['service_override']['lookup']['tlds'] = $tlds;
         }
 
-        if ($limit || $hasPriceFilter) {
-            $formattedTlds = !empty($tlds) ? array_map(fn ($tld) => '.' . ltrim($tld, '.'), $tlds) : [];
+        if ($limit) {
+            $message['attributes']['service_override']['premium']['maximum'] = $limit;
+            $message['attributes']['service_override']['suggestion']['maximum'] = $limit;
+        }
 
-            if ($hasPriceFilter) {
-                $message['attributes']['service_override']['premium'] = [];
+        if ($priceMin !== null) {
+            $message['attributes']['service_override']['premium']['price_min'] = $priceMin;
+        }
 
-                if (!empty($formattedTlds)) {
-                    $message['attributes']['service_override']['premium']['tlds'] = $formattedTlds;
-                }
-
-                if ($limit) {
-                    $message['attributes']['service_override']['premium']['maximum'] = $limit;
-                }
-
-                if ($priceMin !== null) {
-                    $message['attributes']['service_override']['premium']['price_min'] = $priceMin;
-                }
-
-                if ($priceMax !== null) {
-                    $message['attributes']['service_override']['premium']['price_max'] = $priceMax;
-                }
-            } elseif ($limit) {
-                $message['attributes']['service_override']['suggestion']['maximum'] = $limit;
-
-                if (!empty($formattedTlds)) {
-                    $message['attributes']['service_override']['suggestion']['tlds'] = $formattedTlds;
-                    $message['attributes']['service_override']['lookup']['tlds'] = $formattedTlds;
-                }
-            }
+        if ($priceMax !== null) {
+            $message['attributes']['service_override']['premium']['price_max'] = $priceMax;
         }
 
         $result = $this->send($message);
@@ -339,9 +313,7 @@ class OpenSRS extends Adapter
             'dt_array',
             'item',
         ]);
-
         $premiumElements = $result->xpath($premiumXpath);
-
         foreach ($premiumElements as $element) {
             $item = $element->xpath('dt_assoc/item');
 
@@ -373,6 +345,32 @@ class OpenSRS extends Adapter
                     'type' => 'premium'
                 ];
             }
+        }
+
+        // If limit is specified, prioritize premium domains and limit total results
+        if ($limit && count($items) > $limit) {
+            $premiumDomains = [];
+            $suggestionDomains = [];
+
+            foreach ($items as $domain => $data) {
+                if ($data['type'] === 'premium') {
+                    $premiumDomains[$domain] = $data;
+                } else {
+                    $suggestionDomains[$domain] = $data;
+                }
+            }
+
+            $result = [];
+            $premiumCount = min(count($premiumDomains), $limit);
+            $suggestionCount = $limit - $premiumCount;
+
+            $result = array_slice($premiumDomains, 0, $premiumCount, true);
+            if ($suggestionCount > 0) {
+                $suggestions = array_slice($suggestionDomains, 0, $suggestionCount, true);
+                $result = array_merge($result, $suggestions);
+            }
+
+            return $result;
         }
 
         return $items;
