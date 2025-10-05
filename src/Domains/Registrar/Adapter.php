@@ -24,11 +24,12 @@ abstract class Adapter extends DomainsAdapter
      * @param  array  $query
      * @param  array  $tlds
      * @param  int|null $limit
-     * @param  int|null $priceMax
-     * @param  int|null $priceMin
+     * @param  string|null $filterType Filter results by type: 'premium', 'suggestion', or null for both
+     * @param  int|null $premiumPriceMax
+     * @param  int|null $premiumPriceMin
      * @return array
      */
-    abstract public function suggest(array|string $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array;
+    abstract public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $premiumPriceMax = null, int|null $premiumPriceMin = null): array;
 
     /**
      * @return array

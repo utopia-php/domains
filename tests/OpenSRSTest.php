@@ -68,7 +68,7 @@ class OpenSRSTest extends TestCase
 
     public function testSuggest(): void
     {
-        // Test 1: Basic suggestion without filters
+        // Test 1: Suggestion domains only with prices
         $result = $this->client->suggest(
             [
                 'monkeys',
@@ -78,19 +78,21 @@ class OpenSRSTest extends TestCase
                 'com',
                 'net',
                 'org',
-            ]
+            ],
+            5,
+            'suggestion'
         );
 
         $this->assertIsArray($result);
         foreach ($result as $domain => $data) {
-            if ($data['type'] === 'premium') {
+            $this->assertEquals('suggestion', $data['type']);
+            if ($data['available'] && $data['price'] !== null) {
+                $this->assertIsFloat($data['price']);
                 $this->assertGreaterThan(0, $data['price']);
-            } else {
-                $this->assertEquals(null, $data['price']);
             }
         }
 
-        // Test 2: Suggestion with limit
+        // Test 2: Mixed results (default behavior - both premium and suggestions)
         $result = $this->client->suggest(
             'monkeys',
             [
@@ -98,32 +100,111 @@ class OpenSRSTest extends TestCase
                 'net',
                 'org',
             ],
-            10
+            5
         );
 
         $this->assertIsArray($result);
-        $this->assertCount(10, $result);
+        $this->assertCount(5, $result);
 
-        // Test 3: Premium suggestions with price filters
+        foreach ($result as $domain => $data) {
+            if ($data['type'] === 'premium') {
+                $this->assertIsFloat($data['price']);
+                $this->assertGreaterThan(0, $data['price']);
+            } elseif ($data['available'] && $data['price'] !== null) {
+                $this->assertIsFloat($data['price']);
+            }
+        }
+
+        // Test 3: Premium domains only with price filters
         $result = $this->client->suggest(
             'computer',
             [
                 'com',
                 'net',
             ],
-            10,
+            5,
+            'premium',
             10000,
             100
         );
 
         $this->assertIsArray($result);
-        $this->assertLessThanOrEqual(10, count($result));
+        $this->assertLessThanOrEqual(5, count($result));
 
         foreach ($result as $domain => $data) {
             $this->assertEquals('premium', $data['type']);
             if ($data['price'] !== null) {
+                $this->assertIsFloat($data['price']);
                 $this->assertGreaterThanOrEqual(100, $data['price']);
                 $this->assertLessThanOrEqual(10000, $data['price']);
+            }
+        }
+
+        // Test 4: Premium domains without price filters
+        $result = $this->client->suggest(
+            'business',
+            [
+                'com',
+            ],
+            5,
+            'premium'
+        );
+
+        $this->assertIsArray($result);
+        $this->assertLessThanOrEqual(5, count($result));
+
+        foreach ($result as $domain => $data) {
+            $this->assertEquals('premium', $data['type']);
+            if ($data['price'] !== null) {
+                $this->assertIsFloat($data['price']);
+            }
+        }
+
+        // Test 5: Single TLD search
+        $result = $this->client->suggest(
+            'example',
+            ['org'],
+            3,
+            'suggestion'
+        );
+
+        $this->assertIsArray($result);
+        $this->assertLessThanOrEqual(3, count($result));
+
+        foreach ($result as $domain => $data) {
+            $this->assertEquals('suggestion', $data['type']);
+            $this->assertStringEndsWith('.org', $domain);
+        }
+
+        // Test 6: Sort by price ascending
+        $result = $this->client->suggest(
+            'shop',
+            ['com', 'net'],
+            5,
+            null,
+            null,
+            null,
+            'asc'
+        );
+
+        $this->assertIsArray($result);
+        $this->assertGreaterThan(0, count($result));
+
+        $prices = [];
+        foreach ($result as $domain => $data) {
+            if ($data['price'] !== null) {
+                $prices[] = $data['price'];
+            }
+        }
+
+        // Verify that prices are in ascending order (each price >= previous)
+        if (count($prices) > 1) {
+            for ($i = 1; $i < count($prices); $i++) {
+                $this->assertGreaterThanOrEqual(
+                    $prices[$i - 1],
+                    $prices[$i],
+                    "Price at index $i ({$prices[$i]}) should be >= price at index " . ($i - 1) . " ({$prices[$i - 1]})"
+                );
             }
         }
     }

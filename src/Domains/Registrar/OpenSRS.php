@@ -231,14 +231,28 @@ class OpenSRS extends Adapter
      * @param array|string $query Search terms to generate suggestions from
      * @param array $tlds Top-level domains to search within (e.g., ['com', 'net', 'org'])
      * @param int|null $limit Maximum number of results to return
-     * @param int|null $priceMax Maximum price for premium domains
-     * @param int|null $priceMin Minimum price for premium domains
+     * @param string|null $filterType Filter results by type: 'premium', 'suggestion', or null for both
+     * @param int|null $premiumPriceMax Maximum price for premium domains
+     * @param int|null $premiumPriceMin Minimum price for premium domains
+     * @param string|null $sortOrder Sort order for prices: 'asc', 'desc', or null for no sorting
      * @return array Domains with metadata: `available` (bool), `price` (float|null), `type` (string)
      */
-    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array
+    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $premiumPriceMax = null, int|null $premiumPriceMin = null, string|null $sortOrder = null): array
     {
-        if ($priceMin !== null && $priceMax !== null && $priceMin >= $priceMax) {
-            throw new Exception("Invalid price range: priceMin ($priceMin) must be less than priceMax ($priceMax).");
+        if ($premiumPriceMin !== null && $premiumPriceMax !== null && $premiumPriceMin >= $premiumPriceMax) {
+            throw new Exception("Invalid price range: premiumPriceMin ($premiumPriceMin) must be less than premiumPriceMax ($premiumPriceMax).");
+        }
+
+        if ($filterType !== null && !in_array($filterType, ['premium', 'suggestion'])) {
+            throw new Exception("Invalid filter type: filterType ($filterType) must be 'premium' or 'suggestion'.");
+        }
+
+        if ($filterType !== null && $filterType === 'suggestion' && ($premiumPriceMin !== null || $premiumPriceMax !== null)) {
+            throw new Exception("Invalid price range: premiumPriceMin ($premiumPriceMin) and premiumPriceMax ($premiumPriceMax) cannot be set when filterType is 'suggestion'.");
+        }
+
+        if ($sortOrder !== null && !in_array($sortOrder, ['asc', 'desc'])) {
+            throw new Exception("Invalid sort order: sortOrder ($sortOrder) must be 'asc' or 'desc'.");
         }
 
         $query = is_array($query) ? $query : [$query];
@@ -259,18 +273,15 @@ class OpenSRS extends Adapter
             $message['attributes']['service_override']['suggestion']['tlds'] = $tlds;
             $message['attributes']['service_override']['lookup']['tlds'] = $tlds;
         }
-
         if ($limit) {
             $message['attributes']['service_override']['premium']['maximum'] = $limit;
             $message['attributes']['service_override']['suggestion']['maximum'] = $limit;
         }
-
-        if ($priceMin !== null) {
-            $message['attributes']['service_override']['premium']['price_min'] = $priceMin;
+        if ($premiumPriceMin !== null) {
+            $message['attributes']['service_override']['premium']['price_min'] = $premiumPriceMin;
         }
-
-        if ($priceMax !== null) {
-            $message['attributes']['service_override']['premium']['price_max'] = $priceMax;
+        if ($premiumPriceMax !== null) {
+            $message['attributes']['service_override']['premium']['price_max'] = $premiumPriceMax;
         }
 
         $result = $this->send($message);
@@ -278,106 +289,191 @@ class OpenSRS extends Adapter
 
         $items = [];
 
-        $suggestionXpath = implode('/', [
-            '//body',
-            'data_block',
-            'dt_assoc',
-            'item[@key="attributes"]',
-            'dt_assoc',
-            'item[@key="suggestion"]',
-            'dt_assoc',
-            'item[@key="items"]',
-            'dt_array',
-            'item',
-        ]);
-        $suggestionElements = $result->xpath($suggestionXpath);
-        foreach ($suggestionElements as $element) {
-            $domainNode = $element->xpath('dt_assoc/item[@key="domain"]');
-            $statusNode = $element->xpath('dt_assoc/item[@key="status"] | dt_assoc/item[@key="availability"]');
-            $domain = isset($domainNode[0]) ? (string) $domainNode[0] : null;
-            $status = isset($statusNode[0]) ? strtolower((string) $statusNode[0]) : '';
-            if ($domain) {
-                $items[$domain] = [
-                    'available' => in_array($status, ['available', 'true', '1'], true),
-                    'price' => null,
-                    'type' => 'suggestion'
-                ];
-            }
-        }
+        // Process suggestion domains
+        if ($filterType === 'suggestion' || $filterType === null) {
+            $suggestionXpath = implode('/', [
+                '//body',
+                'data_block',
+                'dt_assoc',
+                'item[@key="attributes"]',
+                'dt_assoc',
+                'item[@key="suggestion"]',
+                'dt_assoc',
+                'item[@key="items"]',
+                'dt_array',
+                'item',
+            ]);
+            $suggestionElements = $result->xpath($suggestionXpath);
 
-        $premiumXpath = implode('/', [
-            '//body',
-            'data_block',
-            'dt_assoc',
-            'item[@key="attributes"]',
-            'dt_assoc',
-            'item[@key="premium"]',
-            'dt_assoc',
-            'item[@key="items"]',
-            'dt_array',
-            'item',
-        ]);
-        $premiumElements = $result->xpath($premiumXpath);
-        foreach ($premiumElements as $element) {
-            $item = $element->xpath('dt_assoc/item');
+            $processedCount = 0;
+            $suggestionLimit = $limit;
 
-            $domain = null;
-            $available = false;
-            $price = null;
+            foreach ($suggestionElements as $element) {
+                if ($suggestionLimit !== null && $processedCount >= $suggestionLimit) {
+                    break;
+                }
 
-            foreach ($item as $field) {
-                $key = (string) $field['key'];
-                $value = (string) $field;
+                $domainNode = $element->xpath('dt_assoc/item[@key="domain"]');
+                $statusNode = $element->xpath('dt_assoc/item[@key="status"] | dt_assoc/item[@key="availability"]');
+                $domain = isset($domainNode[0]) ? (string) $domainNode[0] : null;
+                $status = isset($statusNode[0]) ? strtolower((string) $statusNode[0]) : '';
+                $available = in_array($status, ['available', 'true', '1'], true);
 
-                switch ($key) {
-                    case 'domain':
-                        $domain = $value;
-                        break;
-                    case 'status':
-                        $available = $value === 'available';
-                        break;
-                    case 'price':
-                        $price = is_numeric($value) ? (float) $value : null;
-                        break;
+                if ($domain) {
+                    $price = null;
+                    if ($available) {
+                        try {
+                            $priceData = $this->getPrice($domain, 1, 'new');
+                            $price = $priceData['price'];
+                        } catch (Exception $e) {
+                            // If price lookup fails, continue without price
+                            $price = null;
+                        }
+                    }
+
+                    $items[$domain] = [
+                        'available' => $available,
+                        'price' => $price,
+                        'type' => 'suggestion'
+                    ];
+
+                    $processedCount++;
                 }
             }
 
-            if ($domain) {
-                $items[$domain] = [
-                    'available' => $available,
-                    'price' => $price,
-                    'type' => 'premium'
-                ];
+            if ($filterType === 'suggestion' && $sortOrder === null) {
+                return $items;
+            }
+
+            if ($limit && count($items) >= $limit && $sortOrder === null) {
+                return array_slice($items, 0, $limit, true);
             }
         }
 
-        // If limit is specified, prioritize premium domains and limit total results
-        if ($limit && count($items) > $limit) {
-            $premiumDomains = [];
-            $suggestionDomains = [];
+        // Process premium domains
+        if (
+            ($filterType === 'premium' || $filterType === null) && 
+            !($limit && count($items) >= $limit)
+        ) {
+            $premiumXpath = implode('/', [
+                '//body',
+                'data_block',
+                'dt_assoc',
+                'item[@key="attributes"]',
+                'dt_assoc',
+                'item[@key="premium"]',
+                'dt_assoc',
+                'item[@key="items"]',
+                'dt_array',
+                'item',
+            ]);
+            $premiumElements = $result->xpath($premiumXpath);
 
-            foreach ($items as $domain => $data) {
-                if ($data['type'] === 'premium') {
-                    $premiumDomains[$domain] = $data;
+            $remainingLimit = $limit ? ($limit - count($items)) : null;
+            $processedCount = 0;
+
+            foreach ($premiumElements as $element) {
+                if ($remainingLimit !== null && $processedCount >= $remainingLimit) {
+                    break;
+                }
+
+                $item = $element->xpath('dt_assoc/item');
+
+                $domain = null;
+                $available = false;
+                $price = null;
+
+                foreach ($item as $field) {
+                    $key = (string) $field['key'];
+                    $value = (string) $field;
+
+                    switch ($key) {
+                        case 'domain':
+                            $domain = $value;
+                            break;
+                        case 'status':
+                            $available = $value === 'available';
+                            break;
+                        case 'price':
+                            $price = is_numeric($value) ? floatval($value) : null;
+                            break;
+                    }
+                }
+
+                if ($domain) {
+                    $items[$domain] = [
+                        'available' => $available,
+                        'price' => $price,
+                        'type' => 'premium'
+                    ];
+
+                    $processedCount++;
+                }
+            }
+        }
+
+        if ($sortOrder !== null) {
+            uasort($items, function($a, $b) use ($sortOrder) {
+                $priceA = $a['price'] !== null ? $a['price'] : PHP_FLOAT_MAX;
+                $priceB = $b['price'] !== null ? $b['price'] : PHP_FLOAT_MAX;
+
+                if ($sortOrder === 'asc') {
+                    if ($priceA === $priceB) return 0;
+                    return $priceA < $priceB ? -1 : 1;
                 } else {
-                    $suggestionDomains[$domain] = $data;
+                    if ($priceA === $priceB) return 0;
+                    return $priceA > $priceB ? -1 : 1;
                 }
+            });
+
+            if ($limit && count($items) > $limit) {
+                $items = array_slice($items, 0, $limit, true);
             }
-
-            $result = [];
-            $premiumCount = min(count($premiumDomains), $limit);
-            $suggestionCount = $limit - $premiumCount;
-
-            $result = array_slice($premiumDomains, 0, $premiumCount, true);
-            if ($suggestionCount > 0) {
-                $suggestions = array_slice($suggestionDomains, 0, $suggestionCount, true);
-                $result = array_merge($result, $suggestions);
-            }
-
-            return $result;
         }
 
         return $items;
+    }
+
+    /**
+     * Get the registration price for a domain
+     *
+     * @param string $domain The domain name to get pricing for
+     * @param int $period Registration period in years (default 1)
+     * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
+     * @return array Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
+     */
+    public function getPrice(string $domain, int $period = 1, string $regType = 'new'): array
+    {
+        $message = [
+            'object' => 'DOMAIN',
+            'action' => 'GET_PRICE',
+            'attributes' => [
+                'domain' => $domain,
+                'period' => $period,
+                'reg_type' => $regType,
+            ],
+        ];
+
+        $result = $this->send($message);
+        $result = $this->sanitizeResponse($result);
+
+        $priceXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="price"]';
+        $priceElements = $result->xpath($priceXpath);
+        $price = isset($priceElements[0]) ? floatval((string) $priceElements[0]) : null;
+
+        $isPremiumXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="is_registry_premium"]';
+        $isPremiumElements = $result->xpath($isPremiumXpath);
+        $isRegistryPremium = isset($isPremiumElements[0]) ? ((string) $isPremiumElements[0] === '1') : false;
+
+        $premiumGroupXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="registry_premium_group"]';
+        $premiumGroupElements = $result->xpath($premiumGroupXpath);
+        $registryPremiumGroup = isset($premiumGroupElements[0]) ? (string) $premiumGroupElements[0] : null;
+
+        return [
+            'price' => $price,
+            'is_registry_premium' => $isRegistryPremium,
+            'registry_premium_group' => $registryPremiumGroup,
+        ];
     }
 
     public function tlds(): array
