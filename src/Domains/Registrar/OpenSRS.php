@@ -234,10 +234,9 @@ class OpenSRS extends Adapter
      * @param string|null $filterType Filter results by type: 'premium', 'suggestion', or null for both
      * @param int|null $premiumPriceMax Maximum price for premium domains
      * @param int|null $premiumPriceMin Minimum price for premium domains
-     * @param string|null $sortOrder Sort order for prices: 'asc', 'desc', or null for no sorting
      * @return array Domains with metadata: `available` (bool), `price` (float|null), `type` (string)
      */
-    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $premiumPriceMax = null, int|null $premiumPriceMin = null, string|null $sortOrder = null): array
+    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $premiumPriceMax = null, int|null $premiumPriceMin = null): array
     {
         if ($premiumPriceMin !== null && $premiumPriceMax !== null && $premiumPriceMin >= $premiumPriceMax) {
             throw new Exception("Invalid price range: premiumPriceMin ($premiumPriceMin) must be less than premiumPriceMax ($premiumPriceMax).");
@@ -249,10 +248,6 @@ class OpenSRS extends Adapter
 
         if ($filterType !== null && $filterType === 'suggestion' && ($premiumPriceMin !== null || $premiumPriceMax !== null)) {
             throw new Exception("Invalid price range: premiumPriceMin ($premiumPriceMin) and premiumPriceMax ($premiumPriceMax) cannot be set when filterType is 'suggestion'.");
-        }
-
-        if ($sortOrder !== null && !in_array($sortOrder, ['asc', 'desc'])) {
-            throw new Exception("Invalid sort order: sortOrder ($sortOrder) must be 'asc' or 'desc'.");
         }
 
         $query = is_array($query) ? $query : [$query];
@@ -341,11 +336,11 @@ class OpenSRS extends Adapter
                 }
             }
 
-            if ($filterType === 'suggestion' && $sortOrder === null) {
+            if ($filterType === 'suggestion') {
                 return $items;
             }
 
-            if ($limit && count($items) >= $limit && $sortOrder === null) {
+            if ($limit && count($items) >= $limit) {
                 return array_slice($items, 0, $limit, true);
             }
         }
@@ -409,29 +404,6 @@ class OpenSRS extends Adapter
 
                     $processedCount++;
                 }
-            }
-        }
-
-        if ($sortOrder !== null) {
-            uasort($items, function ($a, $b) use ($sortOrder) {
-                $priceA = $a['price'] !== null ? $a['price'] : PHP_FLOAT_MAX;
-                $priceB = $b['price'] !== null ? $b['price'] : PHP_FLOAT_MAX;
-
-                if ($sortOrder === 'asc') {
-                    if ($priceA === $priceB) {
-                        return 0;
-                    }
-                    return $priceA < $priceB ? -1 : 1;
-                } else {
-                    if ($priceA === $priceB) {
-                        return 0;
-                    }
-                    return $priceA > $priceB ? -1 : 1;
-                }
-            });
-
-            if ($limit && count($items) > $limit) {
-                $items = array_slice($items, 0, $limit, true);
             }
         }
 

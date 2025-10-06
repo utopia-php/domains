@@ -175,38 +175,6 @@ class OpenSRSTest extends TestCase
             $this->assertEquals('suggestion', $data['type']);
             $this->assertStringEndsWith('.org', $domain);
         }
-
-        // Test 6: Sort by price ascending
-        $result = $this->client->suggest(
-            'shop',
-            ['com', 'net'],
-            5,
-            null,
-            null,
-            null,
-            'asc'
-        );
-
-        $this->assertIsArray($result);
-        $this->assertGreaterThan(0, count($result));
-
-        $prices = [];
-        foreach ($result as $domain => $data) {
-            if ($data['price'] !== null) {
-                $prices[] = $data['price'];
-            }
-        }
-
-        // Verify that prices are in ascending order (each price >= previous)
-        if (count($prices) > 1) {
-            for ($i = 1; $i < count($prices); $i++) {
-                $this->assertGreaterThanOrEqual(
-                    $prices[$i - 1],
-                    $prices[$i],
-                    "Price at index $i ({$prices[$i]}) should be >= price at index " . ($i - 1) . " ({$prices[$i - 1]})"
-                );
-            }
-        }
     }
 
     public function testUpdateNameservers(): void
