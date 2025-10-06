@@ -264,13 +264,21 @@ class OpenSRS extends Adapter
 
         if (!empty($tlds)) {
             $message['attributes']['tlds'] = $tlds;
-            $message['attributes']['service_override']['premium']['tlds'] = $tlds;
-            $message['attributes']['service_override']['suggestion']['tlds'] = $tlds;
+            if ($filterType === 'premium' || $filterType === null) {
+                $message['attributes']['service_override']['premium']['tlds'] = $tlds;
+            }
+            if ($filterType === 'suggestion' || $filterType === null) {
+                $message['attributes']['service_override']['suggestion']['tlds'] = $tlds;
+            }
             $message['attributes']['service_override']['lookup']['tlds'] = $tlds;
         }
         if ($limit) {
-            $message['attributes']['service_override']['premium']['maximum'] = $limit;
-            $message['attributes']['service_override']['suggestion']['maximum'] = $limit;
+            if ($filterType === 'premium' || $filterType === null) {
+                $message['attributes']['service_override']['premium']['maximum'] = $limit;
+            }
+            if ($filterType === 'suggestion' || $filterType === null) {
+                $message['attributes']['service_override']['suggestion']['maximum'] = $limit;
+            }
         }
         if ($premiumPriceMin !== null) {
             $message['attributes']['service_override']['premium']['price_min'] = $premiumPriceMin;
@@ -315,20 +323,9 @@ class OpenSRS extends Adapter
                 $available = in_array($status, ['available', 'true', '1'], true);
 
                 if ($domain) {
-                    $price = null;
-                    if ($available) {
-                        try {
-                            $priceData = $this->getPrice($domain, 1, 'new');
-                            $price = $priceData['price'];
-                        } catch (Exception $e) {
-                            // If price lookup fails, continue without price
-                            $price = null;
-                        }
-                    }
-
                     $items[$domain] = [
                         'available' => $available,
-                        'price' => $price,
+                        'price' => null,
                         'type' => 'suggestion'
                     ];
 

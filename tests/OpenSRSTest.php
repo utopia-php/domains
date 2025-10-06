@@ -177,6 +177,18 @@ class OpenSRSTest extends TestCase
         }
     }
 
+    public function testGetPrice(): void
+    {
+        $result = $this->client->getPrice($this->domain, 1, 'new');
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('price', $result);
+        $this->assertArrayHasKey('is_registry_premium', $result);
+        $this->assertArrayHasKey('registry_premium_group', $result);
+        $this->assertIsFloat($result['price']);
+        $this->assertIsBool($result['is_registry_premium']);
+    }
+
     public function testUpdateNameservers(): void
     {
         $result = $this->client->updateNameservers($this->domain, [
