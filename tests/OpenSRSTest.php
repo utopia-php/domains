@@ -62,7 +62,7 @@ class OpenSRSTest extends TestCase
         $this->assertArrayHasKey('registry_createdate', $result);
     }
 
-    public function testCancelPutestPurchaserchase(): void
+    public function testCancelPurchase(): void
     {
         $result = $this->client->cancelPurchase();
 
