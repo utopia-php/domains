@@ -4,7 +4,9 @@ namespace Utopia\Domains\Registrar;
 
 use Exception;
 use Utopia\Domains\Contact;
-use Utopia\Domains\Exception\DomainException;
+use Utopia\Domains\Exception as DomainsException;
+use Utopia\Domains\Registrar\Exception\DomainTaken;
+use Utopia\Domains\Registrar\Exception\PriceNotFound;
 
 class OpenSRS extends Adapter
 {
@@ -171,22 +173,32 @@ class OpenSRS extends Adapter
 
     public function purchase(string $domain, array|Contact $contacts, array $nameservers = []): array
     {
-        $contacts = is_array($contacts) ? $contacts : [$contacts];
+        try {
+            $contacts = is_array($contacts) ? $contacts : [$contacts];
 
-        $nameservers =
-          empty($nameservers)
-          ? $this->defaultNameservers
-          : $nameservers;
+            $nameservers =
+            empty($nameservers)
+            ? $this->defaultNameservers
+            : $nameservers;
 
-        $contacts = $this->sanitizeContacts($contacts);
+            $contacts = $this->sanitizeContacts($contacts);
 
-        $regType = 'new';
+            $regType = 'new';
 
-        $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
+            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
 
-        $result = $this->response($result);
+            $result = $this->response($result);
 
-        return $result;
+            return $result;
+        } catch (Exception $e) {
+            $message = 'Failed to purchase domain: ' . $e->getMessage();
+
+            if (stripos($e->getMessage(), 'Domain taken') !== false) {
+                throw new DomainTaken($message, $e->getCode(), $e);
+            }
+
+            throw new DomainsException($message, $e->getCode(), $e);
+        }
     }
 
     public function transfer(string $domain, array|Contact $contacts, array $nameservers = []): array
@@ -423,7 +435,7 @@ class OpenSRS extends Adapter
      * @param int $period Registration period in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @return array Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
-     * @throws DomainException When the domain does not exist or pricing cannot be fetched
+     * @throws DomainsException When the domain does not exist or pricing cannot be fetched
      */
     public function getPrice(string $domain, int $period = 1, string $regType = 'new'): array
     {
@@ -459,7 +471,15 @@ class OpenSRS extends Adapter
                 'registry_premium_group' => $registryPremiumGroup,
             ];
         } catch (Exception $e) {
-            throw new DomainException('Failed to get price for domain: ' . $e->getMessage(), $e->getCode(), $e);
+            $message = 'Failed to get price for domain: ' . $e->getMessage();
+
+            if (stripos($e->getMessage(), 'not supported') !== false ||
+                stripos($e->getMessage(), 'price') !== false ||
+                stripos($e->getMessage(), 'not available') !== false) {
+                throw new PriceNotFound();
+            }
+
+            throw new DomainsException($message, $e->getCode(), $e);
         }
     }
 

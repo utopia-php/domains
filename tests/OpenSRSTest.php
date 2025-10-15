@@ -4,7 +4,8 @@ namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Utopia\Domains\Contact;
-use Utopia\Domains\Exception\DomainException;
+use Utopia\Domains\Registrar\Exception\DomainTaken;
+use Utopia\Domains\Registrar\Exception\PriceNotFound;
 use Utopia\Domains\Registrar\OpenSRS;
 
 class OpenSRSTest extends TestCase
@@ -41,15 +42,16 @@ class OpenSRSTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testPurchase(): string
+    public function testPurchase(): void
     {
         $domain = self::generateRandomString() . '.net';
-
         $result = $this->client->purchase($domain, self::purchaseContact());
-
         $this->assertTrue($result['successful']);
 
-        return $domain;
+        $domain = 'google.com';
+        $this->expectException(DomainTaken::class);
+        $this->expectExceptionMessage("Failed to purchase domain: Domain taken");
+        $result = $this->client->purchase($domain, self::purchaseContact());
     }
 
     public function testDomainInfo(): void
@@ -60,7 +62,7 @@ class OpenSRSTest extends TestCase
         $this->assertArrayHasKey('registry_createdate', $result);
     }
 
-    public function testCancelPurchase(): void
+    public function testCancelPutestPurchaserchase(): void
     {
         $result = $this->client->cancelPurchase();
 
@@ -189,7 +191,7 @@ class OpenSRSTest extends TestCase
         $this->assertIsFloat($result['price']);
         $this->assertIsBool($result['is_registry_premium']);
 
-        $this->expectException(DomainException::class);
+        $this->expectException(PriceNotFound::class);
         $this->expectExceptionMessage("Failed to get price for domain: get_price_domain API is not supported for 'invalid domain'");
         $this->client->getPrice("invalid domain", 1, 'new');
     }
