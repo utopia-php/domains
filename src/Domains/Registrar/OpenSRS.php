@@ -473,8 +473,8 @@ class OpenSRS extends Adapter
         } catch (Exception $e) {
             $message = 'Failed to get price for domain: ' . $e->getMessage();
 
-            if (stripos($e->getMessage(), 'not supported') !== false ||
-                stripos($e->getMessage(), 'price') !== false ||
+            if (stripos($e->getMessage(), 'price not found') !== false ||
+                stripos($e->getMessage(), 'price not available') !== false ||
                 stripos($e->getMessage(), 'not available') !== false) {
                 throw new PriceNotFound($message, $e->getCode(), $e);
             }
