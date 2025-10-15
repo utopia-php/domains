@@ -4,6 +4,7 @@ namespace Utopia\Domains\Registrar;
 
 use Exception;
 use Utopia\Domains\Contact;
+use Utopia\Domains\Exception\DomainException;
 
 class OpenSRS extends Adapter
 {
@@ -422,39 +423,44 @@ class OpenSRS extends Adapter
      * @param int $period Registration period in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @return array Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
+     * @throws DomainException When the domain does not exist or pricing cannot be fetched
      */
     public function getPrice(string $domain, int $period = 1, string $regType = 'new'): array
     {
-        $message = [
-            'object' => 'DOMAIN',
-            'action' => 'GET_PRICE',
-            'attributes' => [
-                'domain' => $domain,
-                'period' => $period,
-                'reg_type' => $regType,
-            ],
-        ];
+        try {
+            $message = [
+                'object' => 'DOMAIN',
+                'action' => 'GET_PRICE',
+                'attributes' => [
+                    'domain' => $domain,
+                    'period' => $period,
+                    'reg_type' => $regType,
+                ],
+            ];
 
-        $result = $this->send($message);
-        $result = $this->sanitizeResponse($result);
+            $result = $this->send($message);
+            $result = $this->sanitizeResponse($result);
 
-        $priceXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="price"]';
-        $priceElements = $result->xpath($priceXpath);
-        $price = isset($priceElements[0]) ? floatval((string) $priceElements[0]) : null;
+            $priceXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="price"]';
+            $priceElements = $result->xpath($priceXpath);
+            $price = isset($priceElements[0]) ? floatval((string) $priceElements[0]) : null;
 
-        $isPremiumXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="is_registry_premium"]';
-        $isPremiumElements = $result->xpath($isPremiumXpath);
-        $isRegistryPremium = isset($isPremiumElements[0]) ? ((string) $isPremiumElements[0] === '1') : false;
+            $isPremiumXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="is_registry_premium"]';
+            $isPremiumElements = $result->xpath($isPremiumXpath);
+            $isRegistryPremium = isset($isPremiumElements[0]) ? ((string) $isPremiumElements[0] === '1') : false;
 
-        $premiumGroupXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="registry_premium_group"]';
-        $premiumGroupElements = $result->xpath($premiumGroupXpath);
-        $registryPremiumGroup = isset($premiumGroupElements[0]) ? (string) $premiumGroupElements[0] : null;
+            $premiumGroupXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="registry_premium_group"]';
+            $premiumGroupElements = $result->xpath($premiumGroupXpath);
+            $registryPremiumGroup = isset($premiumGroupElements[0]) ? (string) $premiumGroupElements[0] : null;
 
-        return [
-            'price' => $price,
-            'is_registry_premium' => $isRegistryPremium,
-            'registry_premium_group' => $registryPremiumGroup,
-        ];
+            return [
+                'price' => $price,
+                'is_registry_premium' => $isRegistryPremium,
+                'registry_premium_group' => $registryPremiumGroup,
+            ];
+        } catch (Exception $e) {
+            throw new DomainException('Failed to get price for domain: ' . $e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     public function tlds(): array

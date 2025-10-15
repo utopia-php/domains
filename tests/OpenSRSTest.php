@@ -4,6 +4,7 @@ namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Utopia\Domains\Contact;
+use Utopia\Domains\Exception\DomainException;
 use Utopia\Domains\Registrar\OpenSRS;
 
 class OpenSRSTest extends TestCase
@@ -187,6 +188,10 @@ class OpenSRSTest extends TestCase
         $this->assertArrayHasKey('registry_premium_group', $result);
         $this->assertIsFloat($result['price']);
         $this->assertIsBool($result['is_registry_premium']);
+
+        $this->expectException(DomainException::class);
+        $this->expectExceptionMessage("Failed to get price for domain: get_price_domain API is not supported for 'invalid domain'");
+        $this->client->getPrice("invalid domain", 1, 'new');
     }
 
     public function testUpdateNameservers(): void
