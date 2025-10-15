@@ -7,6 +7,11 @@ use Utopia\Domains\Adapter as DomainsAdapter;
 abstract class Adapter extends DomainsAdapter
 {
     /**
+     * @return string
+     */
+    abstract public function getName(): string;
+
+    /**
      * @param  string  $domain
      * @return bool
      */

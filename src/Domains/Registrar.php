@@ -13,6 +13,11 @@ class Registrar
         $this->adapter = $adapter;
     }
 
+    public function getName(): string
+    {
+        return $this->adapter->getName();
+    }
+
     public function available(string $domain): bool
     {
         return $this->adapter->available($domain);

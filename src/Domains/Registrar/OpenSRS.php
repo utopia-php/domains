@@ -11,6 +11,11 @@ class OpenSRS extends Adapter
 
     protected array $user;
 
+    public function getName(): string
+    {
+        return 'opensrs';
+    }
+
     /**
      * __construct
      * Instantiate a new adapter.
