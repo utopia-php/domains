@@ -183,17 +183,135 @@ class OpenSRSTest extends TestCase
     public function testGetPrice(): void
     {
         $result = $this->client->getPrice($this->domain, 1, 'new');
-
         $this->assertIsArray($result);
         $this->assertArrayHasKey('price', $result);
+        $this->assertArrayHasKey('base_price', $result);
+        $this->assertArrayHasKey('markup', $result);
         $this->assertArrayHasKey('is_registry_premium', $result);
         $this->assertArrayHasKey('registry_premium_group', $result);
         $this->assertIsFloat($result['price']);
+        $this->assertIsFloat($result['base_price']);
+        $this->assertIsFloat($result['markup']);
         $this->assertIsBool($result['is_registry_premium']);
+
+        // Verify no markup is applied by default (markup = 0, cap = 0)
+        $basePrice = $result['base_price'];
+        $markup = $result['markup'];
+        $price = $result['price'];
+        $this->assertEquals(0.0, $markup);
+        $this->assertEquals($basePrice, $price);
 
         $this->expectException(PriceNotFound::class);
         $this->expectExceptionMessage("Failed to get price for domain: get_price_domain API is not supported for 'invalid domain'");
         $this->client->getPrice("invalid domain", 1, 'new');
+    }
+
+    public function testGetPriceWithMarkup(): void
+    {
+        // Create client with markup = 0.15 (15%) and cap = 5.0
+        $key = getenv('OPENSRS_KEY');
+        $username = getenv('OPENSRS_USERNAME');
+
+        $clientWithMarkup = new OpenSRS(
+            $key,
+            $username,
+            self::generateRandomString(),
+            [
+                'ns1.systemdns.com',
+                'ns2.systemdns.com',
+            ],
+            false,
+            0.15, // 15% markup
+            5.0   // $5 cap
+        );
+
+        $result = $clientWithMarkup->getPrice($this->domain, 1, 'new');
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('base_price', $result);
+        $this->assertArrayHasKey('markup', $result);
+        $this->assertArrayHasKey('price', $result);
+
+        $basePrice = $result['base_price'];
+        $markup = $result['markup'];
+        $price = $result['price'];
+
+        // Markup should be capped at 5.0 or 15% of base price, whichever is smaller
+        $expectedMarkup = min($basePrice * 0.15, 5.0);
+        $this->assertEquals($expectedMarkup, $markup);
+        $expectedPrice = round($basePrice + $expectedMarkup, 2);
+        $this->assertEquals($expectedPrice, $price);
+        $this->assertGreaterThan(0, $markup);
+    }
+
+    public function testGetPriceMarkupCalculation(): void
+    {
+        // Test with markup but no cap (cap = 0 means no cap limit)
+        $key = getenv('OPENSRS_KEY');
+        $username = getenv('OPENSRS_USERNAME');
+
+        $clientWithMarkup = new OpenSRS(
+            $key,
+            $username,
+            self::generateRandomString(),
+            [
+                'ns1.systemdns.com',
+                'ns2.systemdns.com',
+            ],
+            false,
+            0.20, // 20% markup
+            0.0   // No cap
+        );
+
+        $result = $clientWithMarkup->getPrice($this->domain, 1, 'new');
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('base_price', $result);
+        $this->assertArrayHasKey('markup', $result);
+        $this->assertArrayHasKey('price', $result);
+
+        $basePrice = $result['base_price'];
+        $markup = $result['markup'];
+
+        // With no cap, markup should equal exactly basePrice * 0.20
+        $this->assertEqualsWithDelta($basePrice * 0.20, $markup, 0.01);
+        $expectedPrice = round($basePrice + $markup, 2);
+        $this->assertEquals($expectedPrice, $result['price']);
+    }
+
+    public function testGetPriceMarkupCap(): void
+    {
+        // Test that the cap is enforced when markup would exceed it
+        $key = getenv('OPENSRS_KEY');
+        $username = getenv('OPENSRS_USERNAME');
+
+        $clientWithMarkup = new OpenSRS(
+            $key,
+            $username,
+            self::generateRandomString(),
+            [
+                'ns1.systemdns.com',
+                'ns2.systemdns.com',
+            ],
+            false,
+            0.50, // 50% markup (high percentage to test cap)
+            2.0   // $2 cap (low cap to ensure it's hit)
+        );
+
+        $result = $clientWithMarkup->getPrice($this->domain, 1, 'new');
+
+        $basePrice = $result['base_price'];
+        $markup = $result['markup'];
+
+        // If 50% of base price exceeds $2, markup should be capped at $2
+        if ($basePrice * 0.50 > 2.0) {
+            $this->assertEquals(2.0, $markup, "Markup should be capped at 2.0");
+        } else {
+            $this->assertEqualsWithDelta($basePrice * 0.50, $markup, 0.01);
+        }
+
+        // Markup should never exceed the cap
+        $this->assertLessThanOrEqual(2.0, $markup);
     }
 
     public function testUpdateNameservers(): void

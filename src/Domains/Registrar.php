@@ -43,9 +43,9 @@ class Registrar
         return $this->adapter->getDomain($domain);
     }
 
-    public function getPrice(string $domain): array
+    public function getPrice(string $domain, int $period = 1, string $regType = 'new'): array
     {
-        return $this->adapter->getPrice($domain);
+        return $this->adapter->getPrice($domain, $period, $regType);
     }
 
     public function renew(string $domain, int $years): array

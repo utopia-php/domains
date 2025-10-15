@@ -15,6 +15,16 @@ class OpenSRS extends Adapter
     protected array $user;
 
     /**
+     * Markup percentage to apply to domain prices (e.g., 0.15 = 15%)
+     */
+    protected float $domainPriceMarkup;
+
+    /**
+     * Maximum markup amount to apply to domain prices
+     */
+    protected float $domainPriceCap;
+
+    /**
      * @return string
      */
     public function getName(): string
@@ -31,9 +41,11 @@ class OpenSRS extends Adapter
      * @param  string  $password
      * @param  array  $defaultNameservers
      * @param  bool  $production
+     * @param  float  $domainPriceMarkup Markup percentage to apply (e.g., 0.15 = 15%). Default is 0 (no markup)
+     * @param  float  $domainPriceCap Maximum markup amount. Default is 0 (no cap)
      * @return void
      */
-    public function __construct(string $apiKey, string $username, string $password, array $defaultNameservers, bool $production = false)
+    public function __construct(string $apiKey, string $username, string $password, array $defaultNameservers, bool $production = false, float $domainPriceMarkup = 0.0, float $domainPriceCap = 0.0)
     {
         $this->endpoint =
           $production === false
@@ -52,6 +64,9 @@ class OpenSRS extends Adapter
             'Content-Type:text/xml',
             'X-Username: ' . $username,
         ];
+
+        $this->domainPriceMarkup = $domainPriceMarkup;
+        $this->domainPriceCap = $domainPriceCap;
     }
 
     public function send(array $params = []): array|string
@@ -434,7 +449,7 @@ class OpenSRS extends Adapter
      * @param string $domain The domain name to get pricing for
      * @param int $period Registration period in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
-     * @return array Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
+     * @return array Contains 'price' (float), 'base_price' (float), 'markup' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
      * @throws DomainsException When the domain does not exist or pricing cannot be fetched
      */
     public function getPrice(string $domain, int $period = 1, string $regType = 'new'): array
@@ -455,7 +470,12 @@ class OpenSRS extends Adapter
 
             $priceXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="price"]';
             $priceElements = $result->xpath($priceXpath);
-            $price = isset($priceElements[0]) ? floatval((string) $priceElements[0]) : null;
+            $basePrice = isset($priceElements[0]) ? floatval((string) $priceElements[0]) : 0;
+
+            // Calculate markup fee
+            $markup = $basePrice * $this->domainPriceMarkup;
+            $cappedMarkup = $this->domainPriceCap > 0 ? min($markup, $this->domainPriceCap) : $markup;
+            $price = round($basePrice + $cappedMarkup, 2);
 
             $isPremiumXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="is_registry_premium"]';
             $isPremiumElements = $result->xpath($isPremiumXpath);
@@ -467,6 +487,8 @@ class OpenSRS extends Adapter
 
             return [
                 'price' => $price,
+                'base_price' => $basePrice,
+                'markup' => $cappedMarkup,
                 'is_registry_premium' => $isRegistryPremium,
                 'registry_premium_group' => $registryPremiumGroup,
             ];
