@@ -10,19 +10,15 @@ use Utopia\Domains\Registrar\Exception\PriceNotFound;
 
 class OpenSRS extends Adapter
 {
+    /**
+     * OpenSRS API Response Codes - https://domains.opensrs.guide/docs/codes
+     */
+    private const RESPONSE_CODE_DOMAIN_AVAILABLE = 210;
+    private const RESPONSE_CODE_DOMAIN_TAKEN = 485;
+    private const RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND = 400;
+
     protected array $defaultNameservers;
-
     protected array $user;
-
-    /**
-     * Markup percentage to apply to domain prices (e.g., 0.15 = 15%)
-     */
-    protected float $domainPriceMarkup;
-
-    /**
-     * Maximum markup amount to apply to domain prices
-     */
-    protected float $domainPriceCap;
 
     /**
      * @return string
@@ -41,11 +37,9 @@ class OpenSRS extends Adapter
      * @param  string  $password
      * @param  array  $defaultNameservers
      * @param  bool  $production
-     * @param  float  $domainPriceMarkup Markup percentage to apply (e.g., 0.15 = 15%). Default is 0 (no markup)
-     * @param  float  $domainPriceCap Maximum markup amount. Default is 0 (no cap)
      * @return void
      */
-    public function __construct(string $apiKey, string $username, string $password, array $defaultNameservers, bool $production = false, float $domainPriceMarkup = 0.0, float $domainPriceCap = 0.0)
+    public function __construct(string $apiKey, string $username, string $password, array $defaultNameservers, bool $production = false)
     {
         $this->endpoint =
           $production === false
@@ -64,9 +58,6 @@ class OpenSRS extends Adapter
             'Content-Type:text/xml',
             'X-Username: ' . $username,
         ];
-
-        $this->domainPriceMarkup = $domainPriceMarkup;
-        $this->domainPriceCap = $domainPriceCap;
     }
 
     public function send(array $params = []): array|string
@@ -105,7 +96,7 @@ class OpenSRS extends Adapter
         $result = $this->sanitizeResponse($result);
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
 
-        return (string) $elements[0] === '210';
+        return (int) $elements[0] === self::RESPONSE_CODE_DOMAIN_AVAILABLE;
     }
 
     private function sanitizeResponse(string $response)
@@ -208,10 +199,9 @@ class OpenSRS extends Adapter
         } catch (Exception $e) {
             $message = 'Failed to purchase domain: ' . $e->getMessage();
 
-            if (stripos($e->getMessage(), 'Domain taken') !== false) {
+            if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_TAKEN) {
                 throw new DomainTaken($message, $e->getCode(), $e);
             }
-
             throw new DomainsException($message, $e->getCode(), $e);
         }
     }
@@ -449,7 +439,7 @@ class OpenSRS extends Adapter
      * @param string $domain The domain name to get pricing for
      * @param int $period Registration period in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
-     * @return array Contains 'price' (float), 'base_price' (float), 'markup' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
+     * @return array Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
      * @throws PriceNotFound When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
@@ -471,12 +461,7 @@ class OpenSRS extends Adapter
 
             $priceXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="price"]';
             $priceElements = $result->xpath($priceXpath);
-            $basePrice = isset($priceElements[0]) ? floatval((string) $priceElements[0]) : 0;
-
-            // Calculate markup fee
-            $markup = $basePrice * $this->domainPriceMarkup;
-            $cappedMarkup = $this->domainPriceCap > 0 ? min($markup, $this->domainPriceCap) : $markup;
-            $price = round($basePrice + $cappedMarkup, 2);
+            $price = isset($priceElements[0]) ? floatval((string) $priceElements[0]) : null;
 
             $isPremiumXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="is_registry_premium"]';
             $isPremiumElements = $result->xpath($isPremiumXpath);
@@ -488,18 +473,15 @@ class OpenSRS extends Adapter
 
             return [
                 'price' => $price,
-                'base_price' => $basePrice,
-                'markup' => $cappedMarkup,
                 'is_registry_premium' => $isRegistryPremium,
                 'registry_premium_group' => $registryPremiumGroup,
             ];
         } catch (Exception $e) {
             $message = 'Failed to get price for domain: ' . $e->getMessage();
 
-            if (stripos($e->getMessage(), 'is not supported') !== false) {
+            if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND) {
                 throw new PriceNotFound($message, $e->getCode(), $e);
             }
-
             throw new DomainsException($message, $e->getCode(), $e);
         }
     }
