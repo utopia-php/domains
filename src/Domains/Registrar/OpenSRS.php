@@ -264,7 +264,7 @@ class OpenSRS extends Adapter
      */
     public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array
     {
-        if ($priceMin !== null && $priceMax !== null && $priceMin >= $priceMax) {
+        if ($priceMin !== null && $priceMax !== null && $priceMin > $priceMax) {
             throw new Exception("Invalid price range: priceMin ($priceMin) must be less than priceMax ($priceMax).");
         }
 
