@@ -232,22 +232,22 @@ class OpenSRS extends Adapter
      * @param array $tlds Top-level domains to search within (e.g., ['com', 'net', 'org'])
      * @param int|null $limit Maximum number of results to return
      * @param string|null $filterType Filter results by type: 'premium', 'suggestion', or null for both
-     * @param int|null $premiumPriceMax Maximum price for premium domains
-     * @param int|null $premiumPriceMin Minimum price for premium domains
+     * @param int|null $priceMax Maximum price for premium domains
+     * @param int|null $priceMin Minimum price for premium domains
      * @return array Domains with metadata: `available` (bool), `price` (float|null), `type` (string)
      */
-    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $premiumPriceMax = null, int|null $premiumPriceMin = null): array
+    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array
     {
-        if ($premiumPriceMin !== null && $premiumPriceMax !== null && $premiumPriceMin >= $premiumPriceMax) {
-            throw new Exception("Invalid price range: premiumPriceMin ($premiumPriceMin) must be less than premiumPriceMax ($premiumPriceMax).");
+        if ($priceMin !== null && $priceMax !== null && $priceMin >= $priceMax) {
+            throw new Exception("Invalid price range: priceMin ($priceMin) must be less than priceMax ($priceMax).");
         }
 
         if ($filterType !== null && !in_array($filterType, ['premium', 'suggestion'])) {
             throw new Exception("Invalid filter type: filterType ($filterType) must be 'premium' or 'suggestion'.");
         }
 
-        if ($filterType !== null && $filterType === 'suggestion' && ($premiumPriceMin !== null || $premiumPriceMax !== null)) {
-            throw new Exception("Invalid price range: premiumPriceMin ($premiumPriceMin) and premiumPriceMax ($premiumPriceMax) cannot be set when filterType is 'suggestion'.");
+        if ($filterType !== null && $filterType === 'suggestion' && ($priceMin !== null || $priceMax !== null)) {
+            throw new Exception("Invalid price range: priceMin ($priceMin) and priceMax ($priceMax) cannot be set when filterType is 'suggestion'.");
         }
 
         $query = is_array($query) ? $query : [$query];
@@ -280,11 +280,11 @@ class OpenSRS extends Adapter
                 $message['attributes']['service_override']['suggestion']['maximum'] = $limit;
             }
         }
-        if ($premiumPriceMin !== null) {
-            $message['attributes']['service_override']['premium']['price_min'] = $premiumPriceMin;
+        if ($priceMin !== null) {
+            $message['attributes']['service_override']['premium']['price_min'] = $priceMin;
         }
-        if ($premiumPriceMax !== null) {
-            $message['attributes']['service_override']['premium']['price_max'] = $premiumPriceMax;
+        if ($priceMax !== null) {
+            $message['attributes']['service_override']['premium']['price_max'] = $priceMax;
         }
 
         $result = $this->send($message);

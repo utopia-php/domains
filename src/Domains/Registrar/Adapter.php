@@ -25,11 +25,11 @@ abstract class Adapter extends DomainsAdapter
      * @param  array  $tlds
      * @param  int|null $limit
      * @param  string|null $filterType Filter results by type: 'premium', 'suggestion', or null for both
-     * @param  int|null $premiumPriceMax
-     * @param  int|null $premiumPriceMin
+     * @param  int|null $priceMax
+     * @param  int|null $priceMin
      * @return array
      */
-    abstract public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $premiumPriceMax = null, int|null $premiumPriceMin = null): array;
+    abstract public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array;
 
     /**
      * @return array
@@ -41,6 +41,12 @@ abstract class Adapter extends DomainsAdapter
      * @return array
      */
     abstract public function getDomain(string $domain): array;
+
+    /**
+     * @param  string  $domain
+     * @return array
+     */
+    abstract public function getPrice(string $domain): array;
 
     /**
      * @param  string  $domain

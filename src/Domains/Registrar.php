@@ -23,9 +23,9 @@ class Registrar
         return $this->adapter->purchase($domain, $contacts, $nameservers);
     }
 
-    public function suggest(array $query, array $tlds = []): array
+    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array
     {
-        return $this->adapter->suggest($query, $tlds);
+        return $this->adapter->suggest($query, $tlds, $limit, $filterType, $priceMax, $priceMin);
     }
 
     public function tlds(): array
@@ -36,6 +36,11 @@ class Registrar
     public function getDomain(string $domain): array
     {
         return $this->adapter->getDomain($domain);
+    }
+
+    public function getPrice(string $domain): array
+    {
+        return $this->adapter->getPrice($domain);
     }
 
     public function renew(string $domain, int $years): array
