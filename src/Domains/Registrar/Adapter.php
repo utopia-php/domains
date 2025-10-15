@@ -49,9 +49,11 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
+     * @param  int  $period
+     * @param  string  $regType
      * @return array
      */
-    abstract public function getPrice(string $domain): array;
+    abstract public function getPrice(string $domain, int $period = 1, string $regType = 'new'): array;
 
     /**
      * @param  string  $domain

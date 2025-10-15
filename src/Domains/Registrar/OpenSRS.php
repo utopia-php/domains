@@ -476,7 +476,7 @@ class OpenSRS extends Adapter
             if (stripos($e->getMessage(), 'not supported') !== false ||
                 stripos($e->getMessage(), 'price') !== false ||
                 stripos($e->getMessage(), 'not available') !== false) {
-                throw new PriceNotFound();
+                throw new PriceNotFound($message, $e->getCode(), $e);
             }
 
             throw new DomainsException($message, $e->getCode(), $e);
