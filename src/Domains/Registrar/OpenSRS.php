@@ -14,8 +14,8 @@ class OpenSRS extends Adapter
      * OpenSRS API Response Codes - https://domains.opensrs.guide/docs/codes
      */
     private const RESPONSE_CODE_DOMAIN_AVAILABLE = 210;
-    private const RESPONSE_CODE_DOMAIN_TAKEN = 485;
     private const RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND = 400;
+    private const RESPONSE_CODE_DOMAIN_TAKEN = 485;
 
     protected array $defaultNameservers;
     protected array $user;
