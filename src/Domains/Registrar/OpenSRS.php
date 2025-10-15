@@ -450,7 +450,8 @@ class OpenSRS extends Adapter
      * @param int $period Registration period in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @return array Contains 'price' (float), 'base_price' (float), 'markup' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
-     * @throws DomainsException When the domain does not exist or pricing cannot be fetched
+     * @throws PriceNotFound When pricing information is not found or unavailable for the domain
+     * @throws DomainsException When other errors occur during price retrieval
      */
     public function getPrice(string $domain, int $period = 1, string $regType = 'new'): array
     {
