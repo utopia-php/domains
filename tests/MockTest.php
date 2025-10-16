@@ -5,6 +5,7 @@ namespace Utopia\Tests;
 use PHPUnit\Framework\TestCase;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
+use Utopia\Domains\Registrar\Exception\InvalidContact;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
 use Utopia\Domains\Registrar\Mock;
 use Utopia\Domains\Exception as DomainsException;
@@ -313,6 +314,75 @@ class MockTest extends TestCase
 
         $this->assertTrue($result['successful']);
         $this->assertEquals($nameservers, $result['nameservers']);
+    }
+
+    public function testPurchaseWithInvalidContact(): void
+    {
+        $this->expectException(InvalidContact::class);
+        $this->expectExceptionMessage('missing required field');
+
+        $invalidContact = new Contact(
+            '', // Empty firstname
+            'Doe',
+            '+1.5551234567',
+            'john.doe@example.com',
+            '123 Main St',
+            'Suite 100',
+            '',
+            'San Francisco',
+            'CA',
+            'US',
+            '94105',
+            'Test Inc'
+        );
+
+        $this->adapter->purchase('test.com', $invalidContact);
+    }
+
+    public function testPurchaseWithInvalidEmail(): void
+    {
+        $this->expectException(InvalidContact::class);
+        $this->expectExceptionMessage('invalid email format');
+
+        $invalidContact = new Contact(
+            'John',
+            'Doe',
+            '+1.5551234567',
+            'invalid-email', // Invalid email
+            '123 Main St',
+            'Suite 100',
+            '',
+            'San Francisco',
+            'CA',
+            'US',
+            '94105',
+            'Test Inc'
+        );
+
+        $this->adapter->purchase('test.com', $invalidContact);
+    }
+
+    public function testTransferWithInvalidContact(): void
+    {
+        $this->expectException(InvalidContact::class);
+        $this->expectExceptionMessage('missing required field');
+
+        $invalidContact = new Contact(
+            'John',
+            'Doe',
+            '+1.5551234567',
+            'john.doe@example.com',
+            '123 Main St',
+            'Suite 100',
+            '',
+            '', // Empty city
+            'CA',
+            'US',
+            '94105',
+            'Test Inc'
+        );
+
+        $this->adapter->transfer('transfer.com', $invalidContact);
     }
 
     private function createContact(): Contact

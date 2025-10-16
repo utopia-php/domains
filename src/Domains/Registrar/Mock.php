@@ -5,10 +5,20 @@ namespace Utopia\Domains\Registrar;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
+use Utopia\Domains\Registrar\Exception\InvalidContact;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
 
 class Mock extends Adapter
 {
+    /**
+     * Mock API Response Codes
+     */
+    private const RESPONSE_CODE_SUCCESS = 200;
+    private const RESPONSE_CODE_BAD_REQUEST = 400;
+    private const RESPONSE_CODE_NOT_FOUND = 404;
+    private const RESPONSE_CODE_INVALID_CONTACT = 465;
+    private const RESPONSE_CODE_DOMAIN_TAKEN = 485;
+
     /**
      * Domains that are considered unavailable/taken
      */
@@ -93,12 +103,10 @@ class Mock extends Adapter
      */
     public function available(string $domain): bool
     {
-        // Taken domains are not available
         if (in_array($domain, $this->takenDomains)) {
             return false;
         }
 
-        // Already purchased domains are not available
         if (in_array($domain, $this->purchasedDomains)) {
             return false;
         }
@@ -114,18 +122,20 @@ class Mock extends Adapter
      * @param array $nameservers
      * @return array
      * @throws DomainTaken
+     * @throws InvalidContact
      */
     public function purchase(string $domain, array|Contact $contacts, array $nameservers = []): array
     {
         if (!$this->available($domain)) {
-            throw new DomainTaken("Domain {$domain} is not available for registration", 485);
+            throw new DomainTaken("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);
         }
 
-        // Add to purchased domains
+        $this->validateContacts($contacts);
+
         $this->purchasedDomains[] = $domain;
 
         return [
-            'code' => '200',
+            'code' => (string) self::RESPONSE_CODE_SUCCESS,
             'id' => 'mock_' . md5($domain . time()),
             'domainId' => 'mock_domain_' . md5($domain),
             'successful' => true,
@@ -160,7 +170,6 @@ class Mock extends Adapter
         $suggestions = [];
         $count = 0;
 
-        // Generate suggestions
         if ($filterType === null || $filterType === 'suggestion') {
             foreach ($tlds as $tld) {
                 if ($count >= $limit) {
@@ -177,14 +186,12 @@ class Mock extends Adapter
             }
         }
 
-        // Add premium suggestions if requested
         if (($filterType === null || $filterType === 'premium') && $count < $limit) {
             foreach ($this->premiumDomains as $domain => $price) {
                 if ($count >= $limit) {
                     break;
                 }
 
-                // Apply price filters
                 if ($priceMin !== null && $price < $priceMin) {
                     continue;
                 }
@@ -224,7 +231,7 @@ class Mock extends Adapter
     public function getDomain(string $domain): array
     {
         if (!in_array($domain, $this->purchasedDomains)) {
-            throw new DomainsException("Domain {$domain} not found in mock registry", 404);
+            throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
         }
 
         return [
@@ -251,7 +258,6 @@ class Mock extends Adapter
      */
     public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW): array
     {
-        // Check if it's a premium domain
         if (isset($this->premiumDomains[$domain])) {
             return [
                 'price' => $this->premiumDomains[$domain] * $period,
@@ -260,20 +266,17 @@ class Mock extends Adapter
             ];
         }
 
-        // Extract TLD
         $parts = explode('.', $domain);
         if (count($parts) < 2) {
-            throw new PriceNotFound("Invalid domain format: {$domain}", 400);
+            throw new PriceNotFound("Invalid domain format: {$domain}", self::RESPONSE_CODE_BAD_REQUEST);
         }
 
         $tld = end($parts);
 
-        // Check if TLD is supported
         if (!in_array($tld, $this->supportedTlds)) {
-            throw new PriceNotFound("TLD .{$tld} is not supported", 400);
+            throw new PriceNotFound("TLD .{$tld} is not supported", self::RESPONSE_CODE_BAD_REQUEST);
         }
 
-        // Calculate price based on registration type
         $basePrice = $this->defaultPrice;
         $multiplier = match ($regType) {
             self::REG_TYPE_TRANSFER => 1.0,
@@ -300,7 +303,7 @@ class Mock extends Adapter
     public function renew(string $domain, int $years): array
     {
         if (!in_array($domain, $this->purchasedDomains)) {
-            throw new DomainsException("Domain {$domain} not found in mock registry", 404);
+            throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
         }
 
         $currentExpiry = strtotime('+1 year');
@@ -322,20 +325,21 @@ class Mock extends Adapter
      * @param array $nameservers
      * @return array
      * @throws DomainTaken
+     * @throws InvalidContact
      */
     public function transfer(string $domain, array|Contact $contacts, array $nameservers = []): array
     {
-        // In mock, we simulate that the domain must exist somewhere to transfer
         if (in_array($domain, $this->purchasedDomains)) {
-            throw new DomainTaken("Domain {$domain} is already in this account", 485);
+            throw new DomainTaken("Domain {$domain} is already in this account", self::RESPONSE_CODE_DOMAIN_TAKEN);
         }
 
-        // Add to transferred domains
+        $this->validateContacts($contacts);
+
         $this->transferredDomains[] = $domain;
         $this->purchasedDomains[] = $domain;
 
         return [
-            'code' => '200',
+            'code' => (string) self::RESPONSE_CODE_SUCCESS,
             'id' => 'mock_transfer_' . md5($domain . time()),
             'domainId' => 'mock_domain_' . md5($domain),
             'successful' => true,
@@ -398,5 +402,46 @@ class Mock extends Adapter
     public function addPremiumDomain(string $domain, float $price): void
     {
         $this->premiumDomains[$domain] = $price;
+    }
+
+    /**
+     * Validate contacts
+     *
+     * @param array|Contact $contacts
+     * @return void
+     * @throws InvalidContact
+     */
+    private function validateContacts(array|Contact $contacts): void
+    {
+        $contactsArray = is_array($contacts) ? $contacts : [$contacts];
+
+        foreach ($contactsArray as $contact) {
+            if (!($contact instanceof Contact)) {
+                throw new InvalidContact("Invalid contact: contact must be an instance of Contact", self::RESPONSE_CODE_INVALID_CONTACT);
+            }
+
+            $contactData = $contact->toArray();
+            $required = [
+                'firstname',
+                'lastname',
+                'email',
+                'phone',
+                'address1',
+                'city',
+                'state',
+                'postalcode',
+                'country',
+            ];
+
+            foreach ($required as $field) {
+                if (!isset($contactData[$field]) || empty($contactData[$field])) {
+                    throw new InvalidContact("Invalid contact: missing required field '{$field}'", self::RESPONSE_CODE_INVALID_CONTACT);
+                }
+            }
+
+            if (!filter_var($contactData['email'], FILTER_VALIDATE_EMAIL)) {
+                throw new InvalidContact("Invalid contact: invalid email format", self::RESPONSE_CODE_INVALID_CONTACT);
+            }
+        }
     }
 }
