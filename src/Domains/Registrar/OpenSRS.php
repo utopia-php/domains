@@ -6,6 +6,7 @@ use Exception;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
+use Utopia\Domains\Registrar\Exception\InvalidContact;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
 
 class OpenSRS extends Adapter
@@ -15,6 +16,7 @@ class OpenSRS extends Adapter
      */
     private const RESPONSE_CODE_DOMAIN_AVAILABLE = 210;
     private const RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND = 400;
+    private const RESPONSE_CODE_INVALID_CONTACT = 465;
     private const RESPONSE_CODE_DOMAIN_TAKEN = 485;
 
     protected array $defaultNameservers;
@@ -201,6 +203,9 @@ class OpenSRS extends Adapter
 
             if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_TAKEN) {
                 throw new DomainTaken($message, $e->getCode(), $e);
+            }
+            if ($e->getCode() === self::RESPONSE_CODE_INVALID_CONTACT) {
+                throw new InvalidContact($message, $e->getCode(), $e);
             }
             throw new DomainsException($message, $e->getCode(), $e);
         }

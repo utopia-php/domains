@@ -5,6 +5,7 @@ namespace Utopia\Tests;
 use PHPUnit\Framework\TestCase;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
+use Utopia\Domains\Registrar\Exception\InvalidContact;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
 use Utopia\Domains\Registrar\OpenSRS;
 use Utopia\Domains\Registrar;
@@ -52,7 +53,30 @@ class OpenSRSTest extends TestCase
         $domain = 'google.com';
         $this->expectException(DomainTaken::class);
         $this->expectExceptionMessage("Failed to purchase domain: Domain taken");
-        $result = $this->client->purchase($domain, self::purchaseContact());
+        $this->client->purchase($domain, self::purchaseContact());
+    }
+
+    public function testPurchaseWithInvalidContact(): void
+    {
+        $domain = self::generateRandomString() . '.net';
+        $this->expectException(InvalidContact::class);
+        $this->expectExceptionMessage("Failed to purchase domain: Invalid data");
+        $this->client->purchase($domain, [
+            new Contact(
+                'John',
+                'Doe',
+                '+1.8031234567',
+                'testing@test.com',
+                '123 Main St',
+                'Suite 100',
+                '',
+                'San Francisco',
+                'CA',
+                'India',
+                '94105',
+                'Test Inc',
+            )
+        ]);
     }
 
     public function testDomainInfo(): void
