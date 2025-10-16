@@ -306,7 +306,8 @@ class Mock extends Adapter
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
         }
 
-        $currentExpiry = strtotime('+1 year');
+        $domainInfo = $this->getDomain($domain);
+        $currentExpiry = strtotime($domainInfo['registry_expiredate']);
         $newExpiry = strtotime("+{$years} years", $currentExpiry);
 
         return [
