@@ -7,6 +7,7 @@ use Utopia\Domains\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
 use Utopia\Domains\Registrar\OpenSRS;
+use Utopia\Domains\Registrar;
 
 class OpenSRSTest extends TestCase
 {
@@ -182,7 +183,7 @@ class OpenSRSTest extends TestCase
 
     public function testGetPrice(): void
     {
-        $result = $this->client->getPrice($this->domain, 1, 'new');
+        $result = $this->client->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW);
         $this->assertIsArray($result);
         $this->assertArrayHasKey('price', $result);
         $this->assertArrayHasKey('is_registry_premium', $result);
@@ -192,7 +193,7 @@ class OpenSRSTest extends TestCase
 
         $this->expectException(PriceNotFound::class);
         $this->expectExceptionMessage("Failed to get price for domain: get_price_domain API is not supported for 'invalid domain'");
-        $this->client->getPrice("invalid domain", 1, 'new');
+        $this->client->getPrice("invalid domain", 1, Registrar::REG_TYPE_NEW);
     }
 
     public function testUpdateNameservers(): void

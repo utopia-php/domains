@@ -6,6 +6,14 @@ use Utopia\Domains\Registrar\Adapter as RegistrarAdapter;
 
 class Registrar
 {
+    /**
+     * Registration Types
+     */
+    public const REG_TYPE_NEW = RegistrarAdapter::REG_TYPE_NEW;
+    public const REG_TYPE_TRANSFER = RegistrarAdapter::REG_TYPE_TRANSFER;
+    public const REG_TYPE_RENEWAL = RegistrarAdapter::REG_TYPE_RENEWAL;
+    public const REG_TYPE_TRADE = RegistrarAdapter::REG_TYPE_TRADE;
+
     protected RegistrarAdapter $adapter;
 
     public function __construct(RegistrarAdapter $adapter)
@@ -43,7 +51,7 @@ class Registrar
         return $this->adapter->getDomain($domain);
     }
 
-    public function getPrice(string $domain, int $period = 1, string $regType = 'new'): array
+    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW): array
     {
         return $this->adapter->getPrice($domain, $period, $regType);
     }

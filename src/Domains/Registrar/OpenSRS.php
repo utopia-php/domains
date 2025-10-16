@@ -189,7 +189,7 @@ class OpenSRS extends Adapter
 
             $contacts = $this->sanitizeContacts($contacts);
 
-            $regType = 'new';
+            $regType = self::REG_TYPE_NEW;
 
             $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
 
@@ -217,7 +217,7 @@ class OpenSRS extends Adapter
 
         $contacts = $this->sanitizeContacts($contacts);
 
-        $regType = 'transfer';
+        $regType = self::REG_TYPE_TRANSFER;
 
         $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
         $result = $this->response($result);
@@ -443,7 +443,7 @@ class OpenSRS extends Adapter
      * @throws PriceNotFound When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
-    public function getPrice(string $domain, int $period = 1, string $regType = 'new'): array
+    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW): array
     {
         try {
             $message = [

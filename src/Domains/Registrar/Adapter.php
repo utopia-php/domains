@@ -7,6 +7,14 @@ use Utopia\Domains\Adapter as DomainsAdapter;
 abstract class Adapter extends DomainsAdapter
 {
     /**
+     * Registration Types
+     */
+    public const REG_TYPE_NEW = 'new';
+    public const REG_TYPE_TRANSFER = 'transfer';
+    public const REG_TYPE_RENEWAL = 'renewal';
+    public const REG_TYPE_TRADE = 'trade';
+
+    /**
      * @return string
      */
     abstract public function getName(): string;
@@ -53,7 +61,7 @@ abstract class Adapter extends DomainsAdapter
      * @param  string  $regType
      * @return array
      */
-    abstract public function getPrice(string $domain, int $period = 1, string $regType = 'new'): array;
+    abstract public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW): array;
 
     /**
      * @param  string  $domain
