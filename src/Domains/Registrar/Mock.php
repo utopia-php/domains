@@ -118,7 +118,7 @@ class Mock extends Adapter
      * Purchase a domain
      *
      * @param string $domain
-     * @param array<\Utopia\Domains\Contact> $contacts
+     * @param array<\Utopia\Domains\Contact>|Contact $contacts
      * @param array $nameservers
      * @return array
      * @throws DomainTaken
