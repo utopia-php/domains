@@ -4,7 +4,11 @@ namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Utopia\Domains\Contact;
+use Utopia\Domains\Registrar\Exception\DomainTaken;
+use Utopia\Domains\Registrar\Exception\InvalidContact;
+use Utopia\Domains\Registrar\Exception\PriceNotFound;
 use Utopia\Domains\Registrar\OpenSRS;
+use Utopia\Domains\Registrar;
 
 class OpenSRSTest extends TestCase
 {
@@ -40,15 +44,39 @@ class OpenSRSTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testPurchase(): string
+    public function testPurchase(): void
     {
         $domain = self::generateRandomString() . '.net';
-
         $result = $this->client->purchase($domain, self::purchaseContact());
-
         $this->assertTrue($result['successful']);
 
-        return $domain;
+        $domain = 'google.com';
+        $this->expectException(DomainTaken::class);
+        $this->expectExceptionMessage("Failed to purchase domain: Domain taken");
+        $this->client->purchase($domain, self::purchaseContact());
+    }
+
+    public function testPurchaseWithInvalidContact(): void
+    {
+        $domain = self::generateRandomString() . '.net';
+        $this->expectException(InvalidContact::class);
+        $this->expectExceptionMessage("Failed to purchase domain: Invalid data");
+        $this->client->purchase($domain, [
+            new Contact(
+                'John',
+                'Doe',
+                '+1.8031234567',
+                'testing@test.com',
+                '123 Main St',
+                'Suite 100',
+                '',
+                'San Francisco',
+                'CA',
+                'India',
+                '94105',
+                'Test Inc',
+            )
+        ]);
     }
 
     public function testDomainInfo(): void
@@ -179,14 +207,17 @@ class OpenSRSTest extends TestCase
 
     public function testGetPrice(): void
     {
-        $result = $this->client->getPrice($this->domain, 1, 'new');
-
+        $result = $this->client->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW);
         $this->assertIsArray($result);
         $this->assertArrayHasKey('price', $result);
         $this->assertArrayHasKey('is_registry_premium', $result);
         $this->assertArrayHasKey('registry_premium_group', $result);
         $this->assertIsFloat($result['price']);
         $this->assertIsBool($result['is_registry_premium']);
+
+        $this->expectException(PriceNotFound::class);
+        $this->expectExceptionMessage("Failed to get price for domain: get_price_domain API is not supported for 'invalid domain'");
+        $this->client->getPrice("invalid domain", 1, Registrar::REG_TYPE_NEW);
     }
 
     public function testUpdateNameservers(): void

@@ -4,12 +4,31 @@ namespace Utopia\Domains\Registrar;
 
 use Exception;
 use Utopia\Domains\Contact;
+use Utopia\Domains\Exception as DomainsException;
+use Utopia\Domains\Registrar\Exception\DomainTaken;
+use Utopia\Domains\Registrar\Exception\InvalidContact;
+use Utopia\Domains\Registrar\Exception\PriceNotFound;
 
 class OpenSRS extends Adapter
 {
-    protected array $defaultNameservers;
+    /**
+     * OpenSRS API Response Codes - https://domains.opensrs.guide/docs/codes
+     */
+    private const RESPONSE_CODE_DOMAIN_AVAILABLE = 210;
+    private const RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND = 400;
+    private const RESPONSE_CODE_INVALID_CONTACT = 465;
+    private const RESPONSE_CODE_DOMAIN_TAKEN = 485;
 
+    protected array $defaultNameservers;
     protected array $user;
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return 'opensrs';
+    }
 
     /**
      * __construct
@@ -79,7 +98,7 @@ class OpenSRS extends Adapter
         $result = $this->sanitizeResponse($result);
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
 
-        return (string) $elements[0] === '210';
+        return (int) $elements[0] === self::RESPONSE_CODE_DOMAIN_AVAILABLE;
     }
 
     private function sanitizeResponse(string $response)
@@ -162,22 +181,34 @@ class OpenSRS extends Adapter
 
     public function purchase(string $domain, array|Contact $contacts, array $nameservers = []): array
     {
-        $contacts = is_array($contacts) ? $contacts : [$contacts];
+        try {
+            $contacts = is_array($contacts) ? $contacts : [$contacts];
 
-        $nameservers =
-          empty($nameservers)
-          ? $this->defaultNameservers
-          : $nameservers;
+            $nameservers =
+            empty($nameservers)
+            ? $this->defaultNameservers
+            : $nameservers;
 
-        $contacts = $this->sanitizeContacts($contacts);
+            $contacts = $this->sanitizeContacts($contacts);
 
-        $regType = 'new';
+            $regType = self::REG_TYPE_NEW;
 
-        $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
+            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
 
-        $result = $this->response($result);
+            $result = $this->response($result);
 
-        return $result;
+            return $result;
+        } catch (Exception $e) {
+            $message = 'Failed to purchase domain: ' . $e->getMessage();
+
+            if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_TAKEN) {
+                throw new DomainTaken($message, $e->getCode(), $e);
+            }
+            if ($e->getCode() === self::RESPONSE_CODE_INVALID_CONTACT) {
+                throw new InvalidContact($message, $e->getCode(), $e);
+            }
+            throw new DomainsException($message, $e->getCode(), $e);
+        }
     }
 
     public function transfer(string $domain, array|Contact $contacts, array $nameservers = []): array
@@ -191,7 +222,7 @@ class OpenSRS extends Adapter
 
         $contacts = $this->sanitizeContacts($contacts);
 
-        $regType = 'transfer';
+        $regType = self::REG_TYPE_TRANSFER;
 
         $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
         $result = $this->response($result);
@@ -232,22 +263,22 @@ class OpenSRS extends Adapter
      * @param array $tlds Top-level domains to search within (e.g., ['com', 'net', 'org'])
      * @param int|null $limit Maximum number of results to return
      * @param string|null $filterType Filter results by type: 'premium', 'suggestion', or null for both
-     * @param int|null $premiumPriceMax Maximum price for premium domains
-     * @param int|null $premiumPriceMin Minimum price for premium domains
+     * @param int|null $priceMax Maximum price for premium domains
+     * @param int|null $priceMin Minimum price for premium domains
      * @return array Domains with metadata: `available` (bool), `price` (float|null), `type` (string)
      */
-    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $premiumPriceMax = null, int|null $premiumPriceMin = null): array
+    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array
     {
-        if ($premiumPriceMin !== null && $premiumPriceMax !== null && $premiumPriceMin >= $premiumPriceMax) {
-            throw new Exception("Invalid price range: premiumPriceMin ($premiumPriceMin) must be less than premiumPriceMax ($premiumPriceMax).");
+        if ($priceMin !== null && $priceMax !== null && $priceMin > $priceMax) {
+            throw new Exception("Invalid price range: priceMin ($priceMin) must be less than priceMax ($priceMax).");
         }
 
         if ($filterType !== null && !in_array($filterType, ['premium', 'suggestion'])) {
             throw new Exception("Invalid filter type: filterType ($filterType) must be 'premium' or 'suggestion'.");
         }
 
-        if ($filterType !== null && $filterType === 'suggestion' && ($premiumPriceMin !== null || $premiumPriceMax !== null)) {
-            throw new Exception("Invalid price range: premiumPriceMin ($premiumPriceMin) and premiumPriceMax ($premiumPriceMax) cannot be set when filterType is 'suggestion'.");
+        if ($filterType !== null && $filterType === 'suggestion' && ($priceMin !== null || $priceMax !== null)) {
+            throw new Exception("Invalid price range: priceMin ($priceMin) and priceMax ($priceMax) cannot be set when filterType is 'suggestion'.");
         }
 
         $query = is_array($query) ? $query : [$query];
@@ -280,11 +311,11 @@ class OpenSRS extends Adapter
                 $message['attributes']['service_override']['suggestion']['maximum'] = $limit;
             }
         }
-        if ($premiumPriceMin !== null) {
-            $message['attributes']['service_override']['premium']['price_min'] = $premiumPriceMin;
+        if ($priceMin !== null) {
+            $message['attributes']['service_override']['premium']['price_min'] = $priceMin;
         }
-        if ($premiumPriceMax !== null) {
-            $message['attributes']['service_override']['premium']['price_max'] = $premiumPriceMax;
+        if ($priceMax !== null) {
+            $message['attributes']['service_override']['premium']['price_max'] = $priceMax;
         }
 
         $result = $this->send($message);
@@ -414,39 +445,50 @@ class OpenSRS extends Adapter
      * @param int $period Registration period in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @return array Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
+     * @throws PriceNotFound When pricing information is not found or unavailable for the domain
+     * @throws DomainsException When other errors occur during price retrieval
      */
-    public function getPrice(string $domain, int $period = 1, string $regType = 'new'): array
+    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW): array
     {
-        $message = [
-            'object' => 'DOMAIN',
-            'action' => 'GET_PRICE',
-            'attributes' => [
-                'domain' => $domain,
-                'period' => $period,
-                'reg_type' => $regType,
-            ],
-        ];
+        try {
+            $message = [
+                'object' => 'DOMAIN',
+                'action' => 'GET_PRICE',
+                'attributes' => [
+                    'domain' => $domain,
+                    'period' => $period,
+                    'reg_type' => $regType,
+                ],
+            ];
 
-        $result = $this->send($message);
-        $result = $this->sanitizeResponse($result);
+            $result = $this->send($message);
+            $result = $this->sanitizeResponse($result);
 
-        $priceXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="price"]';
-        $priceElements = $result->xpath($priceXpath);
-        $price = isset($priceElements[0]) ? floatval((string) $priceElements[0]) : null;
+            $priceXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="price"]';
+            $priceElements = $result->xpath($priceXpath);
+            $price = isset($priceElements[0]) ? floatval((string) $priceElements[0]) : null;
 
-        $isPremiumXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="is_registry_premium"]';
-        $isPremiumElements = $result->xpath($isPremiumXpath);
-        $isRegistryPremium = isset($isPremiumElements[0]) ? ((string) $isPremiumElements[0] === '1') : false;
+            $isPremiumXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="is_registry_premium"]';
+            $isPremiumElements = $result->xpath($isPremiumXpath);
+            $isRegistryPremium = isset($isPremiumElements[0]) ? ((string) $isPremiumElements[0] === '1') : false;
 
-        $premiumGroupXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="registry_premium_group"]';
-        $premiumGroupElements = $result->xpath($premiumGroupXpath);
-        $registryPremiumGroup = isset($premiumGroupElements[0]) ? (string) $premiumGroupElements[0] : null;
+            $premiumGroupXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="registry_premium_group"]';
+            $premiumGroupElements = $result->xpath($premiumGroupXpath);
+            $registryPremiumGroup = isset($premiumGroupElements[0]) ? (string) $premiumGroupElements[0] : null;
 
-        return [
-            'price' => $price,
-            'is_registry_premium' => $isRegistryPremium,
-            'registry_premium_group' => $registryPremiumGroup,
-        ];
+            return [
+                'price' => $price,
+                'is_registry_premium' => $isRegistryPremium,
+                'registry_premium_group' => $registryPremiumGroup,
+            ];
+        } catch (Exception $e) {
+            $message = 'Failed to get price for domain: ' . $e->getMessage();
+
+            if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND) {
+                throw new PriceNotFound($message, $e->getCode(), $e);
+            }
+            throw new DomainsException($message, $e->getCode(), $e);
+        }
     }
 
     public function tlds(): array

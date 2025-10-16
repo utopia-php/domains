@@ -6,11 +6,24 @@ use Utopia\Domains\Registrar\Adapter as RegistrarAdapter;
 
 class Registrar
 {
+    /**
+     * Registration Types
+     */
+    public const REG_TYPE_NEW = RegistrarAdapter::REG_TYPE_NEW;
+    public const REG_TYPE_TRANSFER = RegistrarAdapter::REG_TYPE_TRANSFER;
+    public const REG_TYPE_RENEWAL = RegistrarAdapter::REG_TYPE_RENEWAL;
+    public const REG_TYPE_TRADE = RegistrarAdapter::REG_TYPE_TRADE;
+
     protected RegistrarAdapter $adapter;
 
     public function __construct(RegistrarAdapter $adapter)
     {
         $this->adapter = $adapter;
+    }
+
+    public function getName(): string
+    {
+        return $this->adapter->getName();
     }
 
     public function available(string $domain): bool
@@ -23,9 +36,9 @@ class Registrar
         return $this->adapter->purchase($domain, $contacts, $nameservers);
     }
 
-    public function suggest(array $query, array $tlds = []): array
+    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array
     {
-        return $this->adapter->suggest($query, $tlds);
+        return $this->adapter->suggest($query, $tlds, $limit, $filterType, $priceMax, $priceMin);
     }
 
     public function tlds(): array
@@ -36,6 +49,11 @@ class Registrar
     public function getDomain(string $domain): array
     {
         return $this->adapter->getDomain($domain);
+    }
+
+    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW): array
+    {
+        return $this->adapter->getPrice($domain, $period, $regType);
     }
 
     public function renew(string $domain, int $years): array
