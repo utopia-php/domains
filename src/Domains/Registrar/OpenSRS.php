@@ -19,7 +19,6 @@ class OpenSRS extends Adapter
     private const RESPONSE_CODE_INVALID_CONTACT = 465;
     private const RESPONSE_CODE_DOMAIN_TAKEN = 485;
 
-    protected array $defaultNameservers;
     protected array $user;
 
     /**
@@ -38,18 +37,21 @@ class OpenSRS extends Adapter
      * @param  string  $username
      * @param  string  $password
      * @param  array  $defaultNameservers
-     * @param  bool  $production
+     * @param  string  $endpoint - The endpoint to use for the API (use rr-n1-tor.opensrs.net:55443 for production)
      * @return void
      */
-    public function __construct(string $apiKey, string $username, string $password, array $defaultNameservers, bool $production = false)
-    {
-        $this->endpoint =
-          $production === false
-          ? 'https://horizon.opensrs.net:55443'
-          : 'https://rr-n1-tor.opensrs.net:55443';
-
-        $this->apiKey = $apiKey;
-        $this->defaultNameservers = $defaultNameservers;
+    public function __construct(
+        protected string $apiKey,
+        string $username,
+        string $password,
+        protected array $defaultNameservers = [],
+        protected string $endpoint = 'https://horizon.opensrs.net:55443'
+    ) {
+        if (str_starts_with($endpoint, 'http://')) {
+            $this->endpoint = 'https://' . substr($endpoint, 7);
+        } elseif (!str_starts_with($endpoint, 'https://')) {
+            $this->endpoint = 'https://' . $endpoint;
+        }
 
         $this->user = [
             'username' => $username,
