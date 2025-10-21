@@ -18,17 +18,17 @@ class Cache
         return 'domain:' . $domain;
     }
 
-    public function load(string $domain, int $ttl): string|array|null
+    public function load(string $domain, int $ttl): mixed
     {
         return $this->cache->load($this->getKey($domain), $ttl);
     }
 
-    public function save(string $domain, string|array $data): void
+    public function save(string $domain, string|array $data): bool|string|array
     {
-        $this->cache->save($this->getKey($domain), $data);
+        return $this->cache->save($this->getKey($domain), $data);
     }
 
-    public function purge(string $domain): array|bool
+    public function purge(string $domain): bool
     {
         return $this->cache->purge($this->getKey($domain));
     }
