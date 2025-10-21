@@ -59,9 +59,10 @@ abstract class Adapter extends DomainsAdapter
      * @param  string  $domain
      * @param  int  $period
      * @param  string  $regType
+     * @param  int  $ttl
      * @return array
      */
-    abstract public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW): array;
+    abstract public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array;
 
     /**
      * @param  string  $domain

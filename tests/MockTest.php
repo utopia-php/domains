@@ -3,6 +3,9 @@
 namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Utopia\Cache\Cache as UtopiaCache;
+use Utopia\Cache\Adapter\None as NoneAdapter;
+use Utopia\Domains\Cache;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
 use Utopia\Domains\Registrar\Exception\InvalidContact;
@@ -290,6 +293,50 @@ class MockTest extends TestCase
         $result = $customAdapter->getPrice('example.com');
 
         $this->assertEquals(25.00, $result['price']);
+    }
+
+    public function testGetPriceWithCache(): void
+    {
+        $utopiaCache = new UtopiaCache(new NoneAdapter());
+        $cache = new Cache($utopiaCache);
+        $adapter = new Mock([], [], 12.99, $cache);
+
+        // First call should calculate and cache the price
+        $result1 = $adapter->getPrice('example.com', 1, Mock::REG_TYPE_NEW, 3600);
+        $this->assertArrayHasKey('price', $result1);
+        $this->assertEquals(12.99, $result1['price']);
+
+        // Second call with same domain should return cached result
+        $result2 = $adapter->getPrice('example.com', 1, Mock::REG_TYPE_NEW, 3600);
+        $this->assertEquals($result1, $result2);
+    }
+
+    public function testGetPriceWithCachePremiumDomain(): void
+    {
+        $utopiaCache = new UtopiaCache(new NoneAdapter());
+        $cache = new Cache($utopiaCache);
+        $adapter = new Mock([], [], 12.99, $cache);
+
+        // First call should calculate and cache the price
+        $result1 = $adapter->getPrice('premium.com', 1, Mock::REG_TYPE_NEW, 3600);
+        $this->assertTrue($result1['is_registry_premium']);
+        $this->assertEquals(5000.00, $result1['price']);
+
+        // Second call with same domain should return cached result
+        $result2 = $adapter->getPrice('premium.com', 1, Mock::REG_TYPE_NEW, 3600);
+        $this->assertEquals($result1, $result2);
+    }
+
+    public function testGetPriceWithTtl(): void
+    {
+        $utopiaCache = new UtopiaCache(new NoneAdapter());
+        $cache = new Cache($utopiaCache);
+        $adapter = new Mock([], [], 12.99, $cache);
+
+        // Test with custom TTL
+        $result = $adapter->getPrice('example.com', 1, Mock::REG_TYPE_NEW, 7200);
+        $this->assertArrayHasKey('price', $result);
+        $this->assertEquals(12.99, $result['price']);
     }
 
     public function testPurchaseWithNameservers(): void

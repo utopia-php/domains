@@ -8,6 +8,7 @@ use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
 use Utopia\Domains\Registrar\Exception\InvalidContact;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
+use Utopia\Domains\Cache;
 
 class OpenSRS extends Adapter
 {
@@ -45,7 +46,8 @@ class OpenSRS extends Adapter
         string $username,
         string $password,
         protected array $defaultNameservers = [],
-        protected string $endpoint = 'https://horizon.opensrs.net:55443'
+        protected string $endpoint = 'https://horizon.opensrs.net:55443',
+        protected ?Cache $cache = null
     ) {
         if (str_starts_with($endpoint, 'http://')) {
             $this->endpoint = 'https://' . substr($endpoint, 7);
@@ -446,12 +448,20 @@ class OpenSRS extends Adapter
      * @param string $domain The domain name to get pricing for
      * @param int $period Registration period in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
+     * @param int $ttl Time to live for the cache (if set) in seconds (default 3600 seconds = 1 hour)
      * @return array Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
      * @throws PriceNotFound When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
-    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW): array
+    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
     {
+        if ($this->cache) {
+            $cached = $this->cache->load($domain, $ttl);
+            if ($cached !== null && is_array($cached)) {
+                return $cached;
+            }
+        }
+
         try {
             $message = [
                 'object' => 'DOMAIN',
@@ -478,11 +488,17 @@ class OpenSRS extends Adapter
             $premiumGroupElements = $result->xpath($premiumGroupXpath);
             $registryPremiumGroup = isset($premiumGroupElements[0]) ? (string) $premiumGroupElements[0] : null;
 
-            return [
+            $result = [
                 'price' => $price,
                 'is_registry_premium' => $isRegistryPremium,
                 'registry_premium_group' => $registryPremiumGroup,
             ];
+
+            if ($this->cache) {
+                $this->cache->save($domain, $result);
+            }
+
+            return $result;
         } catch (Exception $e) {
             $message = 'Failed to get price for domain: ' . $e->getMessage();
 
