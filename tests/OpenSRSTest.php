@@ -3,6 +3,9 @@
 namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Utopia\Cache\Cache as UtopiaCache;
+use Utopia\Cache\Adapter\None as NoneAdapter;
+use Utopia\Domains\Cache;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
 use Utopia\Domains\Registrar\Exception\InvalidContact;
@@ -13,6 +16,7 @@ use Utopia\Domains\Registrar;
 class OpenSRSTest extends TestCase
 {
     private OpenSRS $client;
+    private OpenSRS $clientWithCache;
 
     private string $domain;
 
@@ -20,6 +24,8 @@ class OpenSRSTest extends TestCase
     {
         $key = getenv('OPENSRS_KEY');
         $username = getenv('OPENSRS_USERNAME');
+        $utopiaCache = new UtopiaCache(new NoneAdapter());
+        $cache = new Cache($utopiaCache);
 
         $this->assertNotEmpty($key);
         $this->assertNotEmpty($username);
@@ -33,6 +39,17 @@ class OpenSRSTest extends TestCase
                 'ns1.systemdns.com',
                 'ns2.systemdns.com',
             ]
+        );
+        $this->clientWithCache = new OpenSRS(
+            $key,
+            $username,
+            self::generateRandomString(),
+            [
+                'ns1.systemdns.com',
+                'ns2.systemdns.com',
+            ],
+            'https://horizon.opensrs.net:55443',
+            $cache
         );
     }
 
@@ -218,6 +235,28 @@ class OpenSRSTest extends TestCase
         $this->expectException(PriceNotFound::class);
         $this->expectExceptionMessage("Failed to get price for domain: get_price_domain API is not supported for 'invalid domain'");
         $this->client->getPrice("invalid domain", 1, Registrar::REG_TYPE_NEW);
+    }
+
+    public function testGetPriceWithCache(): void
+    {
+        $result1 = $this->clientWithCache->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW, 3600);
+        $this->assertIsArray($result1);
+        $this->assertArrayHasKey('price', $result1);
+        $this->assertArrayHasKey('is_registry_premium', $result1);
+        $this->assertArrayHasKey('registry_premium_group', $result1);
+        $this->assertIsFloat($result1['price']);
+        $this->assertIsBool($result1['is_registry_premium']);
+
+        $result2 = $this->clientWithCache->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW, 3600);
+        $this->assertEquals($result1, $result2);
+    }
+
+    public function testGetPriceWithCustomTtl(): void
+    {
+        $result = $this->clientWithCache->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW, 7200);
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('price', $result);
+        $this->assertIsFloat($result['price']);
     }
 
     public function testUpdateNameservers(): void
