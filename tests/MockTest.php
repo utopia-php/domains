@@ -3,6 +3,9 @@
 namespace Utopia\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Utopia\Cache\Cache as UtopiaCache;
+use Utopia\Cache\Adapter\None as NoneAdapter;
+use Utopia\Domains\Cache;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
 use Utopia\Domains\Registrar\Exception\InvalidContact;
@@ -13,10 +16,15 @@ use Utopia\Domains\Exception as DomainsException;
 class MockTest extends TestCase
 {
     private Mock $adapter;
+    private Mock $adapterWithCache;
 
     protected function setUp(): void
     {
+        $utopiaCache = new UtopiaCache(new NoneAdapter());
+        $cache = new Cache($utopiaCache);
+
         $this->adapter = new Mock();
+        $this->adapterWithCache = new Mock([], [], 12.99, $cache);
     }
 
     protected function tearDown(): void
@@ -290,6 +298,23 @@ class MockTest extends TestCase
         $result = $customAdapter->getPrice('example.com');
 
         $this->assertEquals(25.00, $result['price']);
+    }
+
+    public function testGetPriceWithCache(): void
+    {
+        $result1 = $this->adapterWithCache->getPrice('example.com', 1, Mock::REG_TYPE_NEW, 3600);
+        $this->assertArrayHasKey('price', $result1);
+        $this->assertEquals(12.99, $result1['price']);
+
+        $result2 = $this->adapterWithCache->getPrice('example.com', 1, Mock::REG_TYPE_NEW, 3600);
+        $this->assertEquals($result1, $result2);
+    }
+
+    public function testGetPriceWithTtl(): void
+    {
+        $result = $this->adapterWithCache->getPrice('example.com', 1, Mock::REG_TYPE_NEW, 7200);
+        $this->assertArrayHasKey('price', $result);
+        $this->assertEquals(12.99, $result['price']);
     }
 
     public function testPurchaseWithNameservers(): void

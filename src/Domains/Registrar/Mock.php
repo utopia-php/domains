@@ -2,6 +2,7 @@
 
 namespace Utopia\Domains\Registrar;
 
+use Utopia\Domains\Cache;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
@@ -65,6 +66,11 @@ class Mock extends Adapter
     ];
 
     /**
+     * Cache instance
+     */
+    protected ?Cache $cache = null;
+
+    /**
      * @return string
      */
     public function getName(): string
@@ -78,11 +84,13 @@ class Mock extends Adapter
      * @param array $takenDomains Optional list of domains to mark as taken
      * @param array $supportedTlds Optional list of supported TLDs
      * @param float $defaultPrice Optional default price for domains
+     * @param Cache|null $cache Optional cache instance
      */
     public function __construct(
         array $takenDomains = [],
         array $supportedTlds = [],
-        float $defaultPrice = 12.99
+        float $defaultPrice = 12.99,
+        ?Cache $cache = null
     ) {
         if (!empty($takenDomains)) {
             $this->takenDomains = array_merge($this->takenDomains, $takenDomains);
@@ -93,6 +101,7 @@ class Mock extends Adapter
         }
 
         $this->defaultPrice = $defaultPrice;
+        $this->cache = $cache;
     }
 
     /**
@@ -253,17 +262,31 @@ class Mock extends Adapter
      * @param string $domain
      * @param int $period
      * @param string $regType
+     * @param int $ttl Time to live for the cache (if set) in seconds
      * @return array
      * @throws PriceNotFound
      */
-    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW): array
+    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
     {
+        if ($this->cache) {
+            $cached = $this->cache->load($domain, $ttl);
+            if ($cached !== null && is_array($cached)) {
+                return $cached;
+            }
+        }
+
         if (isset($this->premiumDomains[$domain])) {
-            return [
+            $result = [
                 'price' => $this->premiumDomains[$domain] * $period,
                 'is_registry_premium' => true,
                 'registry_premium_group' => 'premium',
             ];
+
+            if ($this->cache) {
+                $this->cache->save($domain, $result);
+            }
+
+            return $result;
         }
 
         $parts = explode('.', $domain);
@@ -285,11 +308,17 @@ class Mock extends Adapter
             default => 1.0,
         };
 
-        return [
+        $result = [
             'price' => $basePrice * $period * $multiplier,
             'is_registry_premium' => false,
             'registry_premium_group' => null,
         ];
+
+        if ($this->cache) {
+            $this->cache->save($domain, $result);
+        }
+
+        return $result;
     }
 
     /**
