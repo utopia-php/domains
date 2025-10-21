@@ -18,7 +18,7 @@ class Cache
         return 'domain:' . $domain;
     }
 
-    public function load(string $domain, int $ttl): ?string
+    public function load(string $domain, int $ttl): string|array|null
     {
         return $this->cache->load($this->getKey($domain), $ttl);
     }
