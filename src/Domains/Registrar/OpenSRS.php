@@ -152,7 +152,7 @@ class OpenSRS extends Adapter
         ];
     }
 
-    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = []): string
+    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], ?string $authCode = null): string
     {
         $hasNameservers = empty($nameservers) ? 0 : 1;
 
@@ -173,6 +173,10 @@ class OpenSRS extends Adapter
                 'auto_renew' => 0,
             ],
         ];
+
+        if ($authCode) {
+            $message['attributes']['auth_info'] = $authCode;
+        }
 
         if ($hasNameservers) {
             $message['attributes']['nameserver_list'] = $nameservers;
@@ -215,7 +219,7 @@ class OpenSRS extends Adapter
         }
     }
 
-    public function transfer(string $domain, array|Contact $contacts, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, array $nameservers = []): array
     {
         $contacts = is_array($contacts) ? $contacts : [$contacts];
 
@@ -228,7 +232,7 @@ class OpenSRS extends Adapter
 
         $regType = self::REG_TYPE_TRANSFER;
 
-        $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
+        $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $authCode);
         $result = $this->response($result);
 
         return $result;

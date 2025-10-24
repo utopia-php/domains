@@ -51,6 +51,11 @@ class Registrar
         return $this->adapter->getDomain($domain);
     }
 
+    public function updateDomain(string $domain, array $contacts, array $details): bool
+    {
+        return $this->adapter->updateDomain($domain, $contacts, $details);
+    }
+
     public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
     {
         return $this->adapter->getPrice($domain, $period, $regType, $ttl);
@@ -61,8 +66,8 @@ class Registrar
         return $this->adapter->renew($domain, $years);
     }
 
-    public function transfer(string $domain, array $contacts, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array $contacts, array $nameservers = []): array
     {
-        return $this->adapter->transfer($domain, $contacts, $nameservers);
+        return $this->adapter->transfer($domain, $authCode, $contacts, $nameservers);
     }
 }
