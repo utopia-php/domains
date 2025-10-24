@@ -236,8 +236,9 @@ class MockTest extends TestCase
     {
         $domain = 'transferdomain.com';
         $contact = $this->createContact();
+        $authCode = 'test-auth-code-12345';
 
-        $result = $this->adapter->transfer($domain, $contact);
+        $result = $this->adapter->transfer($domain, $authCode, $contact);
 
         $this->assertTrue($result['successful']);
         $this->assertEquals($domain, $result['domain']);
@@ -253,14 +254,14 @@ class MockTest extends TestCase
         $this->expectException(DomainTaken::class);
         $this->expectExceptionMessage('Domain testdomain.com is already in this account');
 
-        $this->adapter->transfer($domain, $this->createContact());
+        $this->adapter->transfer($domain, 'test-auth-code', $this->createContact());
     }
 
     public function testReset(): void
     {
         $this->adapter->purchase('test1.com', $this->createContact());
         $this->adapter->purchase('test2.com', $this->createContact());
-        $this->adapter->transfer('test3.com', $this->createContact());
+        $this->adapter->transfer('test3.com', 'auth-code', $this->createContact());
 
         $this->assertCount(3, $this->adapter->getPurchasedDomains());
         $this->assertCount(1, $this->adapter->getTransferredDomains());
@@ -333,9 +334,10 @@ class MockTest extends TestCase
     {
         $domain = 'transferdomain.com';
         $contact = $this->createContact();
+        $authCode = 'test-auth-code-12345';
         $nameservers = ['ns1.example.com', 'ns2.example.com'];
 
-        $result = $this->adapter->transfer($domain, $contact, $nameservers);
+        $result = $this->adapter->transfer($domain, $authCode, $contact, $nameservers);
 
         $this->assertTrue($result['successful']);
         $this->assertEquals($nameservers, $result['nameservers']);
@@ -407,7 +409,80 @@ class MockTest extends TestCase
             'Test Inc'
         );
 
-        $this->adapter->transfer('transfer.com', $invalidContact);
+        $this->adapter->transfer('transfer.com', 'auth-code', $invalidContact);
+    }
+
+    public function testUpdateDomain(): void
+    {
+        $domain = 'testdomain.com';
+        $this->adapter->purchase($domain, $this->createContact());
+
+        $updatedContact = new Contact(
+            'Jane',
+            'Smith',
+            '+1.5559876543',
+            'jane.smith@example.com',
+            '456 Oak Ave',
+            'Apt 200',
+            '',
+            'Los Angeles',
+            'CA',
+            'US',
+            '90001',
+            'Smith Corp'
+        );
+
+        $result = $this->adapter->updateDomain(
+            $domain,
+            [$updatedContact],
+            [
+                'data' => 'contact_info',
+            ]
+        );
+
+        $this->assertTrue($result);
+    }
+
+    public function testUpdateDomainNotFound(): void
+    {
+        $this->expectException(DomainsException::class);
+        $this->expectExceptionMessage('Domain notfound.com not found in mock registry');
+
+        $this->adapter->updateDomain(
+            'notfound.com',
+            [$this->createContact()],
+            ['data' => 'contact_info']
+        );
+    }
+
+    public function testUpdateDomainWithInvalidContact(): void
+    {
+        $domain = 'testdomain.com';
+        $this->adapter->purchase($domain, $this->createContact());
+
+        $this->expectException(InvalidContact::class);
+        $this->expectExceptionMessage('missing required field');
+
+        $invalidContact = new Contact(
+            '',  // Empty firstname
+            'Doe',
+            '+1.5551234567',
+            'john.doe@example.com',
+            '123 Main St',
+            'Suite 100',
+            '',
+            'San Francisco',
+            'CA',
+            'US',
+            '94105',
+            'Test Inc'
+        );
+
+        $this->adapter->updateDomain(
+            $domain,
+            [$invalidContact],
+            ['data' => 'contact_info']
+        );
     }
 
     private function createContact(): Contact

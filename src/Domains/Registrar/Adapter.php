@@ -57,6 +57,14 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
+     * @param  array $contacts
+     * @param  array $details
+     * @return bool
+     */
+    abstract public function updateDomain(string $domain, array $contacts, array $details): bool;
+
+    /**
+     * @param  string  $domain
      * @param  int  $period
      * @param  string  $regType
      * @param  int  $ttl
@@ -73,9 +81,10 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
+     * @param  string  $authCode
      * @param  array<\Utopia\Domains\Contact>  $contacts
      * @param  array  $nameservers
      * @return array
      */
-    abstract public function transfer(string $domain, array $contacts, array $nameservers = []): array;
+    abstract public function transfer(string $domain, string $authCode, array $contacts, array $nameservers = []): array;
 }

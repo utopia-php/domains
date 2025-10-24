@@ -348,16 +348,37 @@ class Mock extends Adapter
     }
 
     /**
+     * Update domain information
+     *
+     * @param string $domain
+     * @param array $contacts
+     * @param array $details
+     * @return bool
+     * @throws DomainsException
+     * @throws InvalidContact
+     */
+    public function updateDomain(string $domain, array $contacts, array $details): bool
+    {
+        if (!in_array($domain, $this->purchasedDomains)) {
+            throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
+        }
+
+        $this->validateContacts($contacts);
+        return true;
+    }
+
+    /**
      * Transfer a domain
      *
      * @param string $domain
-     * @param array<\Utopia\Domains\Contact> $contacts
+     * @param string $authCode
+     * @param array|Contact $contacts
      * @param array $nameservers
      * @return array
      * @throws DomainTaken
      * @throws InvalidContact
      */
-    public function transfer(string $domain, array|Contact $contacts, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, array $nameservers = []): array
     {
         if (in_array($domain, $this->purchasedDomains)) {
             throw new DomainTaken("Domain {$domain} is already in this account", self::RESPONSE_CODE_DOMAIN_TAKEN);
