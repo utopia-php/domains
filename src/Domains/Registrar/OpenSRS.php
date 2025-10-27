@@ -6,6 +6,7 @@ use Exception;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
+use Utopia\Domains\Registrar\Exception\DomainNotTransferable;
 use Utopia\Domains\Registrar\Exception\InvalidContact;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
 use Utopia\Domains\Cache;
@@ -15,10 +16,11 @@ class OpenSRS extends Adapter
     /**
      * OpenSRS API Response Codes - https://domains.opensrs.guide/docs/codes
      */
-    private const RESPONSE_CODE_DOMAIN_AVAILABLE = 210;
-    private const RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND = 400;
-    private const RESPONSE_CODE_INVALID_CONTACT = 465;
-    private const RESPONSE_CODE_DOMAIN_TAKEN = 485;
+    public const RESPONSE_CODE_DOMAIN_AVAILABLE = 210;
+    public const RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND = 400;
+    public const RESPONSE_CODE_INVALID_CONTACT = 465;
+    public const RESPONSE_CODE_DOMAIN_TAKEN = 485;
+    public const RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE = 487;
 
     protected array $user;
 
@@ -232,10 +234,17 @@ class OpenSRS extends Adapter
 
         $regType = self::REG_TYPE_TRANSFER;
 
-        $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $authCode);
-        $result = $this->response($result);
+        try {
+            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $authCode);
+            $result = $this->response($result);
 
-        return $result;
+            return $result;
+        } catch (Exception $e) {
+            if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE) {
+                throw new DomainNotTransferable('Domain is not transferable', $e->getCode(), $e);
+            }
+            throw new DomainsException('Failed to transfer domain: ' . $e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     public function cancelPurchase(): bool

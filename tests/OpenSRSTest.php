@@ -8,6 +8,7 @@ use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
+use Utopia\Domains\Registrar\Exception\DomainNotTransferable;
 use Utopia\Domains\Registrar\Exception\InvalidContact;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
 use Utopia\Domains\Registrar\OpenSRS;
@@ -312,8 +313,10 @@ class OpenSRSTest extends TestCase
             $this->assertIsArray($result);
             $this->assertArrayHasKey('successful', $result);
             $this->assertArrayHasKey('code', $result);
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(\Exception::class, $e);
+
+        } catch (DomainNotTransferable $e) {
+            $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
+            $this->assertEquals('Domain is not transferable', $e->getMessage());
         }
     }
 
