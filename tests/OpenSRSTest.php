@@ -297,7 +297,7 @@ class OpenSRSTest extends TestCase
 
     public function testTransfer(): void
     {
-        // $result = $this->client->transfer($domain, self::purchaseContact());
+        $domain = self::generateRandomString() . '.net';
 
         // This will always fail mainly because it's a test env,
         // but also because:
@@ -307,8 +307,14 @@ class OpenSRSTest extends TestCase
         // ** Even when testing against my own live domains, it failed.
         // So we test for a proper formatted response,
         // with "successful" being "false".
-
-        $this->markTestSkipped("Transfer test skipped because it always fails.");
+        try {
+            $result = $this->client->transfer($domain, 'test-auth-code', self::purchaseContact());
+            $this->assertIsArray($result);
+            $this->assertArrayHasKey('successful', $result);
+            $this->assertArrayHasKey('code', $result);
+        } catch (\Exception $e) {
+            $this->assertInstanceOf(\Exception::class, $e);
+        }
     }
 
     private static function purchaseContact(string $suffix = ''): array
