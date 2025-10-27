@@ -87,4 +87,12 @@ abstract class Adapter extends DomainsAdapter
      * @return array
      */
     abstract public function transfer(string $domain, string $authCode, array $contacts, array $nameservers = []): array;
+
+    /**
+     * Send the authorization code for an EPP domain to the admin contact
+     *
+     * @param  string  $domain
+     * @return array
+     */
+    abstract public function sendAuthCode(string $domain): array;
 }

@@ -313,11 +313,22 @@ class OpenSRSTest extends TestCase
             $this->assertIsArray($result);
             $this->assertArrayHasKey('successful', $result);
             $this->assertArrayHasKey('code', $result);
-
         } catch (DomainNotTransferable $e) {
             $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
             $this->assertEquals('Domain is not transferable', $e->getMessage());
         }
+    }
+
+    public function testSendAuthCode(): void
+    {
+        $result = $this->client->sendAuthCode($this->domain);
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('successful', $result);
+        $this->assertArrayHasKey('code', $result);
+        $this->assertArrayHasKey('text', $result);
+        $this->assertTrue($result['successful']);
+        $this->assertEquals(200, $result['code']);
     }
 
     private static function purchaseContact(string $suffix = ''): array
