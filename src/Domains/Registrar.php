@@ -113,6 +113,7 @@ class Registrar
      * @param string $regType
      * @param int $ttl
      * @return array
+     */
     public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
     {
         return $this->adapter->getPrice($domain, $period, $regType, $ttl);
