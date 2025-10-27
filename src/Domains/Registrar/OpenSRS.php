@@ -565,20 +565,48 @@ class OpenSRS extends Adapter
         return $results;
     }
 
-    public function updateDomain(string $domain, array $contacts, array $details): bool
+    /**
+     * Update the domain information
+     *
+     * Example request 1:
+     * <code>
+     * $reg->updateDomain('example.com', [
+     *     'data' => 'contact_info',
+     * ], [
+     *     new Contact('John Doe', 'john.doe@example.com', '+1234567890'),
+     * ]);
+     * </code>
+     *
+     * Example request 2:
+     * <code>
+     * $reg->updateDomain('example.com', [
+     *     'data' => 'ca_whois_display_setting',
+     *     'display' => 'FULL',
+     * ]);
+     * </code>
+     *
+     * @param string $domain The domain name to update
+     * @param array $details The details to update the domain with
+     * @param array|Contact|null $contacts The contacts to update the domain with (optional)
+     * @return bool True if the domain was updated successfully, false otherwise
+     */
+    public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool
     {
-        $contacts = $this->sanitizeContacts($contacts);
-
         $message = [
             'object' => 'domain',
             'action' => 'modify',
-            'attributes' => [
-                'domain' => $domain,
-                'affect_domains' => 0,
-                'data' => $details['data'],
-                'contact_set' => $contacts,
-            ],
+            'domain' => $domain,
+            'attributes' => $details,
         ];
+
+        if ($contacts) {
+            if ($details['data'] !== 'contact_info') {
+                throw new Exception("Invalid data: data must be 'contact_info' in order to update contacts");
+            }
+            $contacts = is_array($contacts) ? $contacts : [$contacts];
+            $contacts = $this->sanitizeContacts($contacts);
+            $message['attributes']['contact_set'] = $contacts;
+        }
 
         $xpath = implode('/', [
             '//body',
@@ -960,6 +988,12 @@ class OpenSRS extends Adapter
         return $xml;
     }
 
+    /**
+     * Sanitize the contacts
+     *
+     * @param Contact[] $contacts Array of Contact objects to sanitize
+     * @return array The sanitized contacts
+     */
     private function sanitizeContacts(array $contacts): array
     {
         if (count(array_keys($contacts)) == 1) {

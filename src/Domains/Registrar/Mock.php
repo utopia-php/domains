@@ -351,19 +351,22 @@ class Mock extends Adapter
      * Update domain information
      *
      * @param string $domain
-     * @param array $contacts
+     * @param array|Contact|null $contacts
      * @param array $details
      * @return bool
      * @throws DomainsException
      * @throws InvalidContact
      */
-    public function updateDomain(string $domain, array $contacts, array $details): bool
+    public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool
     {
         if (!in_array($domain, $this->purchasedDomains)) {
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
         }
 
-        $this->validateContacts($contacts);
+        if ($contacts) {
+            $this->validateContacts($contacts);
+        }
+
         return true;
     }
 

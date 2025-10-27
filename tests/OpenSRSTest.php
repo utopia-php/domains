@@ -274,12 +274,10 @@ class OpenSRSTest extends TestCase
     {
         $result = $this->client->updateDomain(
             $this->domain,
-            self::purchaseContact('2'),
             [
-                'affect_domains' => 0,
                 'data' => 'contact_info',
-                'contact_set' => self::purchaseContact('2'),
-            ]
+            ],
+            self::purchaseContact('2')
         );
 
         $this->assertTrue($result);
