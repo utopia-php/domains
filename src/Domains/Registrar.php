@@ -3,6 +3,7 @@
 namespace Utopia\Domains;
 
 use Utopia\Domains\Registrar\Adapter as RegistrarAdapter;
+use \Utopia\Domains\Contact;
 
 class Registrar
 {
@@ -31,7 +32,7 @@ class Registrar
         return $this->adapter->available($domain);
     }
 
-    public function purchase(string $domain, array $contacts, array $nameservers = []): array
+    public function purchase(string $domain, array|Contact $contacts, array $nameservers = []): array
     {
         return $this->adapter->purchase($domain, $contacts, $nameservers);
     }
@@ -51,7 +52,7 @@ class Registrar
         return $this->adapter->getDomain($domain);
     }
 
-    public function updateDomain(string $domain, array $contacts, array $details): bool
+    public function updateDomain(string $domain, array|Contact $contacts, array $details): bool
     {
         return $this->adapter->updateDomain($domain, $contacts, $details);
     }
@@ -66,7 +67,7 @@ class Registrar
         return $this->adapter->renew($domain, $years);
     }
 
-    public function transfer(string $domain, string $authCode, array $contacts, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, array $nameservers = []): array
     {
         return $this->adapter->transfer($domain, $authCode, $contacts, $nameservers);
     }
