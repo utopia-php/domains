@@ -243,6 +243,12 @@ class OpenSRS extends Adapter
             if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE) {
                 throw new DomainNotTransferable('Domain is not transferable', $e->getCode(), $e);
             }
+            if ($code === self::RESPONSE_CODE_INVALID_CONTACT) {
+                throw new InvalidContact('Failed to transfer domain: ' . $e->getMessage(), $code, $e);
+            }
+            if ($code === self::RESPONSE_CODE_DOMAIN_TAKEN) {
+                throw new DomainTaken('Domain is already in this account', $code, $e);
+            }
             throw new DomainsException('Failed to transfer domain: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
@@ -689,8 +695,7 @@ class OpenSRS extends Adapter
                 'action' => 'get',
                 'domain' => $domain,
                 'attributes' => [
-                    'type' => 'domain_auth_info',
-                    'limit' => 10,
+                    'type' => 'domain_auth_info'
                 ],
             ];
 
