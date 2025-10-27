@@ -476,6 +476,23 @@ class Mock extends Adapter
     }
 
     /**
+     * Get the authorization code for an EPP domain
+     *
+     * @param string $domain
+     * @return string
+     * @throws DomainsException
+     */
+    public function getAuthCode(string $domain): string
+    {
+        if (!in_array($domain, $this->purchasedDomains)) {
+            throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
+        }
+
+        // Generate a mock auth code based on the domain name for consistency
+        return 'mock_' . substr(md5($domain), 0, 8);
+    }
+
+    /**
      * Validate contacts
      *
      * @param array|Contact $contacts

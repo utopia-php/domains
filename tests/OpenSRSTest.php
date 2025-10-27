@@ -331,6 +331,14 @@ class OpenSRSTest extends TestCase
         $this->assertEquals(200, $result['code']);
     }
 
+    public function testGetAuthCode(): void
+    {
+        $authCode = $this->client->getAuthCode($this->domain);
+
+        $this->assertIsString($authCode);
+        $this->assertNotEmpty($authCode);
+    }
+
     private static function purchaseContact(string $suffix = ''): array
     {
         $contact = new Contact(

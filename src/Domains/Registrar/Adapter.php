@@ -95,4 +95,12 @@ abstract class Adapter extends DomainsAdapter
      * @return array
      */
     abstract public function sendAuthCode(string $domain): array;
+
+    /**
+     * Get the authorization code for an EPP domain
+     *
+     * @param  string  $domain
+     * @return string
+     */
+    abstract public function getAuthCode(string $domain): string;
 }

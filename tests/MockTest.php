@@ -503,6 +503,40 @@ class MockTest extends TestCase
         $this->assertEquals('Message sent', $result['text']);
     }
 
+    public function testSendAuthCodeNotFound(): void
+    {
+        $this->expectException(DomainsException::class);
+        $this->expectExceptionMessage('Domain notfound.com not found in mock registry');
+
+        $this->adapter->sendAuthCode('notfound.com');
+    }
+
+    public function testGetAuthCode(): void
+    {
+        // Purchase a domain first
+        $domain = 'testdomain.com';
+        $this->adapter->purchase($domain, $this->createContact());
+
+        // Test getting auth code
+        $authCode = $this->adapter->getAuthCode($domain);
+
+        $this->assertIsString($authCode);
+        $this->assertNotEmpty($authCode);
+        $this->assertStringStartsWith('mock_', $authCode);
+
+        // Test that the same domain always returns the same auth code
+        $authCode2 = $this->adapter->getAuthCode($domain);
+        $this->assertEquals($authCode, $authCode2);
+    }
+
+    public function testGetAuthCodeNotFound(): void
+    {
+        $this->expectException(DomainsException::class);
+        $this->expectExceptionMessage('Domain notfound.com not found in mock registry');
+
+        $this->adapter->getAuthCode('notfound.com');
+    }
+
     private function createContact(): Contact
     {
         return new Contact(

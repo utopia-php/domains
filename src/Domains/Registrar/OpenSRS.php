@@ -686,6 +686,42 @@ class OpenSRS extends Adapter
         }
     }
 
+    /**
+     * Get the authorization code for an EPP domain
+     *
+     * @param string $domain The EPP domain name for which to retrieve the auth code
+     * @return string The authorization code
+     * @throws DomainsException When the domain does not use EPP protocol or other errors occur
+     */
+    public function getAuthCode(string $domain): string
+    {
+        try {
+            $message = [
+                'object' => 'domain',
+                'action' => 'get',
+                'domain' => $domain,
+                'attributes' => [
+                    'type' => 'domain_auth_info',
+                    'limit' => 10,
+                ],
+            ];
+
+            $result = $this->send($message);
+            $result = $this->sanitizeResponse($result);
+
+            $xpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="domain_auth_info"]';
+            $elements = $result->xpath($xpath);
+
+            if (empty($elements)) {
+                throw new DomainsException('Auth code not found in response', 404);
+            }
+
+            return (string) $elements[0];
+        } catch (Exception $e) {
+            throw new DomainsException('Failed to get auth code: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
     private function response(string $xml): array
     {
         $doc = $this->sanitizeResponse($xml);
