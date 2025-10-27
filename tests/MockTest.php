@@ -434,10 +434,10 @@ class MockTest extends TestCase
 
         $result = $this->adapter->updateDomain(
             $domain,
-            [$updatedContact],
             [
                 'data' => 'contact_info',
-            ]
+            ],
+            [$updatedContact]
         );
 
         $this->assertTrue($result);
@@ -450,8 +450,8 @@ class MockTest extends TestCase
 
         $this->adapter->updateDomain(
             'notfound.com',
-            [$this->createContact()],
-            ['data' => 'contact_info']
+            ['data' => 'contact_info'],
+            [$this->createContact()]
         );
     }
 
@@ -480,8 +480,8 @@ class MockTest extends TestCase
 
         $this->adapter->updateDomain(
             $domain,
-            [$invalidContact],
-            ['data' => 'contact_info']
+            ['data' => 'contact_info'],
+            [$invalidContact]
         );
     }
 
