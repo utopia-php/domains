@@ -647,46 +647,6 @@ class OpenSRS extends Adapter
     }
 
     /**
-     * Send the authorization code for an EPP domain to the admin contact
-     *
-     * @param string $domain The EPP domain name for which the Authcode is to be sent
-     * @return array Contains 'successful' (bool), 'code' (int), and 'text' (string)
-     * @throws DomainsException When the domain does not use EPP protocol or other errors occur
-     */
-    public function sendAuthCode(string $domain): array
-    {
-        try {
-            $message = [
-                'object' => 'domain',
-                'action' => 'send_authcode',
-                'attributes' => [
-                    'domain_name' => $domain,
-                ],
-            ];
-
-            $result = $this->send($message);
-            $result = $this->sanitizeResponse($result);
-
-            $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="is_success"]');
-            $successful = "{$elements[0]}" === '1' ? true : false;
-
-            $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_text"]');
-            $text = "{$elements[0]}";
-
-            $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
-            $code = (int) "{$elements[0]}";
-
-            return [
-                'successful' => $successful,
-                'code' => $code,
-                'text' => $text,
-            ];
-        } catch (Exception $e) {
-            throw new DomainsException('Failed to send auth code: ' . $e->getMessage(), $e->getCode(), $e);
-        }
-    }
-
-    /**
      * Get the authorization code for an EPP domain
      *
      * @param string $domain The EPP domain name for which to retrieve the auth code

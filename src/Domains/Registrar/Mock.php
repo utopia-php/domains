@@ -456,26 +456,6 @@ class Mock extends Adapter
     }
 
     /**
-     * Send the authorization code for an EPP domain to the admin contact
-     *
-     * @param string $domain
-     * @return array
-     * @throws DomainsException
-     */
-    public function sendAuthCode(string $domain): array
-    {
-        if (!in_array($domain, $this->purchasedDomains)) {
-            throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
-        }
-
-        return [
-            'successful' => true,
-            'code' => self::RESPONSE_CODE_SUCCESS,
-            'text' => 'Message sent',
-        ];
-    }
-
-    /**
      * Get the authorization code for an EPP domain
      *
      * @param string $domain

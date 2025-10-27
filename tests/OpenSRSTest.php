@@ -319,18 +319,6 @@ class OpenSRSTest extends TestCase
         }
     }
 
-    public function testSendAuthCode(): void
-    {
-        $result = $this->client->sendAuthCode($this->domain);
-
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('successful', $result);
-        $this->assertArrayHasKey('code', $result);
-        $this->assertArrayHasKey('text', $result);
-        $this->assertTrue($result['successful']);
-        $this->assertEquals(200, $result['code']);
-    }
-
     public function testGetAuthCode(): void
     {
         $authCode = $this->client->getAuthCode($this->domain);

@@ -485,32 +485,6 @@ class MockTest extends TestCase
         );
     }
 
-    public function testSendAuthCode(): void
-    {
-        // Purchase a domain first
-        $domain = 'testdomain.com';
-        $this->adapter->purchase($domain, $this->createContact());
-
-        // Test sending auth code
-        $result = $this->adapter->sendAuthCode($domain);
-
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('successful', $result);
-        $this->assertArrayHasKey('code', $result);
-        $this->assertArrayHasKey('text', $result);
-        $this->assertTrue($result['successful']);
-        $this->assertEquals(200, $result['code']);
-        $this->assertEquals('Message sent', $result['text']);
-    }
-
-    public function testSendAuthCodeNotFound(): void
-    {
-        $this->expectException(DomainsException::class);
-        $this->expectExceptionMessage('Domain notfound.com not found in mock registry');
-
-        $this->adapter->sendAuthCode('notfound.com');
-    }
-
     public function testGetAuthCode(): void
     {
         // Purchase a domain first

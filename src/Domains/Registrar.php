@@ -71,11 +71,6 @@ class Registrar
         return $this->adapter->transfer($domain, $authCode, $contacts, $nameservers);
     }
 
-    public function sendAuthCode(string $domain): array
-    {
-        return $this->adapter->sendAuthCode($domain);
-    }
-
     public function getAuthCode(string $domain): string
     {
         return $this->adapter->getAuthCode($domain);
