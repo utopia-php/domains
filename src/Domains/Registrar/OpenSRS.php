@@ -744,7 +744,7 @@ class OpenSRS extends Adapter
         }
     }
 
-    private function send(array $params = []): array|string
+    private function send(array $params = []): string
     {
         $object = $params['object'];
         $action = $params['action'];
@@ -763,7 +763,17 @@ class OpenSRS extends Adapter
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
 
-        return curl_exec($ch);
+        $result = curl_exec($ch);
+
+        if ($result === false) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            throw new Exception('Failed to send request to OpenSRS: ' . $error);
+        }
+
+        curl_close($ch);
+
+        return $result;
     }
 
     private function sanitizeResponse(string $response)

@@ -488,17 +488,17 @@ class Mock extends Adapter
             'noservice' => 0,
         ];
 
-        if (in_array($domain, $this->purchasedDomains)) {
+        if (in_array($domain, $this->transferredDomains)) {
+            $response['transferrable'] = 0;
+            $response['reason'] = 'Transfer in progress';
+            $response['status'] = 'pending_registry';
+            $response['timestamp'] = date('D M d H:i:s Y');
+            $response['unixtime'] = time();
+        } elseif (in_array($domain, $this->purchasedDomains)) {
             $response['transferrable'] = 0;
             $response['reason'] = "Domain already exists in mock account";
             $response['reason_code'] = 'domain_already_belongs_to_current_reseller';
             $response['status'] = 'completed';
-            $response['timestamp'] = date('D M d H:i:s Y');
-            $response['unixtime'] = time();
-        } elseif (in_array($domain, $this->transferredDomains)) {
-            $response['transferrable'] = 0;
-            $response['reason'] = 'Transfer in progress';
-            $response['status'] = 'pending_registry';
             $response['timestamp'] = date('D M d H:i:s Y');
             $response['unixtime'] = time();
         } else {
