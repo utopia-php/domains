@@ -370,10 +370,7 @@ class OpenSRS extends Adapter
         }
 
         // Process premium domains
-        if (
-            ($filterType === 'premium' || $filterType === null) &&
-            !($limit && count($items) >= $limit)
-        ) {
+        if (!($limit && count($items) >= $limit)) {
             $premiumXpath = implode('/', [
                 '//body',
                 'data_block',

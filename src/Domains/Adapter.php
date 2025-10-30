@@ -123,7 +123,7 @@ abstract class Adapter
 
           $responseBody = curl_exec($ch);
 
-          $responseType = $responseHeaders['Content-Type'] ?? '';
+          $responseType = $responseHeaders['content-type'] ?? '';
           $responseStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
           switch(substr($responseType, 0, strpos($responseType, ';'))) {

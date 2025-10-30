@@ -102,7 +102,7 @@ class OpenSRSTest extends TestCase
     {
         $client = new OpenSRS(
             getenv('OPENSRS_KEY'),
-            getenv(name: 'OPENSRS_USERNAME'),
+            getenv('OPENSRS_USERNAME'),
             'password',
             [
                 'ns1.systemdns.com',
