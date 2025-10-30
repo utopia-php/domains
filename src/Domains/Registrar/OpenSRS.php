@@ -8,6 +8,7 @@ use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferable;
 use Utopia\Domains\Registrar\Exception\InvalidContact;
+use Utopia\Domains\Registrar\Exception\InvalidPassword;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
 use Utopia\Domains\Cache;
 
@@ -182,8 +183,11 @@ class OpenSRS extends Adapter
             if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_TAKEN) {
                 throw new DomainTaken($message, $e->getCode(), $e);
             }
-            if ($e->getCode() === self::RESPONSE_CODE_INVALID_CONTACT) {
+            if ($e->getCode() === self::RESPONSE_CODE_INVALID_CONTACT && str_contains($e->getMessage(), 'Invalid data')) {
                 throw new InvalidContact($message, $e->getCode(), $e);
+            }
+            if ($e->getCode() === self::RESPONSE_CODE_INVALID_CONTACT && str_contains($e->getMessage(), 'password')) {
+                throw new InvalidPassword($message, $e->getCode(), $e);
             }
             throw new DomainsException($message, $e->getCode(), $e);
         }
