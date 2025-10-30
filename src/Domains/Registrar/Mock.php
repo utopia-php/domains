@@ -471,8 +471,46 @@ class Mock extends Adapter
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
         }
 
-        // Generate a mock auth code based on the domain name for consistency
         return 'mock_' . substr(md5($domain), 0, 8);
+    }
+
+    /**
+     * Check transfer status for a domain
+     *
+     * @param string $domain
+     * @param bool $checkStatus
+     * @param bool $getRequestAddress
+     * @return array
+     */
+    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): array
+    {
+        $response = [
+            'noservice' => 0,
+        ];
+
+        if (in_array($domain, $this->purchasedDomains)) {
+            $response['transferrable'] = 0;
+            $response['reason'] = "Domain already exists in mock account";
+            $response['reason_code'] = 'domain_already_belongs_to_current_reseller';
+            $response['status'] = 'completed';
+            $response['timestamp'] = date('D M d H:i:s Y');
+            $response['unixtime'] = time();
+        } elseif (in_array($domain, $this->transferredDomains)) {
+            $response['transferrable'] = 0;
+            $response['reason'] = 'Transfer in progress';
+            $response['status'] = 'pending_registry';
+            $response['timestamp'] = date('D M d H:i:s Y');
+            $response['unixtime'] = time();
+        } else {
+            $response['transferrable'] = 1;
+            $response['type'] = 'reg2reg';
+        }
+
+        if ($getRequestAddress) {
+            $response['request_address'] = 'mock@example.com';
+        }
+
+        return $response;
     }
 
     /**

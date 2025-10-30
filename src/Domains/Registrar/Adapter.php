@@ -95,4 +95,14 @@ abstract class Adapter extends DomainsAdapter
      * @return string
      */
     abstract public function getAuthCode(string $domain): string;
+
+    /**
+     * Check transfer status for a domain
+     *
+     * @param  string  $domain
+     * @param  bool  $checkStatus
+     * @param  bool  $getRequestAddress
+     * @return array
+     */
+    abstract public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): array;
 }

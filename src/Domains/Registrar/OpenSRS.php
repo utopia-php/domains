@@ -716,6 +716,59 @@ class OpenSRS extends Adapter
         }
     }
 
+    /**
+     * Check transfer status for a domain
+     *
+     * @param string $domain The fully qualified domain name
+     * @param bool $checkStatus Flag to request the status of a transfer request
+     * @param bool $getRequestAddress Flag to request the registrant's contact email address
+     * @return array Contains transfer status information including 'transferable', 'status', 'reason', etc.
+     * @throws DomainsException When errors occur during the check
+     */
+    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): array
+    {
+        try {
+            $message = [
+                'object' => 'DOMAIN',
+                'action' => 'check_transfer',
+                'attributes' => [
+                    'domain' => $domain,
+                    'check_status' => $checkStatus ? 1 : 0,
+                    'get_request_address' => $getRequestAddress ? 1 : 0,
+                ],
+            ];
+
+            $result = $this->send($message);
+            $result = $this->sanitizeResponse($result);
+
+            $xpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item';
+            $elements = $result->xpath($xpath);
+
+            $response = [];
+
+            foreach ($elements as $element) {
+                $key = (string) $element['key'];
+                $value = (string) $element;
+
+                switch ($key) {
+                    case 'transferrable':
+                    case 'noservice':
+                        $response[$key] = (int) $value;
+                        break;
+                    case 'unixtime':
+                        $response[$key] = (int) $value;
+                        break;
+                    default:
+                        $response[$key] = $value;
+                }
+            }
+
+            return $response;
+        } catch (Exception $e) {
+            throw new DomainsException('Failed to check transfer status: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
     private function response(string $xml): array
     {
         $doc = $this->sanitizeResponse($xml);

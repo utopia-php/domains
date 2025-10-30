@@ -325,6 +325,45 @@ class OpenSRSTest extends TestCase
         $this->assertNotEmpty($authCode);
     }
 
+    public function testCheckTransferStatus(): void
+    {
+        $result = $this->client->checkTransferStatus($this->domain, true, true);
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('transferrable', $result);
+        $this->assertArrayHasKey('noservice', $result);
+        $this->assertIsInt($result['transferrable']);
+        $this->assertIsInt($result['noservice']);
+
+        if ($result['transferrable'] === 0) {
+            $this->assertArrayHasKey('reason', $result);
+            $this->assertIsString($result['reason']);
+        }
+
+        if (isset($result['status'])) {
+            $this->assertContains($result['status'], [
+                'pending_owner',
+                'pending_admin',
+                'pending_registry',
+                'completed',
+                'cancelled',
+                'undef'
+            ]);
+        }
+    }
+
+    public function testCheckTransferStatusWithRequestAddress(): void
+    {
+        $result = $this->client->checkTransferStatus($this->domain, false, true);
+
+        $this->assertIsArray($result);
+
+        if (isset($result['request_address'])) {
+            $this->assertIsString($result['request_address']);
+            $this->assertNotEmpty($result['request_address']);
+        }
+    }
+
     private static function purchaseContact(string $suffix = ''): array
     {
         $contact = new Contact(

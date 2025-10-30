@@ -511,6 +511,56 @@ class MockTest extends TestCase
         $this->adapter->getAuthCode('notfound.com');
     }
 
+    public function testCheckTransferStatusTransferable(): void
+    {
+        $domain = 'transferable.com';
+        $result = $this->adapter->checkTransferStatus($domain);
+
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('transferrable', $result);
+        $this->assertArrayHasKey('noservice', $result);
+        $this->assertEquals(1, $result['transferrable']);
+        $this->assertEquals(0, $result['noservice']);
+        $this->assertEquals('reg2reg', $result['type']);
+    }
+
+    public function testCheckTransferStatusAlreadyOwned(): void
+    {
+        $domain = 'owned.com';
+        $this->adapter->purchase($domain, $this->createContact());
+
+        $result = $this->adapter->checkTransferStatus($domain);
+
+        $this->assertArrayHasKey('transferrable', $result);
+        $this->assertEquals(0, $result['transferrable']);
+        $this->assertEquals('Domain already exists in mock account', $result['reason']);
+        $this->assertEquals('domain_already_belongs_to_current_reseller', $result['reason_code']);
+        $this->assertEquals('completed', $result['status']);
+        $this->assertArrayHasKey('timestamp', $result);
+        $this->assertArrayHasKey('unixtime', $result);
+    }
+
+    public function testCheckTransferStatusInProgress(): void
+    {
+        $domain = 'transfer-in-progress.com';
+        $this->adapter->transfer($domain, 'auth-code', $this->createContact());
+
+        $result = $this->adapter->checkTransferStatus($domain);
+
+        $this->assertEquals(0, $result['transferrable']);
+        $this->assertEquals('Transfer in progress', $result['reason']);
+        $this->assertEquals('pending_registry', $result['status']);
+    }
+
+    public function testCheckTransferStatusWithRequestAddress(): void
+    {
+        $domain = 'example.com';
+        $result = $this->adapter->checkTransferStatus($domain, true, true);
+
+        $this->assertArrayHasKey('request_address', $result);
+        $this->assertEquals('mock@example.com', $result['request_address']);
+    }
+
     private function createContact(): Contact
     {
         return new Contact(
