@@ -912,7 +912,7 @@ class OpenSRS extends Adapter
             $key = strtolower($key);
 
             if (! isset($contact[$key])) {
-                throw new Exception("Contact is missing required field: {$key}");
+                throw new InvalidContact("Contact is missing required field: {$key}");
             }
 
             $filtered_key = $filter[$key] ?? $key;
