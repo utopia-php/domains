@@ -68,28 +68,12 @@ class OpenSRS extends Adapter
         ];
     }
 
-    public function send(array $params = []): array|string
-    {
-        $object = $params['object'];
-        $action = $params['action'];
-        $domain = $params['domain'] ?? null;
-        $attributes = $params['attributes'];
-
-        $xml = $this->buildEnvelop($object, $action, $attributes, $domain);
-
-        $headers = array_merge($this->headers, [
-            'X-Signature:'.md5(md5($xml.$this->apiKey).$this->apiKey),
-        ]);
-
-        $ch = curl_init($this->endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-
-        return curl_exec($ch);
-    }
-
+    /**
+     * Check if a domain is available
+     *
+     * @param string $domain The domain name to check
+     * @return bool True if the domain is available, false otherwise
+     */
     public function available(string $domain): bool
     {
         $result = $this->send([
@@ -107,27 +91,11 @@ class OpenSRS extends Adapter
         return (int) $elements[0] === self::RESPONSE_CODE_DOMAIN_AVAILABLE;
     }
 
-    private function sanitizeResponse(string $response)
-    {
-        $result = simplexml_load_string($response);
-        $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
-        $code = (int) "{$elements[0]}";
-
-        if ($code > 299) {
-            $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_text"]');
-            $text = "{$elements[0]}";
-
-            throw new Exception($text, $code);
-        }
-
-        return $result;
-    }
-
     public function updateNameservers(string $domain, array $nameservers): array
     {
         $message = [
             'object' => 'DOMAIN',
-            'action' => 'advanced_update_nameservers',
+            'action' => 'ADVANCED_UPDATE_NAMESERVERS',
             'domain' => $domain,
             'attributes' => [
                 'add_ns' => $nameservers,
@@ -261,7 +229,7 @@ class OpenSRS extends Adapter
 
         $message = [
             'object' => 'ORDER',
-            'action' => 'cancel_pending_orders',
+            'action' => 'CANCEL_PENDING_ORDERS',
             'attributes' => [
                 'to_date' => $timestamp,
                 'status' => [
@@ -308,7 +276,7 @@ class OpenSRS extends Adapter
         $query = is_array($query) ? $query : [$query];
         $message = [
             'object' => 'DOMAIN',
-            'action' => 'name_suggest',
+            'action' => 'NAME_SUGGEST',
             'attributes' => [
                 'services' => ['suggestion', 'premium', 'lookup'],
                 'searchstring' => implode(' ', $query),
@@ -538,8 +506,8 @@ class OpenSRS extends Adapter
     public function getDomain(string $domain): array
     {
         $message = [
-            'object' => 'domain',
-            'action' => 'get',
+            'object' => 'DOMAIN',
+            'action' => 'GET',
             'domain' => $domain,
             'attributes' => [
                 'type' => 'all_info',
@@ -600,8 +568,8 @@ class OpenSRS extends Adapter
     public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool
     {
         $message = [
-            'object' => 'domain',
-            'action' => 'modify',
+            'object' => 'DOMAIN',
+            'action' => 'MODIFY',
             'domain' => $domain,
             'attributes' => $details,
         ];
@@ -635,11 +603,18 @@ class OpenSRS extends Adapter
         return (string) $elements[0] === '1';
     }
 
+    /**
+     * Renew a domain
+     *
+     * @param string $domain The domain name to renew
+     * @param int $years The number of years to renew the domain for
+     * @return array Contains the renewal information
+     */
     public function renew(string $domain, int $years): array
     {
         $message = [
-            'object' => 'domain',
-            'action' => 'renew',
+            'object' => 'DOMAIN',
+            'action' => 'RENEW',
             'attributes' => [
                 'domain' => $domain,
                 'auto_renew' => 0,
@@ -692,8 +667,8 @@ class OpenSRS extends Adapter
     {
         try {
             $message = [
-                'object' => 'domain',
-                'action' => 'get',
+                'object' => 'DOMAIN',
+                'action' => 'GET',
                 'domain' => $domain,
                 'attributes' => [
                     'type' => 'domain_auth_info'
@@ -730,7 +705,7 @@ class OpenSRS extends Adapter
         try {
             $message = [
                 'object' => 'DOMAIN',
-                'action' => 'check_transfer',
+                'action' => 'CHECK_TRANSFER',
                 'attributes' => [
                     'domain' => $domain,
                     'check_status' => $checkStatus ? 1 : 0,
@@ -767,6 +742,44 @@ class OpenSRS extends Adapter
         } catch (Exception $e) {
             throw new DomainsException('Failed to check transfer status: ' . $e->getMessage(), $e->getCode(), $e);
         }
+    }
+
+    private function send(array $params = []): array|string
+    {
+        $object = $params['object'];
+        $action = $params['action'];
+        $domain = $params['domain'] ?? null;
+        $attributes = $params['attributes'];
+
+        $xml = $this->buildEnvelop($object, $action, $attributes, $domain);
+
+        $headers = array_merge($this->headers, [
+            'X-Signature:'.md5(md5($xml.$this->apiKey).$this->apiKey),
+        ]);
+
+        $ch = curl_init($this->endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+
+        return curl_exec($ch);
+    }
+
+    private function sanitizeResponse(string $response)
+    {
+        $result = simplexml_load_string($response);
+        $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
+        $code = (int) "{$elements[0]}";
+
+        if ($code > 299) {
+            $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_text"]');
+            $text = "{$elements[0]}";
+
+            throw new Exception($text, $code);
+        }
+
+        return $result;
     }
 
     private function response(string $xml): array

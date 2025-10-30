@@ -3,6 +3,7 @@
 namespace Utopia\Domains\Registrar;
 
 use Utopia\Domains\Adapter as DomainsAdapter;
+use Utopia\Domains\Contact;
 
 abstract class Adapter extends DomainsAdapter
 {
@@ -57,11 +58,11 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
-     * @param  array $contacts
      * @param  array $details
+     * @param  array|Contact|null $contacts
      * @return bool
      */
-    abstract public function updateDomain(string $domain, array $contacts, array $details): bool;
+    abstract public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool;
 
     /**
      * @param  string  $domain
