@@ -1032,7 +1032,7 @@ class OpenSRS extends Adapter
         ];
 
         foreach ($attributes as $key => $value) {
-            switch($key) {
+            switch ($key) {
                 case 'contact_set':
                     $result[] = $this->createContactSet($value);
                     break;

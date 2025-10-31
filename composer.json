@@ -30,7 +30,7 @@
   },
   "require-dev": {
       "phpunit/phpunit": "^9.3",
-      "laravel/pint": "1.2.*",
+      "laravel/pint": "^1.18",
       "phpstan/phpstan": "^1.12"
   },
   "minimum-stability": "stable",
