@@ -193,7 +193,7 @@ class OpenSRS extends Adapter
         }
     }
 
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $period = 1, array $nameservers = []): array
     {
         $contacts = is_array($contacts) ? $contacts : [$contacts];
 
@@ -207,7 +207,7 @@ class OpenSRS extends Adapter
         $regType = self::REG_TYPE_TRANSFER;
 
         try {
-            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $authCode);
+            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $period, $authCode);
             $result = $this->response($result);
 
             return $result;
