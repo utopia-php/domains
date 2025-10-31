@@ -378,12 +378,13 @@ class Mock extends Adapter
      * @param string $domain
      * @param string $authCode
      * @param array|Contact $contacts
+     * @param int $period
      * @param array $nameservers
      * @return array
      * @throws DomainTaken
      * @throws InvalidContact
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $period = 1, array $nameservers = []): array
     {
         if (in_array($domain, $this->purchasedDomains)) {
             throw new DomainTaken("Domain {$domain} is already in this account", self::RESPONSE_CODE_DOMAIN_TAKEN);
@@ -398,6 +399,7 @@ class Mock extends Adapter
             'code' => (string) self::RESPONSE_CODE_SUCCESS,
             'id' => 'mock_transfer_' . md5($domain . time()),
             'domainId' => 'mock_domain_' . md5($domain),
+            'period' => $period,
             'successful' => true,
             'domain' => $domain,
             'nameservers' => $nameservers,
