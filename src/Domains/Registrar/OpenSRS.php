@@ -158,7 +158,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, int $period = 1, array|Contact $contacts, array $nameservers = []): array
+    public function purchase(string $domain, array|Contact $contacts, int $period = 1, array $nameservers = []): array
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -214,7 +214,8 @@ class OpenSRS extends Adapter
         } catch (Exception $e) {
             $code = $e->getCode();
             if ($code === self::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE) {
-                $reason = explode("\n", $e->getMessage())[1];
+                $parts = explode("\n", $e->getMessage());
+                $reason = $parts[1] ?? $parts[0];
                 throw new DomainNotTransferable('Domain is not transferable: ' . $reason, $e->getCode(), $e);
             }
             if ($code === self::RESPONSE_CODE_INVALID_CONTACT) {

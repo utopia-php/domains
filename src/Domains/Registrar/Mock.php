@@ -127,14 +127,14 @@ class Mock extends Adapter
      * Purchase a domain
      *
      * @param string $domain
+     * @param array|\Utopia\Domains\Contact $contacts
      * @param int $period
-     * @param array<\Utopia\Domains\Contact>|Contact $contacts
      * @param array $nameservers
      * @return array
      * @throws DomainTaken
      * @throws InvalidContact
      */
-    public function purchase(string $domain, int $period = 1, array|Contact $contacts, array $nameservers = []): array
+    public function purchase(string $domain, array|Contact $contacts, int $period = 1, array $nameservers = []): array
     {
         if (!$this->available($domain)) {
             throw new DomainTaken("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);

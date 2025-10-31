@@ -51,9 +51,9 @@ class Registrar
      * @param array $nameservers
      * @return array
      */
-    public function purchase(string $domain, int $period = 1, array|Contact $contacts, array $nameservers = []): array
+    public function purchase(string $domain, array|Contact $contacts, int $period = 1, array $nameservers = []): array
     {
-        return $this->adapter->purchase($domain, $period, $contacts, $nameservers);
+        return $this->adapter->purchase($domain, $contacts, $period, $nameservers);
     }
 
     /**

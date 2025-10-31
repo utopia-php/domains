@@ -28,11 +28,12 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
-     * @param  array<\Utopia\Domains\Contact>  $contacts
+     * @param  array|\Utopia\Domains\Contact  $contacts
+     * @param  int  $period
      * @param  array  $nameservers
      * @return array
      */
-    abstract public function purchase(string $domain, int $period = 1, array $contacts, array $nameservers = []): array;
+    abstract public function purchase(string $domain, array|Contact $contacts, int $period = 1, array $nameservers = []): array;
 
     /**
      * @param  array  $query
