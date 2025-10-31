@@ -332,7 +332,7 @@ class OpenSRSTest extends TestCase
             $this->assertArrayHasKey('code', $result);
         } catch (DomainNotTransferable $e) {
             $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
-            $this->assertEquals('Domain is not transferable', $e->getMessage());
+            $this->assertEquals('Domain is not transferable: Domain not registered', $e->getMessage());
         }
     }
 

@@ -214,7 +214,8 @@ class OpenSRS extends Adapter
         } catch (Exception $e) {
             $code = $e->getCode();
             if ($code === self::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE) {
-                throw new DomainNotTransferable('Domain is not transferable', $e->getCode(), $e);
+                $reason = explode("\n", $e->getMessage())[1];
+                throw new DomainNotTransferable('Domain is not transferable: ' . $reason, $e->getCode(), $e);
             }
             if ($code === self::RESPONSE_CODE_INVALID_CONTACT) {
                 throw new InvalidContact('Failed to transfer domain: ' . $e->getMessage(), $code, $e);
