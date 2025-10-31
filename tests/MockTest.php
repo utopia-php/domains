@@ -337,7 +337,7 @@ class MockTest extends TestCase
         $authCode = 'test-auth-code-12345';
         $nameservers = ['ns1.example.com', 'ns2.example.com'];
 
-        $result = $this->adapter->transfer($domain, $authCode, $contact, $nameservers);
+        $result = $this->adapter->transfer($domain, $authCode, $contact, 1, $nameservers);
 
         $this->assertTrue($result['successful']);
         $this->assertEquals($nameservers, $result['nameservers']);
