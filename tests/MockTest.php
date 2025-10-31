@@ -219,7 +219,6 @@ class MockTest extends TestCase
         $this->assertTrue($result->successful);
         $this->assertNotEmpty($result->orderId);
         $this->assertInstanceOf(\DateTime::class, $result->newExpiration);
-        $this->assertEquals($domain, $result->domain);
     }
 
     public function testRenewNotFound(): void

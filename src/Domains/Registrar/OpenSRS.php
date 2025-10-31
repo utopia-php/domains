@@ -585,7 +585,7 @@ class OpenSRS extends Adapter
                 $letExpire = $value === '1';
             } elseif ($key === 'nameserver_list') {
                 // nameserver_list is typically an array in the response
-                $nameserverList = is_array($value) ? $value : [$value];
+                $nameserverList = [$value];
             }
         }
 
