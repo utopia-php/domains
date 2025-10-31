@@ -84,11 +84,12 @@ abstract class Adapter extends DomainsAdapter
     /**
      * @param  string  $domain
      * @param  string  $authCode
-     * @param  array<\Utopia\Domains\Contact>  $contacts
+     * @param  array|\Utopia\Domains\Contact  $contacts
+     * @param  int  $period
      * @param  array  $nameservers
      * @return array
      */
-    abstract public function transfer(string $domain, string $authCode, array $contacts, array $nameservers = []): array;
+    abstract public function transfer(string $domain, string $authCode, array $contacts, int $period = 1, array $nameservers = []): array;
 
     /**
      * Get the authorization code for an EPP domain

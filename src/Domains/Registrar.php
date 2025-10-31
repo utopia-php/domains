@@ -141,9 +141,9 @@ class Registrar
      * @param array $nameservers
      * @return array
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $period = 1, array $nameservers = []): array
     {
-        return $this->adapter->transfer($domain, $authCode, $contacts, $nameservers);
+        return $this->adapter->transfer($domain, $authCode, $contacts, $period, $nameservers);
     }
 
     /**

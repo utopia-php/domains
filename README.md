@@ -131,7 +131,7 @@ $transfer = $reg->transfer($domain, 'authcode', [$contact]);
 * **suggest(array $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array** - Suggest or search for domain names.
 * **getDomain(string $domain): array** - Get domain details.
 * **renew(string $domain, int $period): array** - Renew a domain name.
-* **transfer(string $domain, string $authCode, array $contacts, array $nameservers = []): array** - Transfer a domain name.
+* **transfer(string $domain, string $authCode, array $contacts, int $period = 1, array $nameservers = []): array** - Transfer a domain name.
 
 
 ## System Requirements
