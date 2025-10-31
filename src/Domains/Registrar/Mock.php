@@ -148,6 +148,7 @@ class Mock extends Adapter
             'code' => (string) self::RESPONSE_CODE_SUCCESS,
             'id' => 'mock_' . md5($domain . time()),
             'domainId' => 'mock_domain_' . md5($domain),
+            'period' => $period,
             'successful' => true,
             'domain' => $domain,
             'nameservers' => $nameservers,

@@ -66,13 +66,13 @@ class OpenSRSTest extends TestCase
     public function testPurchase(): void
     {
         $domain = self::generateRandomString() . '.net';
-        $result = $this->client->purchase($domain, self::purchaseContact());
+        $result = $this->client->purchase($domain, 1, self::purchaseContact());
         $this->assertTrue($result['successful']);
 
         $domain = 'google.com';
         $this->expectException(DomainTaken::class);
         $this->expectExceptionMessage("Failed to purchase domain: Domain taken");
-        $this->client->purchase($domain, self::purchaseContact());
+        $this->client->purchase($domain, 1, self::purchaseContact());
     }
 
     public function testPurchaseWithInvalidContact(): void
@@ -80,7 +80,7 @@ class OpenSRSTest extends TestCase
         $domain = self::generateRandomString() . '.net';
         $this->expectException(InvalidContact::class);
         $this->expectExceptionMessage("Failed to purchase domain: Invalid data");
-        $this->client->purchase($domain, [
+        $this->client->purchase($domain, 1, [
             new Contact(
                 'John',
                 'Doe',
@@ -113,7 +113,7 @@ class OpenSRSTest extends TestCase
         $domain = self::generateRandomString() . '.net';
         $this->expectException(InvalidPassword::class);
         $this->expectExceptionMessage("Failed to purchase domain: Invalid password");
-        $client->purchase($domain, self::purchaseContact());
+        $client->purchase($domain, 1, self::purchaseContact());
     }
 
     public function testDomainInfo(): void

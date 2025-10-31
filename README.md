@@ -117,7 +117,7 @@ $contact = new Contact(
 $domain = 'yourname.com';
 
 $available = $reg->available($domain);
-$purchase = $reg->purchase($domain, $contact); 
+$purchase = $reg->purchase($domain, 1, $contact); 
 $suggest = $reg->suggest(['yourname', 'yourname1.com'], ['com', 'net', 'org'], 10, 10000, 100);
 $domainDetails = $reg->getDomain($domain);
 $renew = $reg->renew($domain, 1);
