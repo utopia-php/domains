@@ -3,6 +3,11 @@
 namespace Utopia\Domains;
 
 use Utopia\Domains\Registrar\Adapter as RegistrarAdapter;
+use Utopia\Domains\Registrar\Result\DomainResult;
+use Utopia\Domains\Registrar\Result\PriceResult;
+use Utopia\Domains\Registrar\Result\PurchaseResult;
+use Utopia\Domains\Registrar\Result\RenewResult;
+use Utopia\Domains\Registrar\Result\TransferResult;
 
 class Registrar
 {
@@ -49,9 +54,9 @@ class Registrar
      * @param int $period
      * @param array|Contact $contacts
      * @param array $nameservers
-     * @return array
+     * @return PurchaseResult
      */
-    public function purchase(string $domain, array|Contact $contacts, int $period = 1, array $nameservers = []): array
+    public function purchase(string $domain, array|Contact $contacts, int $period = 1, array $nameservers = []): PurchaseResult
     {
         return $this->adapter->purchase($domain, $contacts, $period, $nameservers);
     }
@@ -86,9 +91,9 @@ class Registrar
      * Get the details of a domain
      *
      * @param string $domain
-     * @return array
+     * @return DomainResult
      */
-    public function getDomain(string $domain): array
+    public function getDomain(string $domain): DomainResult
     {
         return $this->adapter->getDomain($domain);
     }
@@ -113,9 +118,9 @@ class Registrar
      * @param int $period
      * @param string $regType
      * @param int $ttl
-     * @return array
+     * @return PriceResult
      */
-    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
+    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult
     {
         return $this->adapter->getPrice($domain, $period, $regType, $ttl);
     }
@@ -125,9 +130,9 @@ class Registrar
      *
      * @param string $domain
      * @param int $period
-     * @return array
+     * @return RenewResult
      */
-    public function renew(string $domain, int $period): array
+    public function renew(string $domain, int $period): RenewResult
     {
         return $this->adapter->renew($domain, $period);
     }
@@ -139,9 +144,9 @@ class Registrar
      * @param string $authCode
      * @param array|Contact $contacts
      * @param array $nameservers
-     * @return array
+     * @return TransferResult
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $period = 1, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $period = 1, array $nameservers = []): TransferResult
     {
         return $this->adapter->transfer($domain, $authCode, $contacts, $period, $nameservers);
     }

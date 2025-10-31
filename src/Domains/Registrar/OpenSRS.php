@@ -2,6 +2,7 @@
 
 namespace Utopia\Domains\Registrar;
 
+use DateTime;
 use Exception;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Exception as DomainsException;
@@ -11,6 +12,12 @@ use Utopia\Domains\Registrar\Exception\InvalidContact;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
 use Utopia\Domains\Cache;
+use Utopia\Domains\Registrar\Result\DomainResult;
+use Utopia\Domains\Registrar\Result\PriceResult;
+use Utopia\Domains\Registrar\Result\PurchaseResult;
+use Utopia\Domains\Registrar\Result\RenewResult;
+use Utopia\Domains\Registrar\Result\TransferResult;
+use Utopia\Domains\Registrar\Result\TransferStatusResult;
 
 class OpenSRS extends Adapter
 {
@@ -158,7 +165,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): array
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): PurchaseResult
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -176,7 +183,15 @@ class OpenSRS extends Adapter
 
             $result = $this->response($result);
 
-            return $result;
+            return new PurchaseResult(
+                code: $result['code'],
+                id: $result['id'],
+                domainId: $result['domainId'],
+                successful: $result['successful'],
+                domain: $domain,
+                period: $periodYears,
+                nameservers: $nameservers,
+            );
         } catch (Exception $e) {
             $message = 'Failed to purchase domain: ' . $e->getMessage();
 
@@ -193,7 +208,7 @@ class OpenSRS extends Adapter
         }
     }
 
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): TransferResult
     {
         $contacts = is_array($contacts) ? $contacts : [$contacts];
 
@@ -210,7 +225,15 @@ class OpenSRS extends Adapter
             $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, $authCode);
             $result = $this->response($result);
 
-            return $result;
+            return new TransferResult(
+                code: $result['code'],
+                id: $result['id'],
+                domainId: $result['domainId'],
+                successful: $result['successful'],
+                domain: $domain,
+                period: $periodYears,
+                nameservers: $nameservers,
+            );
         } catch (Exception $e) {
             $code = $e->getCode();
             if ($code === self::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE) {
@@ -440,16 +463,20 @@ class OpenSRS extends Adapter
      * @param int $periodYears Registration period in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @param int $ttl Time to live for the cache (if set) in seconds (default 3600 seconds = 1 hour)
-     * @return array Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
+     * @return PriceResult Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
      * @throws PriceNotFound When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
             if ($cached !== null && is_array($cached)) {
-                return $cached;
+                return new PriceResult(
+                    price: $cached['price'],
+                    isRegistryPremium: $cached['is_registry_premium'],
+                    registryPremiumGroup: $cached['registry_premium_group'],
+                );
             }
         }
 
@@ -479,14 +506,18 @@ class OpenSRS extends Adapter
             $premiumGroupElements = $result->xpath($premiumGroupXpath);
             $registryPremiumGroup = isset($premiumGroupElements[0]) ? (string) $premiumGroupElements[0] : null;
 
-            $result = [
-                'price' => $price,
-                'is_registry_premium' => $isRegistryPremium,
-                'registry_premium_group' => $registryPremiumGroup,
-            ];
+            $result = new PriceResult(
+                price: $price,
+                isRegistryPremium: $isRegistryPremium,
+                registryPremiumGroup: $registryPremiumGroup,
+            );
 
             if ($this->cache) {
-                $this->cache->save($domain, $result);
+                $this->cache->save($domain, [
+                    'price' => $result->price,
+                    'is_registry_premium' => $result->isRegistryPremium,
+                    'registry_premium_group' => $result->registryPremiumGroup,
+                ]);
             }
 
             return $result;
@@ -506,7 +537,7 @@ class OpenSRS extends Adapter
         return [];
     }
 
-    public function getDomain(string $domain): array
+    public function getDomain(string $domain): DomainResult
     {
         $message = [
             'object' => 'DOMAIN',
@@ -531,16 +562,42 @@ class OpenSRS extends Adapter
         $result = $this->sanitizeResponse($result);
         $elements = $result->xpath($xpath);
 
-        $results = [];
+        $data = [];
+        $registryCreateDate = null;
+        $registryExpireDate = null;
+        $autoRenew = null;
+        $letExpire = null;
+        $nameserverList = null;
 
         foreach ($elements as $element) {
             $key = "{$element['key']}";
             $value = "{$element}";
 
-            $results[$key] = $value;
+            $data[$key] = $value;
+
+            if ($key === 'registry_createdate') {
+                $registryCreateDate = new DateTime($value);
+            } elseif ($key === 'registry_expiredate') {
+                $registryExpireDate = new DateTime($value);
+            } elseif ($key === 'auto_renew') {
+                $autoRenew = $value === '1';
+            } elseif ($key === 'let_expire') {
+                $letExpire = $value === '1';
+            } elseif ($key === 'nameserver_list') {
+                // nameserver_list is typically an array in the response
+                $nameserverList = is_array($value) ? $value : [$value];
+            }
         }
 
-        return $results;
+        return new DomainResult(
+            domain: $domain,
+            registryCreateDate: $registryCreateDate,
+            registryExpireDate: $registryExpireDate,
+            autoRenew: $autoRenew,
+            letExpire: $letExpire,
+            nameserverList: $nameserverList,
+            additionalData: $data,
+        );
     }
 
     /**
@@ -611,9 +668,9 @@ class OpenSRS extends Adapter
      *
      * @param string $domain The domain name to renew
      * @param int $periodYears The number of years to renew the domain for
-     * @return array Contains the renewal information
+     * @return RenewResult Contains the renewal information
      */
-    public function renew(string $domain, int $periodYears): array
+    public function renew(string $domain, int $periodYears): RenewResult
     {
         $message = [
             'object' => 'DOMAIN',
@@ -640,23 +697,24 @@ class OpenSRS extends Adapter
         $result = simplexml_load_string($result);
         $elements = $result->xpath($xpath);
 
-        $results = [];
+        $orderId = null;
+        $newExpiration = null;
 
         foreach ($elements as $item) {
             $key = "{$item['key']}";
 
             if ($key === 'registration expiration date') {
-                $result['new_expiration'] = "{$item}";
-
-                continue;
+                $newExpiration = new DateTime("{$item}");
+            } elseif ($key === 'order_id') {
+                $orderId = "{$item}";
             }
-
-            $value = "{$item}";
-
-            $results[$key] = $value;
         }
 
-        return $results;
+        return new RenewResult(
+            successful: $orderId !== null,
+            orderId: $orderId,
+            newExpiration: $newExpiration,
+        );
     }
 
     /**
@@ -700,10 +758,10 @@ class OpenSRS extends Adapter
      * @param string $domain The fully qualified domain name
      * @param bool $checkStatus Flag to request the status of a transfer request
      * @param bool $getRequestAddress Flag to request the registrant's contact email address
-     * @return array Contains transfer status information including 'transferable', 'status', 'reason', etc.
+     * @return TransferStatusResult Contains transfer status information including 'transferable', 'status', 'reason', etc.
      * @throws DomainsException When errors occur during the check
      */
-    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): array
+    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatusResult
     {
         try {
             $message = [
@@ -722,7 +780,14 @@ class OpenSRS extends Adapter
             $xpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item';
             $elements = $result->xpath($xpath);
 
-            $response = [];
+            $transferrable = 0;
+            $noservice = 0;
+            $reason = null;
+            $reasonCode = null;
+            $status = null;
+            $timestamp = null;
+            $type = null;
+            $requestAddress = null;
 
             foreach ($elements as $element) {
                 $key = (string) $element['key'];
@@ -730,18 +795,42 @@ class OpenSRS extends Adapter
 
                 switch ($key) {
                     case 'transferrable':
+                        $transferrable = (int) $value;
+                        break;
                     case 'noservice':
-                        $response[$key] = (int) $value;
+                        $noservice = (int) $value;
                         break;
-                    case 'unixtime':
-                        $response[$key] = (int) $value;
+                    case 'reason':
+                        $reason = $value;
                         break;
-                    default:
-                        $response[$key] = $value;
+                    case 'reason_code':
+                        $reasonCode = $value;
+                        break;
+                    case 'status':
+                        $status = $value;
+                        break;
+                    case 'timestamp':
+                        $timestamp = new DateTime($value);
+                        break;
+                    case 'type':
+                        $type = $value;
+                        break;
+                    case 'request_address':
+                        $requestAddress = $value;
+                        break;
                 }
             }
 
-            return $response;
+            return new TransferStatusResult(
+                transferrable: $transferrable,
+                noservice: $noservice,
+                reason: $reason,
+                reasonCode: $reasonCode,
+                status: $status,
+                timestamp: $timestamp,
+                type: $type,
+                requestAddress: $requestAddress,
+            );
         } catch (Exception $e) {
             throw new DomainsException('Failed to check transfer status: ' . $e->getMessage(), $e->getCode(), $e);
         }

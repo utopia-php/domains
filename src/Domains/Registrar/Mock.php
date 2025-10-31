@@ -2,12 +2,19 @@
 
 namespace Utopia\Domains\Registrar;
 
+use DateTime;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
 use Utopia\Domains\Registrar\Exception\InvalidContact;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
+use Utopia\Domains\Registrar\Result\DomainResult;
+use Utopia\Domains\Registrar\Result\PriceResult;
+use Utopia\Domains\Registrar\Result\PurchaseResult;
+use Utopia\Domains\Registrar\Result\RenewResult;
+use Utopia\Domains\Registrar\Result\TransferResult;
+use Utopia\Domains\Registrar\Result\TransferStatusResult;
 
 class Mock extends Adapter
 {
@@ -130,11 +137,11 @@ class Mock extends Adapter
      * @param array|\Utopia\Domains\Contact $contacts
      * @param int $periodYears
      * @param array $nameservers
-     * @return array
+     * @return PurchaseResult
      * @throws DomainTaken
      * @throws InvalidContact
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): array
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): PurchaseResult
     {
         if (!$this->available($domain)) {
             throw new DomainTaken("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);
@@ -144,15 +151,15 @@ class Mock extends Adapter
 
         $this->purchasedDomains[] = $domain;
 
-        return [
-            'code' => (string) self::RESPONSE_CODE_SUCCESS,
-            'id' => 'mock_' . md5($domain . time()),
-            'domainId' => 'mock_domain_' . md5($domain),
-            'period' => $periodYears,
-            'successful' => true,
-            'domain' => $domain,
-            'nameservers' => $nameservers,
-        ];
+        return new PurchaseResult(
+            code: (string) self::RESPONSE_CODE_SUCCESS,
+            id: 'mock_' . md5($domain . time()),
+            domainId: 'mock_domain_' . md5($domain),
+            successful: true,
+            domain: $domain,
+            period: $periodYears,
+            nameservers: $nameservers,
+        );
     }
 
     /**
@@ -236,26 +243,26 @@ class Mock extends Adapter
      * Get domain information
      *
      * @param string $domain
-     * @return array
+     * @return DomainResult
      * @throws DomainsException
      */
-    public function getDomain(string $domain): array
+    public function getDomain(string $domain): DomainResult
     {
         if (!in_array($domain, $this->purchasedDomains)) {
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
         }
 
-        return [
-            'domain' => $domain,
-            'registry_createdate' => date('Y-m-d H:i:s'),
-            'registry_expiredate' => date('Y-m-d H:i:s', strtotime('+1 year')),
-            'auto_renew' => '0',
-            'let_expire' => '0',
-            'nameserver_list' => [
+        return new DomainResult(
+            domain: $domain,
+            registryCreateDate: new DateTime(),
+            registryExpireDate: new DateTime('+1 year'),
+            autoRenew: false,
+            letExpire: false,
+            nameserverList: [
                 'ns1.mock.com',
                 'ns2.mock.com',
             ],
-        ];
+        );
     }
 
     /**
@@ -265,27 +272,35 @@ class Mock extends Adapter
      * @param int $periodYears
      * @param string $regType
      * @param int $ttl Time to live for the cache (if set) in seconds
-     * @return array
+     * @return PriceResult
      * @throws PriceNotFound
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
             if ($cached !== null && is_array($cached)) {
-                return $cached;
+                return new PriceResult(
+                    price: $cached['price'],
+                    isRegistryPremium: $cached['is_registry_premium'],
+                    registryPremiumGroup: $cached['registry_premium_group'],
+                );
             }
         }
 
         if (isset($this->premiumDomains[$domain])) {
-            $result = [
-                'price' => $this->premiumDomains[$domain] * $periodYears,
-                'is_registry_premium' => true,
-                'registry_premium_group' => 'premium',
-            ];
+            $result = new PriceResult(
+                price: $this->premiumDomains[$domain] * $periodYears,
+                isRegistryPremium: true,
+                registryPremiumGroup: 'premium',
+            );
 
             if ($this->cache) {
-                $this->cache->save($domain, $result);
+                $this->cache->save($domain, [
+                    'price' => $result->price,
+                    'is_registry_premium' => $result->isRegistryPremium,
+                    'registry_premium_group' => $result->registryPremiumGroup,
+                ]);
             }
 
             return $result;
@@ -310,14 +325,18 @@ class Mock extends Adapter
             default => 1.0,
         };
 
-        $result = [
-            'price' => $basePrice * $periodYears * $multiplier,
-            'is_registry_premium' => false,
-            'registry_premium_group' => null,
-        ];
+        $result = new PriceResult(
+            price: $basePrice * $periodYears * $multiplier,
+            isRegistryPremium: false,
+            registryPremiumGroup: null,
+        );
 
         if ($this->cache) {
-            $this->cache->save($domain, $result);
+            $this->cache->save($domain, [
+                'price' => $result->price,
+                'is_registry_premium' => $result->isRegistryPremium,
+                'registry_premium_group' => $result->registryPremiumGroup,
+            ]);
         }
 
         return $result;
@@ -328,25 +347,24 @@ class Mock extends Adapter
      *
      * @param string $domain
      * @param int $periodYears
-     * @return array
+     * @return RenewResult
      * @throws DomainsException
      */
-    public function renew(string $domain, int $periodYears): array
+    public function renew(string $domain, int $periodYears): RenewResult
     {
         if (!in_array($domain, $this->purchasedDomains)) {
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
         }
 
         $domainInfo = $this->getDomain($domain);
-        $currentExpiry = strtotime($domainInfo['registry_expiredate']);
-        $newExpiry = strtotime("+{$periodYears} years", $currentExpiry);
+        $currentExpiry = $domainInfo->registryExpireDate;
+        $newExpiry = $currentExpiry ? (clone $currentExpiry)->modify("+{$periodYears} years") : new DateTime("+{$periodYears} years");
 
-        return [
-            'order_id' => 'mock_order_' . md5($domain . time()),
-            'successful' => true,
-            'new_expiration' => date('Y-m-d H:i:s', $newExpiry),
-            'domain' => $domain,
-        ];
+        return new RenewResult(
+            successful: true,
+            orderId: 'mock_order_' . md5($domain . time()),
+            newExpiration: $newExpiry,
+        );
     }
 
     /**
@@ -380,11 +398,11 @@ class Mock extends Adapter
      * @param array|Contact $contacts
      * @param int $periodYears
      * @param array $nameservers
-     * @return array
+     * @return TransferResult
      * @throws DomainTaken
      * @throws InvalidContact
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): TransferResult
     {
         if (in_array($domain, $this->purchasedDomains)) {
             throw new DomainTaken("Domain {$domain} is already in this account", self::RESPONSE_CODE_DOMAIN_TAKEN);
@@ -395,15 +413,15 @@ class Mock extends Adapter
         $this->transferredDomains[] = $domain;
         $this->purchasedDomains[] = $domain;
 
-        return [
-            'code' => (string) self::RESPONSE_CODE_SUCCESS,
-            'id' => 'mock_transfer_' . md5($domain . time()),
-            'domainId' => 'mock_domain_' . md5($domain),
-            'period' => $periodYears,
-            'successful' => true,
-            'domain' => $domain,
-            'nameservers' => $nameservers,
-        ];
+        return new TransferResult(
+            code: (string) self::RESPONSE_CODE_SUCCESS,
+            id: 'mock_transfer_' . md5($domain . time()),
+            domainId: 'mock_domain_' . md5($domain),
+            successful: true,
+            domain: $domain,
+            period: $periodYears,
+            nameservers: $nameservers,
+        );
     }
 
     /**
@@ -484,37 +502,44 @@ class Mock extends Adapter
      * @param string $domain
      * @param bool $checkStatus
      * @param bool $getRequestAddress
-     * @return array
+     * @return TransferStatusResult
      */
-    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): array
+    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatusResult
     {
-        $response = [
-            'noservice' => 0,
-        ];
-
         if (in_array($domain, $this->transferredDomains)) {
-            $response['transferrable'] = 0;
-            $response['reason'] = 'Transfer in progress';
-            $response['status'] = 'pending_registry';
-            $response['timestamp'] = date('D M d H:i:s Y');
-            $response['unixtime'] = time();
+            return new TransferStatusResult(
+                transferrable: 0,
+                noservice: 0,
+                reason: 'Transfer in progress',
+                reasonCode: null,
+                status: 'pending_registry',
+                timestamp: new DateTime(),
+                type: null,
+                requestAddress: $getRequestAddress ? 'mock@example.com' : null,
+            );
         } elseif (in_array($domain, $this->purchasedDomains)) {
-            $response['transferrable'] = 0;
-            $response['reason'] = "Domain already exists in mock account";
-            $response['reason_code'] = 'domain_already_belongs_to_current_reseller';
-            $response['status'] = 'completed';
-            $response['timestamp'] = date('D M d H:i:s Y');
-            $response['unixtime'] = time();
+            return new TransferStatusResult(
+                transferrable: 0,
+                noservice: 0,
+                reason: "Domain already exists in mock account",
+                reasonCode: 'domain_already_belongs_to_current_reseller',
+                status: 'completed',
+                timestamp: new DateTime(),
+                type: null,
+                requestAddress: $getRequestAddress ? 'mock@example.com' : null,
+            );
         } else {
-            $response['transferrable'] = 1;
-            $response['type'] = 'reg2reg';
+            return new TransferStatusResult(
+                transferrable: 1,
+                noservice: 0,
+                reason: null,
+                reasonCode: null,
+                status: null,
+                timestamp: null,
+                type: 'reg2reg',
+                requestAddress: $getRequestAddress ? 'mock@example.com' : null,
+            );
         }
-
-        if ($getRequestAddress) {
-            $response['request_address'] = 'mock@example.com';
-        }
-
-        return $response;
     }
 
     /**

@@ -24,7 +24,7 @@
     "check": "./vendor/bin/phpstan analyse --level 4 src tests"
   },
   "require": {
-      "php": ">=8.0",
+      "php": ">=8.2",
       "utopia-php/validators": "0.0.*",
       "utopia-php/cache": "0.13.*"
   },

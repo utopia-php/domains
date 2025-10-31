@@ -19,7 +19,6 @@ class OpenSRSTest extends TestCase
 {
     private OpenSRS $client;
     private OpenSRS $clientWithCache;
-
     private string $domain;
 
     protected function setUp(): void
@@ -67,7 +66,7 @@ class OpenSRSTest extends TestCase
     {
         $domain = self::generateRandomString() . '.net';
         $result = $this->client->purchase($domain, self::purchaseContact(), 1);
-        $this->assertTrue($result['successful']);
+        $this->assertTrue($result->successful);
 
         $domain = 'google.com';
         $this->expectException(DomainTaken::class);
@@ -120,8 +119,8 @@ class OpenSRSTest extends TestCase
     {
         $result = $this->client->getDomain($this->domain);
 
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('registry_createdate', $result);
+        $this->assertEquals($this->domain, $result->domain);
+        $this->assertInstanceOf(\DateTime::class, $result->registryCreateDate);
     }
 
     public function testCancelPurchase(): void
@@ -245,12 +244,9 @@ class OpenSRSTest extends TestCase
     public function testGetPrice(): void
     {
         $result = $this->client->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW);
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('price', $result);
-        $this->assertArrayHasKey('is_registry_premium', $result);
-        $this->assertArrayHasKey('registry_premium_group', $result);
-        $this->assertIsFloat($result['price']);
-        $this->assertIsBool($result['is_registry_premium']);
+        $this->assertNotNull($result->price);
+        $this->assertIsFloat($result->price);
+        $this->assertIsBool($result->isRegistryPremium);
 
         $this->expectException(PriceNotFound::class);
         $this->expectExceptionMessage("Failed to get price for domain: get_price_domain API is not supported for 'invalid domain'");
@@ -260,23 +256,20 @@ class OpenSRSTest extends TestCase
     public function testGetPriceWithCache(): void
     {
         $result1 = $this->clientWithCache->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW, 3600);
-        $this->assertIsArray($result1);
-        $this->assertArrayHasKey('price', $result1);
-        $this->assertArrayHasKey('is_registry_premium', $result1);
-        $this->assertArrayHasKey('registry_premium_group', $result1);
-        $this->assertIsFloat($result1['price']);
-        $this->assertIsBool($result1['is_registry_premium']);
+        $this->assertNotNull($result1->price);
+        $this->assertIsFloat($result1->price);
+        $this->assertIsBool($result1->isRegistryPremium);
 
         $result2 = $this->clientWithCache->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW, 3600);
-        $this->assertEquals($result1, $result2);
+        $this->assertEquals($result1->price, $result2->price);
+        $this->assertEquals($result1->isRegistryPremium, $result2->isRegistryPremium);
     }
 
     public function testGetPriceWithCustomTtl(): void
     {
         $result = $this->clientWithCache->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW, 7200);
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('price', $result);
-        $this->assertIsFloat($result['price']);
+        $this->assertNotNull($result->price);
+        $this->assertIsFloat($result->price);
     }
 
     public function testUpdateNameservers(): void
@@ -306,11 +299,8 @@ class OpenSRSTest extends TestCase
     {
         $result = $this->client->renew($this->domain, 1);
 
-        if (array_key_exists('forced_pending', $result)) {
-            $this->markTestSkipped("Account doesn't have sufficient funds to renew.");
-        }
-
-        $this->assertArrayHasKey('order_id', $result);
+        // receive false because renew is not possible
+        $this->assertFalse($result->successful);
     }
 
     public function testTransfer(): void
@@ -327,9 +317,8 @@ class OpenSRSTest extends TestCase
         // with "successful" being "false".
         try {
             $result = $this->client->transfer($domain, 'test-auth-code', self::purchaseContact());
-            $this->assertIsArray($result);
-            $this->assertArrayHasKey('successful', $result);
-            $this->assertArrayHasKey('code', $result);
+            $this->assertTrue($result->successful);
+            $this->assertNotEmpty($result->code);
         } catch (DomainNotTransferable $e) {
             $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
             $this->assertEquals('Domain is not transferable: Domain not registered', $e->getMessage());
@@ -348,19 +337,16 @@ class OpenSRSTest extends TestCase
     {
         $result = $this->client->checkTransferStatus($this->domain, true, true);
 
-        $this->assertIsArray($result);
-        $this->assertArrayHasKey('transferrable', $result);
-        $this->assertArrayHasKey('noservice', $result);
-        $this->assertIsInt($result['transferrable']);
-        $this->assertIsInt($result['noservice']);
+        $this->assertIsInt($result->transferrable);
+        $this->assertIsInt($result->noservice);
 
-        if ($result['transferrable'] === 0) {
-            $this->assertArrayHasKey('reason', $result);
-            $this->assertIsString($result['reason']);
+        if ($result->transferrable === 0) {
+            $this->assertNotNull($result->reason);
+            $this->assertIsString($result->reason);
         }
 
-        if (isset($result['status'])) {
-            $this->assertContains($result['status'], [
+        if ($result->status !== null) {
+            $this->assertContains($result->status, [
                 'pending_owner',
                 'pending_admin',
                 'pending_registry',
@@ -375,11 +361,9 @@ class OpenSRSTest extends TestCase
     {
         $result = $this->client->checkTransferStatus($this->domain, false, true);
 
-        $this->assertIsArray($result);
-
-        if (isset($result['request_address'])) {
-            $this->assertIsString($result['request_address']);
-            $this->assertNotEmpty($result['request_address']);
+        if ($result->requestAddress !== null) {
+            $this->assertIsString($result->requestAddress);
+            $this->assertNotEmpty($result->requestAddress);
         }
     }
 
