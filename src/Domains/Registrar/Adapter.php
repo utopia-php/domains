@@ -32,7 +32,7 @@ abstract class Adapter extends DomainsAdapter
      * @param  array  $nameservers
      * @return array
      */
-    abstract public function purchase(string $domain, array $contacts, array $nameservers = []): array;
+    abstract public function purchase(string $domain, int $period = 1, array $contacts, array $nameservers = []): array;
 
     /**
      * @param  array  $query
@@ -75,10 +75,10 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
-     * @param  int  $years
+     * @param  int  $period
      * @return array
      */
-    abstract public function renew(string $domain, int $years): array;
+    abstract public function renew(string $domain, int $period): array;
 
     /**
      * @param  string  $domain

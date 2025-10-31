@@ -127,13 +127,14 @@ class Mock extends Adapter
      * Purchase a domain
      *
      * @param string $domain
+     * @param int $period
      * @param array<\Utopia\Domains\Contact>|Contact $contacts
      * @param array $nameservers
      * @return array
      * @throws DomainTaken
      * @throws InvalidContact
      */
-    public function purchase(string $domain, array|Contact $contacts, array $nameservers = []): array
+    public function purchase(string $domain, int $period = 1, array|Contact $contacts, array $nameservers = []): array
     {
         if (!$this->available($domain)) {
             throw new DomainTaken("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);
@@ -325,11 +326,11 @@ class Mock extends Adapter
      * Renew a domain
      *
      * @param string $domain
-     * @param int $years
+     * @param int $period
      * @return array
      * @throws DomainsException
      */
-    public function renew(string $domain, int $years): array
+    public function renew(string $domain, int $period): array
     {
         if (!in_array($domain, $this->purchasedDomains)) {
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
@@ -337,7 +338,7 @@ class Mock extends Adapter
 
         $domainInfo = $this->getDomain($domain);
         $currentExpiry = strtotime($domainInfo['registry_expiredate']);
-        $newExpiry = strtotime("+{$years} years", $currentExpiry);
+        $newExpiry = strtotime("+{$period} years", $currentExpiry);
 
         return [
             'order_id' => 'mock_order_' . md5($domain . time()),

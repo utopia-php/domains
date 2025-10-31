@@ -46,13 +46,14 @@ class Registrar
      * Purchase a domain
      *
      * @param string $domain
+     * @param int $period
      * @param array|Contact $contacts
      * @param array $nameservers
      * @return array
      */
-    public function purchase(string $domain, array|Contact $contacts, array $nameservers = []): array
+    public function purchase(string $domain, int $period = 1, array|Contact $contacts, array $nameservers = []): array
     {
-        return $this->adapter->purchase($domain, $contacts, $nameservers);
+        return $this->adapter->purchase($domain, $period, $contacts, $nameservers);
     }
 
     /**
@@ -123,12 +124,12 @@ class Registrar
      * Renew a domain
      *
      * @param string $domain
-     * @param int $years
+     * @param int $period
      * @return array
      */
-    public function renew(string $domain, int $years): array
+    public function renew(string $domain, int $period): array
     {
-        return $this->adapter->renew($domain, $years);
+        return $this->adapter->renew($domain, $period);
     }
 
     /**

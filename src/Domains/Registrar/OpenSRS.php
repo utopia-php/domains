@@ -123,7 +123,7 @@ class OpenSRS extends Adapter
         ];
     }
 
-    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], ?string $authCode = null): string
+    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], int $period = 1, ?string $authCode = null): string
     {
         $hasNameservers = empty($nameservers) ? 0 : 1;
 
@@ -132,7 +132,7 @@ class OpenSRS extends Adapter
             'action' => 'SW_REGISTER',
             'attributes' => [
                 'domain' => $domain,
-                'period' => 1,
+                'period' => $period,
                 'contact_set' => $contacts,
                 'custom_tech_contact' => 0,
                 'custom_nameservers' => $hasNameservers,
@@ -158,7 +158,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array|Contact $contacts, array $nameservers = []): array
+    public function purchase(string $domain, int $period = 1, array|Contact $contacts, array $nameservers = []): array
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -172,7 +172,7 @@ class OpenSRS extends Adapter
 
             $regType = self::REG_TYPE_NEW;
 
-            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
+            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $period);
 
             $result = $this->response($result);
 
@@ -609,10 +609,10 @@ class OpenSRS extends Adapter
      * Renew a domain
      *
      * @param string $domain The domain name to renew
-     * @param int $years The number of years to renew the domain for
+     * @param int $period The number of years to renew the domain for
      * @return array Contains the renewal information
      */
-    public function renew(string $domain, int $years): array
+    public function renew(string $domain, int $period): array
     {
         $message = [
             'object' => 'DOMAIN',
@@ -621,7 +621,7 @@ class OpenSRS extends Adapter
                 'domain' => $domain,
                 'auto_renew' => 0,
                 'currentexpirationyear' => '2022',
-                'period' => $years,
+                'period' => $period,
                 'handle' => 'process',
             ],
         ];
