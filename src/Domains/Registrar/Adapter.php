@@ -29,11 +29,11 @@ abstract class Adapter extends DomainsAdapter
     /**
      * @param  string  $domain
      * @param  array|\Utopia\Domains\Contact  $contacts
-     * @param  int  $period
+     * @param  int  $periodYears
      * @param  array  $nameservers
      * @return array
      */
-    abstract public function purchase(string $domain, array|Contact $contacts, int $period = 1, array $nameservers = []): array;
+    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): array;
 
     /**
      * @param  array  $query
@@ -67,29 +67,29 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
-     * @param  int  $period
+     * @param  int  $periodYears
      * @param  string  $regType
      * @param  int  $ttl
      * @return array
      */
-    abstract public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array;
+    abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array;
 
     /**
      * @param  string  $domain
-     * @param  int  $period
+     * @param  int  $periodYears
      * @return array
      */
-    abstract public function renew(string $domain, int $period): array;
+    abstract public function renew(string $domain, int $periodYears): array;
 
     /**
      * @param  string  $domain
      * @param  string  $authCode
      * @param  array|\Utopia\Domains\Contact  $contacts
-     * @param  int  $period
+     * @param  int  $periodYears
      * @param  array  $nameservers
      * @return array
      */
-    abstract public function transfer(string $domain, string $authCode, array|Contact $contacts, int $period = 1, array $nameservers = []): array;
+    abstract public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): array;
 
     /**
      * Get the authorization code for an EPP domain

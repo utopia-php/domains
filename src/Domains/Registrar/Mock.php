@@ -128,13 +128,13 @@ class Mock extends Adapter
      *
      * @param string $domain
      * @param array|\Utopia\Domains\Contact $contacts
-     * @param int $period
+     * @param int $periodYears
      * @param array $nameservers
      * @return array
      * @throws DomainTaken
      * @throws InvalidContact
      */
-    public function purchase(string $domain, array|Contact $contacts, int $period = 1, array $nameservers = []): array
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): array
     {
         if (!$this->available($domain)) {
             throw new DomainTaken("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);
@@ -148,7 +148,7 @@ class Mock extends Adapter
             'code' => (string) self::RESPONSE_CODE_SUCCESS,
             'id' => 'mock_' . md5($domain . time()),
             'domainId' => 'mock_domain_' . md5($domain),
-            'period' => $period,
+            'period' => $periodYears,
             'successful' => true,
             'domain' => $domain,
             'nameservers' => $nameservers,
@@ -262,13 +262,13 @@ class Mock extends Adapter
      * Get the price for a domain
      *
      * @param string $domain
-     * @param int $period
+     * @param int $periodYears
      * @param string $regType
      * @param int $ttl Time to live for the cache (if set) in seconds
      * @return array
      * @throws PriceNotFound
      */
-    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
@@ -279,7 +279,7 @@ class Mock extends Adapter
 
         if (isset($this->premiumDomains[$domain])) {
             $result = [
-                'price' => $this->premiumDomains[$domain] * $period,
+                'price' => $this->premiumDomains[$domain] * $periodYears,
                 'is_registry_premium' => true,
                 'registry_premium_group' => 'premium',
             ];
@@ -311,7 +311,7 @@ class Mock extends Adapter
         };
 
         $result = [
-            'price' => $basePrice * $period * $multiplier,
+            'price' => $basePrice * $periodYears * $multiplier,
             'is_registry_premium' => false,
             'registry_premium_group' => null,
         ];
@@ -327,11 +327,11 @@ class Mock extends Adapter
      * Renew a domain
      *
      * @param string $domain
-     * @param int $period
+     * @param int $periodYears
      * @return array
      * @throws DomainsException
      */
-    public function renew(string $domain, int $period): array
+    public function renew(string $domain, int $periodYears): array
     {
         if (!in_array($domain, $this->purchasedDomains)) {
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
@@ -339,7 +339,7 @@ class Mock extends Adapter
 
         $domainInfo = $this->getDomain($domain);
         $currentExpiry = strtotime($domainInfo['registry_expiredate']);
-        $newExpiry = strtotime("+{$period} years", $currentExpiry);
+        $newExpiry = strtotime("+{$periodYears} years", $currentExpiry);
 
         return [
             'order_id' => 'mock_order_' . md5($domain . time()),
@@ -378,13 +378,13 @@ class Mock extends Adapter
      * @param string $domain
      * @param string $authCode
      * @param array|Contact $contacts
-     * @param int $period
+     * @param int $periodYears
      * @param array $nameservers
      * @return array
      * @throws DomainTaken
      * @throws InvalidContact
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $period = 1, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): array
     {
         if (in_array($domain, $this->purchasedDomains)) {
             throw new DomainTaken("Domain {$domain} is already in this account", self::RESPONSE_CODE_DOMAIN_TAKEN);
@@ -399,7 +399,7 @@ class Mock extends Adapter
             'code' => (string) self::RESPONSE_CODE_SUCCESS,
             'id' => 'mock_transfer_' . md5($domain . time()),
             'domainId' => 'mock_domain_' . md5($domain),
-            'period' => $period,
+            'period' => $periodYears,
             'successful' => true,
             'domain' => $domain,
             'nameservers' => $nameservers,

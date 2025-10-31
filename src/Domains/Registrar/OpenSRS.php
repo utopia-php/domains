@@ -8,7 +8,7 @@ use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferable;
 use Utopia\Domains\Registrar\Exception\InvalidContact;
-use Utopia\Domains\Registrar\Exception\InvalidPassword;
+use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
 use Utopia\Domains\Cache;
 
@@ -123,7 +123,7 @@ class OpenSRS extends Adapter
         ];
     }
 
-    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], int $period = 1, ?string $authCode = null): string
+    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], int $periodYears = 1, ?string $authCode = null): string
     {
         $hasNameservers = empty($nameservers) ? 0 : 1;
 
@@ -132,7 +132,7 @@ class OpenSRS extends Adapter
             'action' => 'SW_REGISTER',
             'attributes' => [
                 'domain' => $domain,
-                'period' => $period,
+                'period' => $periodYears,
                 'contact_set' => $contacts,
                 'custom_tech_contact' => 0,
                 'custom_nameservers' => $hasNameservers,
@@ -158,7 +158,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array|Contact $contacts, int $period = 1, array $nameservers = []): array
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): array
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -172,7 +172,7 @@ class OpenSRS extends Adapter
 
             $regType = self::REG_TYPE_NEW;
 
-            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $period);
+            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears);
 
             $result = $this->response($result);
 
@@ -187,13 +187,13 @@ class OpenSRS extends Adapter
                 throw new InvalidContact($message, $e->getCode(), $e);
             }
             if ($e->getCode() === self::RESPONSE_CODE_INVALID_CONTACT && str_contains($e->getMessage(), 'password')) {
-                throw new InvalidPassword($message, $e->getCode(), $e);
+                throw new AuthException($message, $e->getCode(), $e);
             }
             throw new DomainsException($message, $e->getCode(), $e);
         }
     }
 
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $period = 1, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): array
     {
         $contacts = is_array($contacts) ? $contacts : [$contacts];
 
@@ -207,7 +207,7 @@ class OpenSRS extends Adapter
         $regType = self::REG_TYPE_TRANSFER;
 
         try {
-            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $period, $authCode);
+            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, $authCode);
             $result = $this->response($result);
 
             return $result;
@@ -437,14 +437,14 @@ class OpenSRS extends Adapter
      * Get the registration price for a domain
      *
      * @param string $domain The domain name to get pricing for
-     * @param int $period Registration period in years (default 1)
+     * @param int $periodYears Registration period in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @param int $ttl Time to live for the cache (if set) in seconds (default 3600 seconds = 1 hour)
      * @return array Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
      * @throws PriceNotFound When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
-    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
@@ -459,7 +459,7 @@ class OpenSRS extends Adapter
                 'action' => 'GET_PRICE',
                 'attributes' => [
                     'domain' => $domain,
-                    'period' => $period,
+                    'period' => $periodYears,
                     'reg_type' => $regType,
                 ],
             ];
@@ -610,10 +610,10 @@ class OpenSRS extends Adapter
      * Renew a domain
      *
      * @param string $domain The domain name to renew
-     * @param int $period The number of years to renew the domain for
+     * @param int $periodYears The number of years to renew the domain for
      * @return array Contains the renewal information
      */
-    public function renew(string $domain, int $period): array
+    public function renew(string $domain, int $periodYears): array
     {
         $message = [
             'object' => 'DOMAIN',
@@ -622,7 +622,7 @@ class OpenSRS extends Adapter
                 'domain' => $domain,
                 'auto_renew' => 0,
                 'currentexpirationyear' => '2022',
-                'period' => $period,
+                'period' => $periodYears,
                 'handle' => 'process',
             ],
         ];

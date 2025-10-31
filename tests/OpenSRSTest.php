@@ -10,7 +10,7 @@ use Utopia\Domains\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTaken;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferable;
 use Utopia\Domains\Registrar\Exception\InvalidContact;
-use Utopia\Domains\Registrar\Exception\InvalidPassword;
+use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFound;
 use Utopia\Domains\Registrar\OpenSRS;
 use Utopia\Domains\Registrar;
@@ -111,7 +111,7 @@ class OpenSRSTest extends TestCase
         );
 
         $domain = self::generateRandomString() . '.net';
-        $this->expectException(InvalidPassword::class);
+        $this->expectException(AuthException::class);
         $this->expectExceptionMessage("Failed to purchase domain: Invalid password");
         $client->purchase($domain, self::purchaseContact(), 1);
     }
