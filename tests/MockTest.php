@@ -7,9 +7,9 @@ use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Contact;
-use Utopia\Domains\Registrar\Exception\DomainTaken;
-use Utopia\Domains\Registrar\Exception\InvalidContact;
-use Utopia\Domains\Registrar\Exception\PriceNotFound;
+use Utopia\Domains\Registrar\Exception\DomainTakenException;
+use Utopia\Domains\Registrar\Exception\InvalidContactException;
+use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\Mock;
 use Utopia\Domains\Exception as DomainsException;
 
@@ -46,7 +46,7 @@ class MockTest extends TestCase
         $this->assertFalse($this->adapter->available('google.com'));
 
         // Test domain becomes unavailable after purchase
-        $this->adapter->purchase('newdomain.com', $this->createContact());
+        $this->adapter->purchase('newdomain.com', $this->createContact(), 1);
         $this->assertFalse($this->adapter->available('newdomain.com'));
     }
 
@@ -55,12 +55,12 @@ class MockTest extends TestCase
         $domain = 'testdomain.com';
         $contact = $this->createContact();
 
-        $result = $this->adapter->purchase($domain, $contact);
+        $result = $this->adapter->purchase($domain, $contact, 1);
 
-        $this->assertTrue($result['successful']);
-        $this->assertEquals($domain, $result['domain']);
-        $this->assertArrayHasKey('id', $result);
-        $this->assertArrayHasKey('domainId', $result);
+        $this->assertTrue($result->successful);
+        $this->assertEquals($domain, $result->domain);
+        $this->assertNotEmpty($result->id);
+        $this->assertNotEmpty($result->domainId);
 
         // Verify domain is in purchased list
         $this->assertContains($domain, $this->adapter->getPurchasedDomains());
@@ -68,10 +68,10 @@ class MockTest extends TestCase
 
     public function testPurchaseTakenDomain(): void
     {
-        $this->expectException(DomainTaken::class);
+        $this->expectException(DomainTakenException::class);
         $this->expectExceptionMessage('Domain google.com is not available for registration');
 
-        $this->adapter->purchase('google.com', $this->createContact());
+        $this->adapter->purchase('google.com', $this->createContact(), 1);
     }
 
     public function testSuggest(): void
@@ -150,33 +150,32 @@ class MockTest extends TestCase
     {
         $result = $this->adapter->getPrice('example.com', 1, Mock::REG_TYPE_NEW);
 
-        $this->assertArrayHasKey('price', $result);
-        $this->assertArrayHasKey('is_registry_premium', $result);
-        $this->assertArrayHasKey('registry_premium_group', $result);
-        $this->assertIsFloat($result['price']);
-        $this->assertFalse($result['is_registry_premium']);
+        $this->assertNotNull($result->price);
+        $this->assertIsFloat($result->price);
+        $this->assertFalse($result->isRegistryPremium);
+        $this->assertNull($result->registryPremiumGroup);
     }
 
     public function testGetPricePremiumDomain(): void
     {
         $result = $this->adapter->getPrice('premium.com');
 
-        $this->assertTrue($result['is_registry_premium']);
-        $this->assertEquals('premium', $result['registry_premium_group']);
-        $this->assertEquals(5000.00, $result['price']);
+        $this->assertTrue($result->isRegistryPremium);
+        $this->assertEquals('premium', $result->registryPremiumGroup);
+        $this->assertEquals(5000.00, $result->price);
     }
 
     public function testGetPriceMultipleYears(): void
     {
         $result = $this->adapter->getPrice('example.com', 3);
 
-        $this->assertGreaterThan(12.99, $result['price']);
-        $this->assertEquals(12.99 * 3, $result['price']);
+        $this->assertGreaterThan(12.99, $result->price);
+        $this->assertEquals(12.99 * 3, $result->price);
     }
 
     public function testGetPriceInvalidDomain(): void
     {
-        $this->expectException(PriceNotFound::class);
+        $this->expectException(PriceNotFoundException::class);
         $this->expectExceptionMessage('Invalid domain format');
 
         $this->adapter->getPrice('invalid');
@@ -184,7 +183,7 @@ class MockTest extends TestCase
 
     public function testGetPriceUnsupportedTld(): void
     {
-        $this->expectException(PriceNotFound::class);
+        $this->expectException(PriceNotFoundException::class);
         $this->expectExceptionMessage('TLD .xyz is not supported');
 
         $this->adapter->getPrice('example.xyz');
@@ -193,14 +192,13 @@ class MockTest extends TestCase
     public function testGetDomain(): void
     {
         $domain = 'testdomain.com';
-        $this->adapter->purchase($domain, $this->createContact());
+        $this->adapter->purchase($domain, $this->createContact(), 1);
 
         $result = $this->adapter->getDomain($domain);
 
-        $this->assertArrayHasKey('domain', $result);
-        $this->assertArrayHasKey('registry_createdate', $result);
-        $this->assertArrayHasKey('registry_expiredate', $result);
-        $this->assertEquals($domain, $result['domain']);
+        $this->assertEquals($domain, $result->domain);
+        $this->assertInstanceOf(\DateTime::class, $result->registryCreateDate);
+        $this->assertInstanceOf(\DateTime::class, $result->registryExpireDate);
     }
 
     public function testGetDomainNotFound(): void
@@ -214,14 +212,13 @@ class MockTest extends TestCase
     public function testRenew(): void
     {
         $domain = 'testdomain.com';
-        $this->adapter->purchase($domain, $this->createContact());
+        $this->adapter->purchase($domain, $this->createContact(), 1);
 
         $result = $this->adapter->renew($domain, 2);
 
-        $this->assertTrue($result['successful']);
-        $this->assertArrayHasKey('order_id', $result);
-        $this->assertArrayHasKey('new_expiration', $result);
-        $this->assertEquals($domain, $result['domain']);
+        $this->assertTrue($result->successful);
+        $this->assertNotEmpty($result->orderId);
+        $this->assertInstanceOf(\DateTime::class, $result->newExpiration);
     }
 
     public function testRenewNotFound(): void
@@ -236,11 +233,12 @@ class MockTest extends TestCase
     {
         $domain = 'transferdomain.com';
         $contact = $this->createContact();
+        $authCode = 'test-auth-code-12345';
 
-        $result = $this->adapter->transfer($domain, $contact);
+        $result = $this->adapter->transfer($domain, $authCode, $contact);
 
-        $this->assertTrue($result['successful']);
-        $this->assertEquals($domain, $result['domain']);
+        $this->assertTrue($result->successful);
+        $this->assertEquals($domain, $result->domain);
         $this->assertContains($domain, $this->adapter->getTransferredDomains());
         $this->assertContains($domain, $this->adapter->getPurchasedDomains());
     }
@@ -248,19 +246,19 @@ class MockTest extends TestCase
     public function testTransferAlreadyOwned(): void
     {
         $domain = 'testdomain.com';
-        $this->adapter->purchase($domain, $this->createContact());
+        $this->adapter->purchase($domain, $this->createContact(), 1);
 
-        $this->expectException(DomainTaken::class);
+        $this->expectException(DomainTakenException::class);
         $this->expectExceptionMessage('Domain testdomain.com is already in this account');
 
-        $this->adapter->transfer($domain, $this->createContact());
+        $this->adapter->transfer($domain, 'test-auth-code', $this->createContact());
     }
 
     public function testReset(): void
     {
-        $this->adapter->purchase('test1.com', $this->createContact());
-        $this->adapter->purchase('test2.com', $this->createContact());
-        $this->adapter->transfer('test3.com', $this->createContact());
+        $this->adapter->purchase('test1.com', $this->createContact(), 1);
+        $this->adapter->purchase('test2.com', $this->createContact(), 1);
+        $this->adapter->transfer('test3.com', 'auth-code', $this->createContact());
 
         $this->assertCount(3, $this->adapter->getPurchasedDomains());
         $this->assertCount(1, $this->adapter->getTransferredDomains());
@@ -288,8 +286,8 @@ class MockTest extends TestCase
         $this->adapter->addPremiumDomain($domain, $price);
 
         $result = $this->adapter->getPrice($domain);
-        $this->assertTrue($result['is_registry_premium']);
-        $this->assertEquals($price, $result['price']);
+        $this->assertTrue($result->isRegistryPremium);
+        $this->assertEquals($price, $result->price);
     }
 
     public function testCustomDefaultPrice(): void
@@ -297,24 +295,25 @@ class MockTest extends TestCase
         $customAdapter = new Mock([], [], 25.00);
         $result = $customAdapter->getPrice('example.com');
 
-        $this->assertEquals(25.00, $result['price']);
+        $this->assertEquals(25.00, $result->price);
     }
 
     public function testGetPriceWithCache(): void
     {
         $result1 = $this->adapterWithCache->getPrice('example.com', 1, Mock::REG_TYPE_NEW, 3600);
-        $this->assertArrayHasKey('price', $result1);
-        $this->assertEquals(12.99, $result1['price']);
+        $this->assertNotNull($result1->price);
+        $this->assertEquals(12.99, $result1->price);
 
         $result2 = $this->adapterWithCache->getPrice('example.com', 1, Mock::REG_TYPE_NEW, 3600);
-        $this->assertEquals($result1, $result2);
+        $this->assertEquals($result1->price, $result2->price);
+        $this->assertEquals($result1->isRegistryPremium, $result2->isRegistryPremium);
     }
 
     public function testGetPriceWithTtl(): void
     {
         $result = $this->adapterWithCache->getPrice('example.com', 1, Mock::REG_TYPE_NEW, 7200);
-        $this->assertArrayHasKey('price', $result);
-        $this->assertEquals(12.99, $result['price']);
+        $this->assertNotNull($result->price);
+        $this->assertEquals(12.99, $result->price);
     }
 
     public function testPurchaseWithNameservers(): void
@@ -323,27 +322,28 @@ class MockTest extends TestCase
         $contact = $this->createContact();
         $nameservers = ['ns1.example.com', 'ns2.example.com'];
 
-        $result = $this->adapter->purchase($domain, $contact, $nameservers);
+        $result = $this->adapter->purchase($domain, $contact, 1, $nameservers);
 
-        $this->assertTrue($result['successful']);
-        $this->assertEquals($nameservers, $result['nameservers']);
+        $this->assertTrue($result->successful);
+        $this->assertEquals($nameservers, $result->nameservers);
     }
 
     public function testTransferWithNameservers(): void
     {
         $domain = 'transferdomain.com';
         $contact = $this->createContact();
+        $authCode = 'test-auth-code-12345';
         $nameservers = ['ns1.example.com', 'ns2.example.com'];
 
-        $result = $this->adapter->transfer($domain, $contact, $nameservers);
+        $result = $this->adapter->transfer($domain, $authCode, $contact, 1, $nameservers);
 
-        $this->assertTrue($result['successful']);
-        $this->assertEquals($nameservers, $result['nameservers']);
+        $this->assertTrue($result->successful);
+        $this->assertEquals($nameservers, $result->nameservers);
     }
 
     public function testPurchaseWithInvalidContact(): void
     {
-        $this->expectException(InvalidContact::class);
+        $this->expectException(InvalidContactException::class);
         $this->expectExceptionMessage('missing required field');
 
         $invalidContact = new Contact(
@@ -361,12 +361,12 @@ class MockTest extends TestCase
             'Test Inc'
         );
 
-        $this->adapter->purchase('test.com', $invalidContact);
+        $this->adapter->purchase('test.com', $invalidContact, 1);
     }
 
     public function testPurchaseWithInvalidEmail(): void
     {
-        $this->expectException(InvalidContact::class);
+        $this->expectException(InvalidContactException::class);
         $this->expectExceptionMessage('invalid email format');
 
         $invalidContact = new Contact(
@@ -384,12 +384,12 @@ class MockTest extends TestCase
             'Test Inc'
         );
 
-        $this->adapter->purchase('test.com', $invalidContact);
+        $this->adapter->purchase('test.com', $invalidContact, 1);
     }
 
     public function testTransferWithInvalidContact(): void
     {
-        $this->expectException(InvalidContact::class);
+        $this->expectException(InvalidContactException::class);
         $this->expectExceptionMessage('missing required field');
 
         $invalidContact = new Contact(
@@ -407,7 +407,151 @@ class MockTest extends TestCase
             'Test Inc'
         );
 
-        $this->adapter->transfer('transfer.com', $invalidContact);
+        $this->adapter->transfer('transfer.com', 'auth-code', $invalidContact);
+    }
+
+    public function testUpdateDomain(): void
+    {
+        $domain = 'testdomain.com';
+        $this->adapter->purchase($domain, $this->createContact(), 1);
+
+        $updatedContact = new Contact(
+            'Jane',
+            'Smith',
+            '+1.5559876543',
+            'jane.smith@example.com',
+            '456 Oak Ave',
+            'Apt 200',
+            '',
+            'Los Angeles',
+            'CA',
+            'US',
+            '90001',
+            'Smith Corp'
+        );
+
+        $result = $this->adapter->updateDomain(
+            $domain,
+            [
+                'data' => 'contact_info',
+            ],
+            [$updatedContact]
+        );
+
+        $this->assertTrue($result);
+    }
+
+    public function testUpdateDomainNotFound(): void
+    {
+        $this->expectException(DomainsException::class);
+        $this->expectExceptionMessage('Domain notfound.com not found in mock registry');
+
+        $this->adapter->updateDomain(
+            'notfound.com',
+            ['data' => 'contact_info'],
+            [$this->createContact()]
+        );
+    }
+
+    public function testUpdateDomainWithInvalidContact(): void
+    {
+        $domain = 'testdomain.com';
+        $this->adapter->purchase($domain, $this->createContact(), 1);
+
+        $this->expectException(InvalidContactException::class);
+        $this->expectExceptionMessage('missing required field');
+
+        $invalidContact = new Contact(
+            '',  // Empty firstname
+            'Doe',
+            '+1.5551234567',
+            'john.doe@example.com',
+            '123 Main St',
+            'Suite 100',
+            '',
+            'San Francisco',
+            'CA',
+            'US',
+            '94105',
+            'Test Inc'
+        );
+
+        $this->adapter->updateDomain(
+            $domain,
+            ['data' => 'contact_info'],
+            [$invalidContact]
+        );
+    }
+
+    public function testGetAuthCode(): void
+    {
+        // Purchase a domain first
+        $domain = 'testdomain.com';
+        $this->adapter->purchase($domain, $this->createContact(), 1);
+
+        // Test getting auth code
+        $authCode = $this->adapter->getAuthCode($domain);
+
+        $this->assertIsString($authCode);
+        $this->assertNotEmpty($authCode);
+        $this->assertStringStartsWith('mock_', $authCode);
+
+        // Test that the same domain always returns the same auth code
+        $authCode2 = $this->adapter->getAuthCode($domain);
+        $this->assertEquals($authCode, $authCode2);
+    }
+
+    public function testGetAuthCodeNotFound(): void
+    {
+        $this->expectException(DomainsException::class);
+        $this->expectExceptionMessage('Domain notfound.com not found in mock registry');
+
+        $this->adapter->getAuthCode('notfound.com');
+    }
+
+    public function testCheckTransferStatusTransferable(): void
+    {
+        $domain = 'transferable.com';
+        $result = $this->adapter->checkTransferStatus($domain);
+
+        $this->assertEquals(1, $result->transferrable);
+        $this->assertEquals(0, $result->noservice);
+        $this->assertEquals('reg2reg', $result->type);
+    }
+
+    public function testCheckTransferStatusAlreadyOwned(): void
+    {
+        $domain = 'owned.com';
+        $this->adapter->purchase($domain, $this->createContact(), 1);
+
+        $result = $this->adapter->checkTransferStatus($domain);
+
+        $this->assertEquals(0, $result->transferrable);
+        $this->assertEquals('Domain already exists in mock account', $result->reason);
+        $this->assertEquals('domain_already_belongs_to_current_reseller', $result->reasonCode);
+        $this->assertEquals('completed', $result->status);
+        $this->assertInstanceOf(\DateTime::class, $result->timestamp);
+    }
+
+    public function testCheckTransferStatusInProgress(): void
+    {
+        $domain = 'transfer-in-progress.com';
+        $this->adapter->transfer($domain, 'auth-code', $this->createContact());
+
+        $result = $this->adapter->checkTransferStatus($domain);
+
+        $this->assertEquals(0, $result->transferrable);
+        $this->assertEquals('Transfer in progress', $result->reason);
+        $this->assertEquals('pending_registry', $result->status);
+    }
+
+    public function testCheckTransferStatusWithRequestAddress(): void
+    {
+        $domain = 'example.com';
+        $result = $this->adapter->checkTransferStatus($domain, true, true);
+
+        $this->assertNotNull($result->requestAddress);
+        $this->assertEquals('mock@example.com', $result->requestAddress);
     }
 
     private function createContact(): Contact

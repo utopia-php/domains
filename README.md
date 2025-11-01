@@ -117,21 +117,21 @@ $contact = new Contact(
 $domain = 'yourname.com';
 
 $available = $reg->available($domain);
-$purchase = $reg->purchase($domain, $contact); 
+$purchase = $reg->purchase($domain, $contact, 1); 
 $suggest = $reg->suggest(['yourname', 'yourname1.com'], ['com', 'net', 'org'], 10, 10000, 100);
 $domainDetails = $reg->getDomain($domain);
 $renew = $reg->renew($domain, 1);
-$transfer = $reg->transfer($domain, [$contact]);
+$transfer = $reg->transfer($domain, 'authcode', [$contact]);
 
 ```
 
 ## Library Registrar API
 * **available(string $domain): bool** - Checks to see if a domain is available for registration.
-* **purchase(string $domain, array $contacts, array $nameservers = []): array** - Purchase a domain name.
+* **purchase(string $domain, array $contacts, int $period = 1, array $nameservers = []): array** - Purchase a domain name.
 * **suggest(array $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array** - Suggest or search for domain names.
 * **getDomain(string $domain): array** - Get domain details.
-* **renew(string $domain, int $years): array** - Renew a domain name.
-* **transfer(string $domain, array $contacts, array $nameservers = []): array** - Transfer a domain name.
+* **renew(string $domain, int $period): array** - Renew a domain name.
+* **transfer(string $domain, string $authCode, array $contacts, int $period = 1, array $nameservers = []): array** - Transfer a domain name.
 
 
 ## System Requirements

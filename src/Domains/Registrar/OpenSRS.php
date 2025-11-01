@@ -2,23 +2,33 @@
 
 namespace Utopia\Domains\Registrar;
 
+use DateTime;
 use Exception;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Exception as DomainsException;
-use Utopia\Domains\Registrar\Exception\DomainTaken;
-use Utopia\Domains\Registrar\Exception\InvalidContact;
-use Utopia\Domains\Registrar\Exception\PriceNotFound;
+use Utopia\Domains\Registrar\Exception\DomainTakenException;
+use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
+use Utopia\Domains\Registrar\Exception\InvalidContactException;
+use Utopia\Domains\Registrar\Exception\AuthException;
+use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Cache;
+use Utopia\Domains\Registrar\Result\DomainResult;
+use Utopia\Domains\Registrar\Result\PriceResult;
+use Utopia\Domains\Registrar\Result\PurchaseResult;
+use Utopia\Domains\Registrar\Result\RenewResult;
+use Utopia\Domains\Registrar\Result\TransferResult;
+use Utopia\Domains\Registrar\Result\TransferStatusResult;
 
 class OpenSRS extends Adapter
 {
     /**
      * OpenSRS API Response Codes - https://domains.opensrs.guide/docs/codes
      */
-    private const RESPONSE_CODE_DOMAIN_AVAILABLE = 210;
-    private const RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND = 400;
-    private const RESPONSE_CODE_INVALID_CONTACT = 465;
-    private const RESPONSE_CODE_DOMAIN_TAKEN = 485;
+    public const RESPONSE_CODE_DOMAIN_AVAILABLE = 210;
+    public const RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND = 400;
+    public const RESPONSE_CODE_INVALID_CONTACT = 465;
+    public const RESPONSE_CODE_DOMAIN_TAKEN = 485;
+    public const RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE = 487;
 
     protected array $user;
 
@@ -66,28 +76,12 @@ class OpenSRS extends Adapter
         ];
     }
 
-    public function send(array $params = []): array|string
-    {
-        $object = $params['object'];
-        $action = $params['action'];
-        $domain = $params['domain'] ?? null;
-        $attributes = $params['attributes'];
-
-        $xml = $this->buildEnvelop($object, $action, $attributes, $domain);
-
-        $headers = array_merge($this->headers, [
-            'X-Signature:'.md5(md5($xml.$this->apiKey).$this->apiKey),
-        ]);
-
-        $ch = curl_init($this->endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
-
-        return curl_exec($ch);
-    }
-
+    /**
+     * Check if a domain is available
+     *
+     * @param string $domain The domain name to check
+     * @return bool True if the domain is available, false otherwise
+     */
     public function available(string $domain): bool
     {
         $result = $this->send([
@@ -105,27 +99,11 @@ class OpenSRS extends Adapter
         return (int) $elements[0] === self::RESPONSE_CODE_DOMAIN_AVAILABLE;
     }
 
-    private function sanitizeResponse(string $response)
-    {
-        $result = simplexml_load_string($response);
-        $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
-        $code = (int) "{$elements[0]}";
-
-        if ($code > 299) {
-            $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_text"]');
-            $text = "{$elements[0]}";
-
-            throw new Exception($text, $code);
-        }
-
-        return $result;
-    }
-
     public function updateNameservers(string $domain, array $nameservers): array
     {
         $message = [
             'object' => 'DOMAIN',
-            'action' => 'advanced_update_nameservers',
+            'action' => 'ADVANCED_UPDATE_NAMESERVERS',
             'domain' => $domain,
             'attributes' => [
                 'add_ns' => $nameservers,
@@ -152,7 +130,7 @@ class OpenSRS extends Adapter
         ];
     }
 
-    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = []): string
+    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], int $periodYears = 1, ?string $authCode = null): string
     {
         $hasNameservers = empty($nameservers) ? 0 : 1;
 
@@ -161,7 +139,7 @@ class OpenSRS extends Adapter
             'action' => 'SW_REGISTER',
             'attributes' => [
                 'domain' => $domain,
-                'period' => 1,
+                'period' => $periodYears,
                 'contact_set' => $contacts,
                 'custom_tech_contact' => 0,
                 'custom_nameservers' => $hasNameservers,
@@ -174,6 +152,10 @@ class OpenSRS extends Adapter
             ],
         ];
 
+        if ($authCode) {
+            $message['attributes']['auth_info'] = $authCode;
+        }
+
         if ($hasNameservers) {
             $message['attributes']['nameserver_list'] = $nameservers;
         }
@@ -183,7 +165,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array|Contact $contacts, array $nameservers = []): array
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): PurchaseResult
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -197,25 +179,36 @@ class OpenSRS extends Adapter
 
             $regType = self::REG_TYPE_NEW;
 
-            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
+            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears);
 
             $result = $this->response($result);
 
-            return $result;
+            return new PurchaseResult(
+                code: $result['code'],
+                id: $result['id'],
+                domainId: $result['domainId'],
+                successful: $result['successful'],
+                domain: $domain,
+                period: $periodYears,
+                nameservers: $nameservers,
+            );
         } catch (Exception $e) {
             $message = 'Failed to purchase domain: ' . $e->getMessage();
 
             if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_TAKEN) {
-                throw new DomainTaken($message, $e->getCode(), $e);
+                throw new DomainTakenException($message, $e->getCode(), $e);
             }
-            if ($e->getCode() === self::RESPONSE_CODE_INVALID_CONTACT) {
-                throw new InvalidContact($message, $e->getCode(), $e);
+            if ($e->getCode() === self::RESPONSE_CODE_INVALID_CONTACT && str_contains($e->getMessage(), 'Invalid data')) {
+                throw new InvalidContactException($message, $e->getCode(), $e);
+            }
+            if ($e->getCode() === self::RESPONSE_CODE_INVALID_CONTACT && str_contains($e->getMessage(), 'password')) {
+                throw new AuthException($message, $e->getCode(), $e);
             }
             throw new DomainsException($message, $e->getCode(), $e);
         }
     }
 
-    public function transfer(string $domain, array|Contact $contacts, array $nameservers = []): array
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): TransferResult
     {
         $contacts = is_array($contacts) ? $contacts : [$contacts];
 
@@ -228,10 +221,34 @@ class OpenSRS extends Adapter
 
         $regType = self::REG_TYPE_TRANSFER;
 
-        $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers);
-        $result = $this->response($result);
+        try {
+            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, $authCode);
+            $result = $this->response($result);
 
-        return $result;
+            return new TransferResult(
+                code: $result['code'],
+                id: $result['id'],
+                domainId: $result['domainId'],
+                successful: $result['successful'],
+                domain: $domain,
+                period: $periodYears,
+                nameservers: $nameservers,
+            );
+        } catch (Exception $e) {
+            $code = $e->getCode();
+            if ($code === self::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE) {
+                $parts = explode("\n", $e->getMessage());
+                $reason = $parts[1] ?? $parts[0];
+                throw new DomainNotTransferableException('Domain is not transferable: ' . $reason, $e->getCode(), $e);
+            }
+            if ($code === self::RESPONSE_CODE_INVALID_CONTACT) {
+                throw new InvalidContactException('Failed to transfer domain: ' . $e->getMessage(), $code, $e);
+            }
+            if ($code === self::RESPONSE_CODE_DOMAIN_TAKEN) {
+                throw new DomainTakenException('Domain is already in this account', $code, $e);
+            }
+            throw new DomainsException('Failed to transfer domain: ' . $e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     public function cancelPurchase(): bool
@@ -241,7 +258,7 @@ class OpenSRS extends Adapter
 
         $message = [
             'object' => 'ORDER',
-            'action' => 'cancel_pending_orders',
+            'action' => 'CANCEL_PENDING_ORDERS',
             'attributes' => [
                 'to_date' => $timestamp,
                 'status' => [
@@ -288,7 +305,7 @@ class OpenSRS extends Adapter
         $query = is_array($query) ? $query : [$query];
         $message = [
             'object' => 'DOMAIN',
-            'action' => 'name_suggest',
+            'action' => 'NAME_SUGGEST',
             'attributes' => [
                 'services' => ['suggestion', 'premium', 'lookup'],
                 'searchstring' => implode(' ', $query),
@@ -378,10 +395,7 @@ class OpenSRS extends Adapter
         }
 
         // Process premium domains
-        if (
-            ($filterType === 'premium' || $filterType === null) &&
-            !($limit && count($items) >= $limit)
-        ) {
+        if (!($limit && count($items) >= $limit)) {
             $premiumXpath = implode('/', [
                 '//body',
                 'data_block',
@@ -446,19 +460,23 @@ class OpenSRS extends Adapter
      * Get the registration price for a domain
      *
      * @param string $domain The domain name to get pricing for
-     * @param int $period Registration period in years (default 1)
+     * @param int $periodYears Registration period in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @param int $ttl Time to live for the cache (if set) in seconds (default 3600 seconds = 1 hour)
-     * @return array Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
-     * @throws PriceNotFound When pricing information is not found or unavailable for the domain
+     * @return PriceResult Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
+     * @throws PriceNotFoundException When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
-    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
             if ($cached !== null && is_array($cached)) {
-                return $cached;
+                return new PriceResult(
+                    price: $cached['price'],
+                    isRegistryPremium: $cached['is_registry_premium'],
+                    registryPremiumGroup: $cached['registry_premium_group'],
+                );
             }
         }
 
@@ -468,7 +486,7 @@ class OpenSRS extends Adapter
                 'action' => 'GET_PRICE',
                 'attributes' => [
                     'domain' => $domain,
-                    'period' => $period,
+                    'period' => $periodYears,
                     'reg_type' => $regType,
                 ],
             ];
@@ -488,14 +506,18 @@ class OpenSRS extends Adapter
             $premiumGroupElements = $result->xpath($premiumGroupXpath);
             $registryPremiumGroup = isset($premiumGroupElements[0]) ? (string) $premiumGroupElements[0] : null;
 
-            $result = [
-                'price' => $price,
-                'is_registry_premium' => $isRegistryPremium,
-                'registry_premium_group' => $registryPremiumGroup,
-            ];
+            $result = new PriceResult(
+                price: $price,
+                isRegistryPremium: $isRegistryPremium,
+                registryPremiumGroup: $registryPremiumGroup,
+            );
 
             if ($this->cache) {
-                $this->cache->save($domain, $result);
+                $this->cache->save($domain, [
+                    'price' => $result->price,
+                    'is_registry_premium' => $result->isRegistryPremium,
+                    'registry_premium_group' => $result->registryPremiumGroup,
+                ]);
             }
 
             return $result;
@@ -503,7 +525,7 @@ class OpenSRS extends Adapter
             $message = 'Failed to get price for domain: ' . $e->getMessage();
 
             if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND) {
-                throw new PriceNotFound($message, $e->getCode(), $e);
+                throw new PriceNotFoundException($message, $e->getCode(), $e);
             }
             throw new DomainsException($message, $e->getCode(), $e);
         }
@@ -515,11 +537,11 @@ class OpenSRS extends Adapter
         return [];
     }
 
-    public function getDomain(string $domain): array
+    public function getDomain(string $domain): DomainResult
     {
         $message = [
-            'object' => 'domain',
-            'action' => 'get',
+            'object' => 'DOMAIN',
+            'action' => 'GET',
             'domain' => $domain,
             'attributes' => [
                 'type' => 'all_info',
@@ -540,32 +562,86 @@ class OpenSRS extends Adapter
         $result = $this->sanitizeResponse($result);
         $elements = $result->xpath($xpath);
 
-        $results = [];
+        $data = [];
+        $registryCreateDate = null;
+        $registryExpireDate = null;
+        $autoRenew = null;
+        $letExpire = null;
+        $nameserverList = null;
 
         foreach ($elements as $element) {
             $key = "{$element['key']}";
             $value = "{$element}";
 
-            $results[$key] = $value;
+            $data[$key] = $value;
+
+            if ($key === 'registry_createdate') {
+                $registryCreateDate = new DateTime($value);
+            } elseif ($key === 'registry_expiredate') {
+                $registryExpireDate = new DateTime($value);
+            } elseif ($key === 'auto_renew') {
+                $autoRenew = $value === '1';
+            } elseif ($key === 'let_expire') {
+                $letExpire = $value === '1';
+            } elseif ($key === 'nameserver_list') {
+                // nameserver_list is typically an array in the response
+                $nameserverList = [$value];
+            }
         }
 
-        return $results;
+        return new DomainResult(
+            domain: $domain,
+            registryCreateDate: $registryCreateDate,
+            registryExpireDate: $registryExpireDate,
+            autoRenew: $autoRenew,
+            letExpire: $letExpire,
+            nameserverList: $nameserverList,
+            additionalData: $data,
+        );
     }
 
-    public function updateDomain(string $domain, array $contacts, array $details): bool
+    /**
+     * Update the domain information
+     *
+     * Example request 1:
+     * <code>
+     * $reg->updateDomain('example.com', [
+     *     'data' => 'contact_info',
+     * ], [
+     *     new Contact('John Doe', 'john.doe@example.com', '+1234567890'),
+     * ]);
+     * </code>
+     *
+     * Example request 2:
+     * <code>
+     * $reg->updateDomain('example.com', [
+     *     'data' => 'ca_whois_display_setting',
+     *     'display' => 'FULL',
+     * ]);
+     * </code>
+     *
+     * @param string $domain The domain name to update
+     * @param array $details The details to update the domain with
+     * @param array|Contact|null $contacts The contacts to update the domain with (optional)
+     * @return bool True if the domain was updated successfully, false otherwise
+     */
+    public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool
     {
-        $contacts = $this->sanitizeContacts($contacts);
-
         $message = [
-            'object' => 'domain',
-            'action' => 'modify',
-            'attributes' => [
-                'domain' => $domain,
-                'affect_domains' => 0,
-                'data' => $details['data'],
-                'contact_set' => $contacts,
-            ],
+            'object' => 'DOMAIN',
+            'action' => 'MODIFY',
+            'domain' => $domain,
+            'attributes' => $details,
         ];
+
+        if ($contacts) {
+            if ($details['data'] !== 'contact_info') {
+                throw new Exception("Invalid data: data must be 'contact_info' in order to update contacts");
+            }
+            $contacts = is_array($contacts) ? $contacts : [$contacts];
+            $contacts = $this->sanitizeContacts($contacts);
+            $message['attributes']['contact_set'] = $contacts;
+        }
 
         $xpath = implode('/', [
             '//body',
@@ -587,16 +663,23 @@ class OpenSRS extends Adapter
         return (string) $elements[0] === '1';
     }
 
-    public function renew(string $domain, int $years): array
+    /**
+     * Renew a domain
+     *
+     * @param string $domain The domain name to renew
+     * @param int $periodYears The number of years to renew the domain for
+     * @return RenewResult Contains the renewal information
+     */
+    public function renew(string $domain, int $periodYears): RenewResult
     {
         $message = [
-            'object' => 'domain',
-            'action' => 'renew',
+            'object' => 'DOMAIN',
+            'action' => 'RENEW',
             'attributes' => [
                 'domain' => $domain,
                 'auto_renew' => 0,
                 'currentexpirationyear' => '2022',
-                'period' => $years,
+                'period' => $periodYears,
                 'handle' => 'process',
             ],
         ];
@@ -614,23 +697,191 @@ class OpenSRS extends Adapter
         $result = simplexml_load_string($result);
         $elements = $result->xpath($xpath);
 
-        $results = [];
+        $orderId = null;
+        $newExpiration = null;
 
         foreach ($elements as $item) {
             $key = "{$item['key']}";
 
             if ($key === 'registration expiration date') {
-                $result['new_expiration'] = "{$item}";
-
-                continue;
+                $newExpiration = new DateTime("{$item}");
+            } elseif ($key === 'order_id') {
+                $orderId = "{$item}";
             }
-
-            $value = "{$item}";
-
-            $results[$key] = $value;
         }
 
-        return $results;
+        return new RenewResult(
+            successful: $orderId !== null,
+            orderId: $orderId,
+            newExpiration: $newExpiration,
+        );
+    }
+
+    /**
+     * Get the authorization code for an EPP domain
+     *
+     * @param string $domain The EPP domain name for which to retrieve the auth code
+     * @return string The authorization code
+     * @throws DomainsException When the domain does not use EPP protocol or other errors occur
+     */
+    public function getAuthCode(string $domain): string
+    {
+        try {
+            $message = [
+                'object' => 'DOMAIN',
+                'action' => 'GET',
+                'domain' => $domain,
+                'attributes' => [
+                    'type' => 'domain_auth_info'
+                ],
+            ];
+
+            $result = $this->send($message);
+            $result = $this->sanitizeResponse($result);
+
+            $xpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="domain_auth_info"]';
+            $elements = $result->xpath($xpath);
+
+            if (empty($elements)) {
+                throw new DomainsException('Auth code not found in response', 404);
+            }
+
+            return (string) $elements[0];
+        } catch (Exception $e) {
+            throw new DomainsException('Failed to get auth code: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    /**
+     * Check transfer status for a domain
+     *
+     * @param string $domain The fully qualified domain name
+     * @param bool $checkStatus Flag to request the status of a transfer request
+     * @param bool $getRequestAddress Flag to request the registrant's contact email address
+     * @return TransferStatusResult Contains transfer status information including 'transferable', 'status', 'reason', etc.
+     * @throws DomainsException When errors occur during the check
+     */
+    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatusResult
+    {
+        try {
+            $message = [
+                'object' => 'DOMAIN',
+                'action' => 'CHECK_TRANSFER',
+                'attributes' => [
+                    'domain' => $domain,
+                    'check_status' => $checkStatus ? 1 : 0,
+                    'get_request_address' => $getRequestAddress ? 1 : 0,
+                ],
+            ];
+
+            $result = $this->send($message);
+            $result = $this->sanitizeResponse($result);
+
+            $xpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item';
+            $elements = $result->xpath($xpath);
+
+            $transferrable = 0;
+            $noservice = 0;
+            $reason = null;
+            $reasonCode = null;
+            $status = null;
+            $timestamp = null;
+            $type = null;
+            $requestAddress = null;
+
+            foreach ($elements as $element) {
+                $key = (string) $element['key'];
+                $value = (string) $element;
+
+                switch ($key) {
+                    case 'transferrable':
+                        $transferrable = (int) $value;
+                        break;
+                    case 'noservice':
+                        $noservice = (int) $value;
+                        break;
+                    case 'reason':
+                        $reason = $value;
+                        break;
+                    case 'reason_code':
+                        $reasonCode = $value;
+                        break;
+                    case 'status':
+                        $status = $value;
+                        break;
+                    case 'timestamp':
+                        $timestamp = new DateTime($value);
+                        break;
+                    case 'type':
+                        $type = $value;
+                        break;
+                    case 'request_address':
+                        $requestAddress = $value;
+                        break;
+                }
+            }
+
+            return new TransferStatusResult(
+                transferrable: $transferrable,
+                noservice: $noservice,
+                reason: $reason,
+                reasonCode: $reasonCode,
+                status: $status,
+                timestamp: $timestamp,
+                type: $type,
+                requestAddress: $requestAddress,
+            );
+        } catch (Exception $e) {
+            throw new DomainsException('Failed to check transfer status: ' . $e->getMessage(), $e->getCode(), $e);
+        }
+    }
+
+    private function send(array $params = []): string
+    {
+        $object = $params['object'];
+        $action = $params['action'];
+        $domain = $params['domain'] ?? null;
+        $attributes = $params['attributes'];
+
+        $xml = $this->buildEnvelop($object, $action, $attributes, $domain);
+
+        $headers = array_merge($this->headers, [
+            'X-Signature:'.md5(md5($xml.$this->apiKey).$this->apiKey),
+        ]);
+
+        $ch = curl_init($this->endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+
+        $result = curl_exec($ch);
+
+        if ($result === false) {
+            $error = curl_error($ch);
+            curl_close($ch);
+            throw new Exception('Failed to send request to OpenSRS: ' . $error);
+        }
+
+        curl_close($ch);
+
+        return $result;
+    }
+
+    private function sanitizeResponse(string $response)
+    {
+        $result = simplexml_load_string($response);
+        $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
+        $code = (int) "{$elements[0]}";
+
+        if ($code > 299) {
+            $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_text"]');
+            $text = "{$elements[0]}";
+
+            throw new Exception($text, $code);
+        }
+
+        return $result;
     }
 
     private function response(string $xml): array
@@ -753,7 +1004,7 @@ class OpenSRS extends Adapter
             $key = strtolower($key);
 
             if (! isset($contact[$key])) {
-                throw new Exception("Contact is missing required field: {$key}");
+                throw new InvalidContactException("Contact is missing required field: {$key}");
             }
 
             $filtered_key = $filter[$key] ?? $key;
@@ -870,7 +1121,7 @@ class OpenSRS extends Adapter
         ];
 
         foreach ($attributes as $key => $value) {
-            switch($key) {
+            switch ($key) {
                 case 'contact_set':
                     $result[] = $this->createContactSet($value);
                     break;
@@ -911,6 +1162,12 @@ class OpenSRS extends Adapter
         return $xml;
     }
 
+    /**
+     * Sanitize the contacts
+     *
+     * @param Contact[] $contacts Array of Contact objects to sanitize
+     * @return array The sanitized contacts
+     */
     private function sanitizeContacts(array $contacts): array
     {
         if (count(array_keys($contacts)) == 1) {

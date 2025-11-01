@@ -23,7 +23,7 @@ class Cache
         return $this->cache->load($this->getKey($domain), $ttl);
     }
 
-    public function save(string $domain, string|array $data): bool|string|array
+    public function save(string $domain, mixed $data): bool|string|array
     {
         return $this->cache->save($this->getKey($domain), $data);
     }
