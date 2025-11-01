@@ -464,7 +464,7 @@ class OpenSRS extends Adapter
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @param int $ttl Time to live for the cache (if set) in seconds (default 3600 seconds = 1 hour)
      * @return PriceResult Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
-     * @throws PriceNotFound When pricing information is not found or unavailable for the domain
+     * @throws PriceNotFoundException When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
     public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult
