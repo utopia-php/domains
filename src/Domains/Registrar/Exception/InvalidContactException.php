@@ -4,6 +4,6 @@ namespace Utopia\Domains\Registrar\Exception;
 
 use Utopia\Domains\Exception;
 
-class DomainNotTransferable extends Exception
+class InvalidContactException extends Exception
 {
 }

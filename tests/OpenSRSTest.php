@@ -7,11 +7,11 @@ use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Contact;
-use Utopia\Domains\Registrar\Exception\DomainTaken;
-use Utopia\Domains\Registrar\Exception\DomainNotTransferable;
-use Utopia\Domains\Registrar\Exception\InvalidContact;
+use Utopia\Domains\Registrar\Exception\DomainTakenException;
+use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
+use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
-use Utopia\Domains\Registrar\Exception\PriceNotFound;
+use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\OpenSRS;
 use Utopia\Domains\Registrar;
 
@@ -69,7 +69,7 @@ class OpenSRSTest extends TestCase
         $this->assertTrue($result->successful);
 
         $domain = 'google.com';
-        $this->expectException(DomainTaken::class);
+        $this->expectException(DomainTakenException::class);
         $this->expectExceptionMessage("Failed to purchase domain: Domain taken");
         $this->client->purchase($domain, self::purchaseContact(), 1);
     }
@@ -77,7 +77,7 @@ class OpenSRSTest extends TestCase
     public function testPurchaseWithInvalidContact(): void
     {
         $domain = self::generateRandomString() . '.net';
-        $this->expectException(InvalidContact::class);
+        $this->expectException(InvalidContactException::class);
         $this->expectExceptionMessage("Failed to purchase domain: Invalid data");
         $this->client->purchase($domain, [
             new Contact(
@@ -248,7 +248,7 @@ class OpenSRSTest extends TestCase
         $this->assertIsFloat($result->price);
         $this->assertIsBool($result->isRegistryPremium);
 
-        $this->expectException(PriceNotFound::class);
+        $this->expectException(PriceNotFoundException::class);
         $this->expectExceptionMessage("Failed to get price for domain: get_price_domain API is not supported for 'invalid domain'");
         $this->client->getPrice("invalid domain", 1, Registrar::REG_TYPE_NEW);
     }
@@ -319,7 +319,7 @@ class OpenSRSTest extends TestCase
             $result = $this->client->transfer($domain, 'test-auth-code', self::purchaseContact());
             $this->assertTrue($result->successful);
             $this->assertNotEmpty($result->code);
-        } catch (DomainNotTransferable $e) {
+        } catch (DomainNotTransferableException $e) {
             $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
             $this->assertEquals('Domain is not transferable: Domain not registered', $e->getMessage());
         }

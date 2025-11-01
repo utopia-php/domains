@@ -7,9 +7,9 @@ use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Contact;
-use Utopia\Domains\Registrar\Exception\DomainTaken;
-use Utopia\Domains\Registrar\Exception\InvalidContact;
-use Utopia\Domains\Registrar\Exception\PriceNotFound;
+use Utopia\Domains\Registrar\Exception\DomainTakenException;
+use Utopia\Domains\Registrar\Exception\InvalidContactException;
+use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\Mock;
 use Utopia\Domains\Exception as DomainsException;
 
@@ -68,7 +68,7 @@ class MockTest extends TestCase
 
     public function testPurchaseTakenDomain(): void
     {
-        $this->expectException(DomainTaken::class);
+        $this->expectException(DomainTakenException::class);
         $this->expectExceptionMessage('Domain google.com is not available for registration');
 
         $this->adapter->purchase('google.com', $this->createContact(), 1);
@@ -175,7 +175,7 @@ class MockTest extends TestCase
 
     public function testGetPriceInvalidDomain(): void
     {
-        $this->expectException(PriceNotFound::class);
+        $this->expectException(PriceNotFoundException::class);
         $this->expectExceptionMessage('Invalid domain format');
 
         $this->adapter->getPrice('invalid');
@@ -183,7 +183,7 @@ class MockTest extends TestCase
 
     public function testGetPriceUnsupportedTld(): void
     {
-        $this->expectException(PriceNotFound::class);
+        $this->expectException(PriceNotFoundException::class);
         $this->expectExceptionMessage('TLD .xyz is not supported');
 
         $this->adapter->getPrice('example.xyz');
@@ -248,7 +248,7 @@ class MockTest extends TestCase
         $domain = 'testdomain.com';
         $this->adapter->purchase($domain, $this->createContact(), 1);
 
-        $this->expectException(DomainTaken::class);
+        $this->expectException(DomainTakenException::class);
         $this->expectExceptionMessage('Domain testdomain.com is already in this account');
 
         $this->adapter->transfer($domain, 'test-auth-code', $this->createContact());
@@ -343,7 +343,7 @@ class MockTest extends TestCase
 
     public function testPurchaseWithInvalidContact(): void
     {
-        $this->expectException(InvalidContact::class);
+        $this->expectException(InvalidContactException::class);
         $this->expectExceptionMessage('missing required field');
 
         $invalidContact = new Contact(
@@ -366,7 +366,7 @@ class MockTest extends TestCase
 
     public function testPurchaseWithInvalidEmail(): void
     {
-        $this->expectException(InvalidContact::class);
+        $this->expectException(InvalidContactException::class);
         $this->expectExceptionMessage('invalid email format');
 
         $invalidContact = new Contact(
@@ -389,7 +389,7 @@ class MockTest extends TestCase
 
     public function testTransferWithInvalidContact(): void
     {
-        $this->expectException(InvalidContact::class);
+        $this->expectException(InvalidContactException::class);
         $this->expectExceptionMessage('missing required field');
 
         $invalidContact = new Contact(
@@ -458,7 +458,7 @@ class MockTest extends TestCase
         $domain = 'testdomain.com';
         $this->adapter->purchase($domain, $this->createContact(), 1);
 
-        $this->expectException(InvalidContact::class);
+        $this->expectException(InvalidContactException::class);
         $this->expectExceptionMessage('missing required field');
 
         $invalidContact = new Contact(

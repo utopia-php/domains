@@ -6,11 +6,11 @@ use DateTime;
 use Exception;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Exception as DomainsException;
-use Utopia\Domains\Registrar\Exception\DomainTaken;
-use Utopia\Domains\Registrar\Exception\DomainNotTransferable;
-use Utopia\Domains\Registrar\Exception\InvalidContact;
+use Utopia\Domains\Registrar\Exception\DomainTakenException;
+use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
+use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
-use Utopia\Domains\Registrar\Exception\PriceNotFound;
+use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar\Result\DomainResult;
 use Utopia\Domains\Registrar\Result\PriceResult;
@@ -196,10 +196,10 @@ class OpenSRS extends Adapter
             $message = 'Failed to purchase domain: ' . $e->getMessage();
 
             if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_TAKEN) {
-                throw new DomainTaken($message, $e->getCode(), $e);
+                throw new DomainTakenException($message, $e->getCode(), $e);
             }
             if ($e->getCode() === self::RESPONSE_CODE_INVALID_CONTACT && str_contains($e->getMessage(), 'Invalid data')) {
-                throw new InvalidContact($message, $e->getCode(), $e);
+                throw new InvalidContactException($message, $e->getCode(), $e);
             }
             if ($e->getCode() === self::RESPONSE_CODE_INVALID_CONTACT && str_contains($e->getMessage(), 'password')) {
                 throw new AuthException($message, $e->getCode(), $e);
@@ -239,13 +239,13 @@ class OpenSRS extends Adapter
             if ($code === self::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE) {
                 $parts = explode("\n", $e->getMessage());
                 $reason = $parts[1] ?? $parts[0];
-                throw new DomainNotTransferable('Domain is not transferable: ' . $reason, $e->getCode(), $e);
+                throw new DomainNotTransferableException('Domain is not transferable: ' . $reason, $e->getCode(), $e);
             }
             if ($code === self::RESPONSE_CODE_INVALID_CONTACT) {
-                throw new InvalidContact('Failed to transfer domain: ' . $e->getMessage(), $code, $e);
+                throw new InvalidContactException('Failed to transfer domain: ' . $e->getMessage(), $code, $e);
             }
             if ($code === self::RESPONSE_CODE_DOMAIN_TAKEN) {
-                throw new DomainTaken('Domain is already in this account', $code, $e);
+                throw new DomainTakenException('Domain is already in this account', $code, $e);
             }
             throw new DomainsException('Failed to transfer domain: ' . $e->getMessage(), $e->getCode(), $e);
         }
@@ -525,7 +525,7 @@ class OpenSRS extends Adapter
             $message = 'Failed to get price for domain: ' . $e->getMessage();
 
             if ($e->getCode() === self::RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND) {
-                throw new PriceNotFound($message, $e->getCode(), $e);
+                throw new PriceNotFoundException($message, $e->getCode(), $e);
             }
             throw new DomainsException($message, $e->getCode(), $e);
         }
@@ -1004,7 +1004,7 @@ class OpenSRS extends Adapter
             $key = strtolower($key);
 
             if (! isset($contact[$key])) {
-                throw new InvalidContact("Contact is missing required field: {$key}");
+                throw new InvalidContactException("Contact is missing required field: {$key}");
             }
 
             $filtered_key = $filter[$key] ?? $key;

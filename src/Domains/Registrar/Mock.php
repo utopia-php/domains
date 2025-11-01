@@ -6,9 +6,9 @@ use DateTime;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Exception as DomainsException;
-use Utopia\Domains\Registrar\Exception\DomainTaken;
-use Utopia\Domains\Registrar\Exception\InvalidContact;
-use Utopia\Domains\Registrar\Exception\PriceNotFound;
+use Utopia\Domains\Registrar\Exception\DomainTakenException;
+use Utopia\Domains\Registrar\Exception\InvalidContactException;
+use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\Result\DomainResult;
 use Utopia\Domains\Registrar\Result\PriceResult;
 use Utopia\Domains\Registrar\Result\PurchaseResult;
@@ -138,13 +138,13 @@ class Mock extends Adapter
      * @param int $periodYears
      * @param array $nameservers
      * @return PurchaseResult
-     * @throws DomainTaken
-     * @throws InvalidContact
+     * @throws DomainTakenException
+     * @throws InvalidContactException
      */
     public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): PurchaseResult
     {
         if (!$this->available($domain)) {
-            throw new DomainTaken("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);
+            throw new DomainTakenException("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);
         }
 
         $this->validateContacts($contacts);
@@ -273,7 +273,7 @@ class Mock extends Adapter
      * @param string $regType
      * @param int $ttl Time to live for the cache (if set) in seconds
      * @return PriceResult
-     * @throws PriceNotFound
+     * @throws PriceNotFoundException
      */
     public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult
     {
@@ -308,13 +308,13 @@ class Mock extends Adapter
 
         $parts = explode('.', $domain);
         if (count($parts) < 2) {
-            throw new PriceNotFound("Invalid domain format: {$domain}", self::RESPONSE_CODE_BAD_REQUEST);
+            throw new PriceNotFoundException("Invalid domain format: {$domain}", self::RESPONSE_CODE_BAD_REQUEST);
         }
 
         $tld = end($parts);
 
         if (!in_array($tld, $this->supportedTlds)) {
-            throw new PriceNotFound("TLD .{$tld} is not supported", self::RESPONSE_CODE_BAD_REQUEST);
+            throw new PriceNotFoundException("TLD .{$tld} is not supported", self::RESPONSE_CODE_BAD_REQUEST);
         }
 
         $basePrice = $this->defaultPrice;
@@ -375,7 +375,7 @@ class Mock extends Adapter
      * @param array $details
      * @return bool
      * @throws DomainsException
-     * @throws InvalidContact
+     * @throws InvalidContactException
      */
     public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool
     {
@@ -399,13 +399,13 @@ class Mock extends Adapter
      * @param int $periodYears
      * @param array $nameservers
      * @return TransferResult
-     * @throws DomainTaken
-     * @throws InvalidContact
+     * @throws DomainTakenException
+     * @throws InvalidContactException
      */
     public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): TransferResult
     {
         if (in_array($domain, $this->purchasedDomains)) {
-            throw new DomainTaken("Domain {$domain} is already in this account", self::RESPONSE_CODE_DOMAIN_TAKEN);
+            throw new DomainTakenException("Domain {$domain} is already in this account", self::RESPONSE_CODE_DOMAIN_TAKEN);
         }
 
         $this->validateContacts($contacts);
@@ -547,7 +547,7 @@ class Mock extends Adapter
      *
      * @param array|Contact $contacts
      * @return void
-     * @throws InvalidContact
+     * @throws InvalidContactException
      */
     private function validateContacts(array|Contact $contacts): void
     {
@@ -555,7 +555,7 @@ class Mock extends Adapter
 
         foreach ($contactsArray as $contact) {
             if (!($contact instanceof Contact)) {
-                throw new InvalidContact("Invalid contact: contact must be an instance of Contact", self::RESPONSE_CODE_INVALID_CONTACT);
+                throw new InvalidContactException("Invalid contact: contact must be an instance of Contact", self::RESPONSE_CODE_INVALID_CONTACT);
             }
 
             $contactData = $contact->toArray();
@@ -573,12 +573,12 @@ class Mock extends Adapter
 
             foreach ($required as $field) {
                 if (!isset($contactData[$field]) || empty($contactData[$field])) {
-                    throw new InvalidContact("Invalid contact: missing required field '{$field}'", self::RESPONSE_CODE_INVALID_CONTACT);
+                    throw new InvalidContactException("Invalid contact: missing required field '{$field}'", self::RESPONSE_CODE_INVALID_CONTACT);
                 }
             }
 
             if (!filter_var($contactData['email'], FILTER_VALIDATE_EMAIL)) {
-                throw new InvalidContact("Invalid contact: invalid email format", self::RESPONSE_CODE_INVALID_CONTACT);
+                throw new InvalidContactException("Invalid contact: invalid email format", self::RESPONSE_CODE_INVALID_CONTACT);
             }
         }
     }
