@@ -9,7 +9,7 @@ final readonly class RenewResult
     public function __construct(
         public bool $successful,
         public ?string $orderId = null,
-        public ?DateTime $newExpiration = null,
+        public ?DateTime $expiresAt = null,
     ) {
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Utopia\Domains\Registrar\Result;
 
-final readonly class PurchaseResult
+final readonly class RegisterResult
 {
     public function __construct(
         public string $code,

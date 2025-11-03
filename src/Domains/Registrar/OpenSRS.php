@@ -13,9 +13,8 @@ use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar\Result\DomainResult;
-use Utopia\Domains\Registrar\Result\PurchaseResult;
+use Utopia\Domains\Registrar\Result\RegisterResult;
 use Utopia\Domains\Registrar\Result\RenewResult;
-use Utopia\Domains\Registrar\Result\TransferResult;
 use Utopia\Domains\Registrar\Result\TransferStatusResult;
 
 class OpenSRS extends Adapter
@@ -164,7 +163,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): PurchaseResult
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): RegisterResult
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -182,7 +181,7 @@ class OpenSRS extends Adapter
 
             $result = $this->response($result);
 
-            return new PurchaseResult(
+            return new RegisterResult(
                 code: $result['code'],
                 id: $result['id'],
                 domainId: $result['domainId'],
@@ -207,7 +206,7 @@ class OpenSRS extends Adapter
         }
     }
 
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): TransferResult
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): RegisterResult
     {
         $contacts = is_array($contacts) ? $contacts : [$contacts];
 
@@ -224,7 +223,7 @@ class OpenSRS extends Adapter
             $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, $authCode);
             $result = $this->response($result);
 
-            return new TransferResult(
+            return new RegisterResult(
                 code: $result['code'],
                 id: $result['id'],
                 domainId: $result['domainId'],
@@ -698,7 +697,7 @@ class OpenSRS extends Adapter
         return new RenewResult(
             successful: $orderId !== null,
             orderId: $orderId,
-            newExpiration: $newExpiration,
+            expiresAt: $newExpiration,
         );
     }
 
