@@ -81,8 +81,8 @@ php ./data/import.php
 <?php
 
 use Utopia\Domains\Registrar;
-use Utopia\Domains\Contact;
-use Utopia\Domains\Registrar\OpenSRS;
+use Utopia\Domains\Registrar\Contact;
+use Utopia\Domains\Registrar\Adapter\OpenSRS;
 
 $opensrs = new OpenSRS(
   'apikey', 
@@ -117,21 +117,23 @@ $contact = new Contact(
 $domain = 'yourname.com';
 
 $available = $reg->available($domain);
-$purchase = $reg->purchase($domain, $contact, 1); 
+$purchase = $reg->purchase($domain, [$contact]);
+$purchase = $reg->purchase($domain, [$contact], 1);
 $suggest = $reg->suggest(['yourname', 'yourname1.com'], ['com', 'net', 'org'], 10, 10000, 100);
 $domainDetails = $reg->getDomain($domain);
 $renew = $reg->renew($domain, 1);
+$transfer = $reg->transfer($domain, [$contact]);
 $transfer = $reg->transfer($domain, 'authcode', [$contact]);
 
 ```
 
 ## Library Registrar API
 * **available(string $domain): bool** - Checks to see if a domain is available for registration.
-* **purchase(string $domain, array $contacts, int $periodYears = 1, array $nameservers = []): RegisterResult** - Purchase a domain name and returns a RegisterResult object.
+* **purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration** - Purchase a domain name and returns a Registeration object.
 * **suggest(array $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array** - Suggest or search for domain names.
-* **getDomain(string $domain): DomainResult** - Get domain details and returns a DomainResult object.
-* **renew(string $domain, int $periodYears): RenewResult** - Renew a domain name and returns a RenewResult object.
-* **transfer(string $domain, string $authCode, array $contacts, int $periodYears = 1, array $nameservers = []): RegisterResult** - Transfer a domain name and returns a RegisterResult object.
+* **getDomain(string $domain): Domain** - Get domain details and returns a Domain object.
+* **renew(string $domain, int $periodYears): Renew** - Renew a domain name and returns a Renew object.
+* **transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration** - Transfer a domain name and returns a Registeration object.
 
 
 ## System Requirements
