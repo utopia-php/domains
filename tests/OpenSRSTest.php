@@ -54,6 +54,11 @@ class OpenSRSTest extends TestCase
         );
     }
 
+    public function testGetName(): void
+    {
+        $this->assertEquals('opensrs', $this->client->getName());
+    }
+
     public function testAvailable(): void
     {
         $domain = self::generateRandomString() . '.net';
@@ -131,6 +136,12 @@ class OpenSRSTest extends TestCase
         $result = $this->client->cancelPurchase();
 
         $this->assertTrue($result);
+    }
+
+    public function testTlds(): void
+    {
+        $tlds = $this->client->tlds();
+        $this->assertEmpty($tlds);
     }
 
     public function testSuggest(): void
@@ -247,9 +258,8 @@ class OpenSRSTest extends TestCase
     public function testGetPrice(): void
     {
         $result = $this->client->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW);
-        $this->assertNotNull($result->price);
-        $this->assertIsFloat($result->price);
-        $this->assertIsBool($result->isRegistryPremium);
+        $this->assertNotNull($result);
+        $this->assertIsFloat($result);
 
         $this->expectException(PriceNotFoundException::class);
         $this->expectExceptionMessage("Failed to get price for domain: get_price_domain API is not supported for 'invalid domain'");
@@ -259,20 +269,17 @@ class OpenSRSTest extends TestCase
     public function testGetPriceWithCache(): void
     {
         $result1 = $this->clientWithCache->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW, 3600);
-        $this->assertNotNull($result1->price);
-        $this->assertIsFloat($result1->price);
-        $this->assertIsBool($result1->isRegistryPremium);
+        $this->assertNotNull($result1);
+        $this->assertIsFloat($result1);
 
         $result2 = $this->clientWithCache->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW, 3600);
-        $this->assertEquals($result1->price, $result2->price);
-        $this->assertEquals($result1->isRegistryPremium, $result2->isRegistryPremium);
+        $this->assertEquals($result1, $result2);
     }
 
     public function testGetPriceWithCustomTtl(): void
     {
         $result = $this->clientWithCache->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW, 7200);
-        $this->assertNotNull($result->price);
-        $this->assertIsFloat($result->price);
+        $this->assertIsFloat($result);
     }
 
     public function testUpdateNameservers(): void

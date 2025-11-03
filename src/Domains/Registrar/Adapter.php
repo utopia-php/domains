@@ -5,7 +5,6 @@ namespace Utopia\Domains\Registrar;
 use Utopia\Domains\Adapter as DomainsAdapter;
 use Utopia\Domains\Contact;
 use Utopia\Domains\Registrar\Result\DomainResult;
-use Utopia\Domains\Registrar\Result\PriceResult;
 use Utopia\Domains\Registrar\Result\PurchaseResult;
 use Utopia\Domains\Registrar\Result\RenewResult;
 use Utopia\Domains\Registrar\Result\TransferResult;
@@ -76,9 +75,9 @@ abstract class Adapter extends DomainsAdapter
      * @param  int  $periodYears
      * @param  string  $regType
      * @param  int  $ttl
-     * @return PriceResult
+     * @return float
      */
-    abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult;
+    abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float;
 
     /**
      * @param  string  $domain

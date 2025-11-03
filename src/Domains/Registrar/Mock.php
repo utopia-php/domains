@@ -10,7 +10,6 @@ use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\Result\DomainResult;
-use Utopia\Domains\Registrar\Result\PriceResult;
 use Utopia\Domains\Registrar\Result\PurchaseResult;
 use Utopia\Domains\Registrar\Result\RenewResult;
 use Utopia\Domains\Registrar\Result\TransferResult;
@@ -271,34 +270,23 @@ class Mock extends Adapter
      * @param int $periodYears
      * @param string $regType
      * @param int $ttl Time to live for the cache (if set) in seconds
-     * @return PriceResult
+     * @return float
      * @throws PriceNotFoundException
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
             if ($cached !== null && is_array($cached)) {
-                return new PriceResult(
-                    price: $cached['price'],
-                    isRegistryPremium: $cached['is_registry_premium'],
-                    registryPremiumGroup: $cached['registry_premium_group'],
-                );
+                return $cached['price'];
             }
         }
 
         if (isset($this->premiumDomains[$domain])) {
-            $result = new PriceResult(
-                price: $this->premiumDomains[$domain] * $periodYears,
-                isRegistryPremium: true,
-                registryPremiumGroup: 'premium',
-            );
-
+            $result = $this->premiumDomains[$domain] * $periodYears;
             if ($this->cache) {
                 $this->cache->save($domain, [
-                    'price' => $result->price,
-                    'is_registry_premium' => $result->isRegistryPremium,
-                    'registry_premium_group' => $result->registryPremiumGroup,
+                    'price' => $result,
                 ]);
             }
 
@@ -324,17 +312,10 @@ class Mock extends Adapter
             default => 1.0,
         };
 
-        $result = new PriceResult(
-            price: $basePrice * $periodYears * $multiplier,
-            isRegistryPremium: false,
-            registryPremiumGroup: null,
-        );
-
+        $result = $basePrice * $periodYears * $multiplier;
         if ($this->cache) {
             $this->cache->save($domain, [
-                'price' => $result->price,
-                'is_registry_premium' => $result->isRegistryPremium,
-                'registry_premium_group' => $result->registryPremiumGroup,
+                'price' => $result,
             ]);
         }
 

@@ -4,7 +4,6 @@ namespace Utopia\Domains;
 
 use Utopia\Domains\Registrar\Adapter as RegistrarAdapter;
 use Utopia\Domains\Registrar\Result\DomainResult;
-use Utopia\Domains\Registrar\Result\PriceResult;
 use Utopia\Domains\Registrar\Result\PurchaseResult;
 use Utopia\Domains\Registrar\Result\RenewResult;
 use Utopia\Domains\Registrar\Result\TransferResult;
@@ -118,9 +117,9 @@ class Registrar
      * @param int $periodYears
      * @param string $regType
      * @param int $ttl
-     * @return PriceResult
+     * @return float
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float
     {
         return $this->adapter->getPrice($domain, $periodYears, $regType, $ttl);
     }

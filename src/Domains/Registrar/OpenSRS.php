@@ -13,7 +13,6 @@ use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar\Result\DomainResult;
-use Utopia\Domains\Registrar\Result\PriceResult;
 use Utopia\Domains\Registrar\Result\PurchaseResult;
 use Utopia\Domains\Registrar\Result\RenewResult;
 use Utopia\Domains\Registrar\Result\TransferResult;
@@ -463,20 +462,16 @@ class OpenSRS extends Adapter
      * @param int $periodYears Registration periodYears in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @param int $ttl Time to live for the cache (if set) in seconds (default 3600 seconds = 1 hour)
-     * @return PriceResult Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
+     * @return float The price of the domain
      * @throws PriceNotFoundException When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
             if ($cached !== null && is_array($cached)) {
-                return new PriceResult(
-                    price: $cached['price'],
-                    isRegistryPremium: $cached['is_registry_premium'],
-                    registryPremiumGroup: $cached['registry_premium_group'],
-                );
+                return $cached['price'];
             }
         }
 
@@ -498,25 +493,14 @@ class OpenSRS extends Adapter
             $priceElements = $result->xpath($priceXpath);
             $price = isset($priceElements[0]) ? floatval((string) $priceElements[0]) : null;
 
-            $isPremiumXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="is_registry_premium"]';
-            $isPremiumElements = $result->xpath($isPremiumXpath);
-            $isRegistryPremium = isset($isPremiumElements[0]) ? ((string) $isPremiumElements[0] === '1') : false;
+            if ($price === null) {
+                throw new PriceNotFoundException('Price not found for domain: ' . $domain, self::RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND);
+            }
 
-            $premiumGroupXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="registry_premium_group"]';
-            $premiumGroupElements = $result->xpath($premiumGroupXpath);
-            $registryPremiumGroup = isset($premiumGroupElements[0]) ? (string) $premiumGroupElements[0] : null;
-
-            $result = new PriceResult(
-                price: $price,
-                isRegistryPremium: $isRegistryPremium,
-                registryPremiumGroup: $registryPremiumGroup,
-            );
-
+            $result = $price;
             if ($this->cache) {
                 $this->cache->save($domain, [
-                    'price' => $result->price,
-                    'is_registry_premium' => $result->isRegistryPremium,
-                    'registry_premium_group' => $result->registryPremiumGroup,
+                    'price' => $result,
                 ]);
             }
 
