@@ -139,7 +139,7 @@ class OpenSRS extends Adapter
             'action' => 'SW_REGISTER',
             'attributes' => [
                 'domain' => $domain,
-                'period' => $periodYears,
+                'periodYears' => $periodYears,
                 'contact_set' => $contacts,
                 'custom_tech_contact' => 0,
                 'custom_nameservers' => $hasNameservers,
@@ -189,7 +189,7 @@ class OpenSRS extends Adapter
                 domainId: $result['domainId'],
                 successful: $result['successful'],
                 domain: $domain,
-                period: $periodYears,
+                periodYears: $periodYears,
                 nameservers: $nameservers,
             );
         } catch (Exception $e) {
@@ -231,7 +231,7 @@ class OpenSRS extends Adapter
                 domainId: $result['domainId'],
                 successful: $result['successful'],
                 domain: $domain,
-                period: $periodYears,
+                periodYears: $periodYears,
                 nameservers: $nameservers,
             );
         } catch (Exception $e) {
@@ -460,7 +460,7 @@ class OpenSRS extends Adapter
      * Get the registration price for a domain
      *
      * @param string $domain The domain name to get pricing for
-     * @param int $periodYears Registration period in years (default 1)
+     * @param int $periodYears Registration periodYears in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @param int $ttl Time to live for the cache (if set) in seconds (default 3600 seconds = 1 hour)
      * @return PriceResult Contains 'price' (float), 'is_registry_premium' (bool), and 'registry_premium_group' (string|null)
@@ -486,7 +486,7 @@ class OpenSRS extends Adapter
                 'action' => 'GET_PRICE',
                 'attributes' => [
                     'domain' => $domain,
-                    'period' => $periodYears,
+                    'periodYears' => $periodYears,
                     'reg_type' => $regType,
                 ],
             ];
@@ -679,7 +679,7 @@ class OpenSRS extends Adapter
                 'domain' => $domain,
                 'auto_renew' => 0,
                 'currentexpirationyear' => '2022',
-                'period' => $periodYears,
+                'periodYears' => $periodYears,
                 'handle' => 'process',
             ],
         ];

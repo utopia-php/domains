@@ -157,7 +157,7 @@ class Mock extends Adapter
             domainId: 'mock_domain_' . md5($domain),
             successful: true,
             domain: $domain,
-            period: $periodYears,
+            periodYears: $periodYears,
             nameservers: $nameservers,
         );
     }
@@ -419,7 +419,7 @@ class Mock extends Adapter
             domainId: 'mock_domain_' . md5($domain),
             successful: true,
             domain: $domain,
-            period: $periodYears,
+            periodYears: $periodYears,
             nameservers: $nameservers,
         );
     }
