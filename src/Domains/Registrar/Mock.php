@@ -257,10 +257,9 @@ class Mock extends Adapter
             registryCreateDate: new DateTime(),
             registryExpireDate: new DateTime('+1 year'),
             autoRenew: false,
-            letExpire: false,
-            nameserverList: [
-                'ns1.mock.com',
-                'ns2.mock.com',
+            nameservers: [
+                'ns1.example.com',
+                'ns2.example.com',
             ],
         );
     }

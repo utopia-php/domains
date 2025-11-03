@@ -562,18 +562,14 @@ class OpenSRS extends Adapter
         $result = $this->sanitizeResponse($result);
         $elements = $result->xpath($xpath);
 
-        $data = [];
         $registryCreateDate = null;
         $registryExpireDate = null;
         $autoRenew = null;
-        $letExpire = null;
         $nameserverList = null;
 
         foreach ($elements as $element) {
             $key = "{$element['key']}";
             $value = "{$element}";
-
-            $data[$key] = $value;
 
             if ($key === 'registry_createdate') {
                 $registryCreateDate = new DateTime($value);
@@ -581,11 +577,18 @@ class OpenSRS extends Adapter
                 $registryExpireDate = new DateTime($value);
             } elseif ($key === 'auto_renew') {
                 $autoRenew = $value === '1';
-            } elseif ($key === 'let_expire') {
-                $letExpire = $value === '1';
             } elseif ($key === 'nameserver_list') {
-                // nameserver_list is typically an array in the response
-                $nameserverList = [$value];
+                $nameserverList = [];
+                $nameserverItems = $element->xpath('dt_array/item/dt_assoc');
+                foreach ($nameserverItems as $nameserverItem) {
+                    $nameItems = $nameserverItem->xpath('item[@key="name"]');
+                    if (!empty($nameItems)) {
+                        $nameserverName = trim((string) $nameItems[0]);
+                        if (!empty($nameserverName)) {
+                            $nameserverList[] = $nameserverName;
+                        }
+                    }
+                }
             }
         }
 
@@ -594,9 +597,7 @@ class OpenSRS extends Adapter
             registryCreateDate: $registryCreateDate,
             registryExpireDate: $registryExpireDate,
             autoRenew: $autoRenew,
-            letExpire: $letExpire,
-            nameserverList: $nameserverList,
-            additionalData: $data,
+            nameservers: $nameserverList,
         );
     }
 

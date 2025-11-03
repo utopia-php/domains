@@ -11,9 +11,7 @@ final readonly class DomainResult
         public ?DateTime $registryCreateDate = null,
         public ?DateTime $registryExpireDate = null,
         public ?bool $autoRenew = null,
-        public ?bool $letExpire = null,
-        public ?array $nameserverList = null,
-        public ?array $additionalData = null,
+        public ?array $nameservers = null
     ) {
     }
 }

@@ -121,6 +121,9 @@ class OpenSRSTest extends TestCase
 
         $this->assertEquals($this->domain, $result->domain);
         $this->assertInstanceOf(\DateTime::class, $result->registryCreateDate);
+        $this->assertInstanceOf(\DateTime::class, $result->registryExpireDate);
+        $this->assertIsBool($result->autoRenew);
+        $this->assertIsArray($result->nameservers);
     }
 
     public function testCancelPurchase(): void
