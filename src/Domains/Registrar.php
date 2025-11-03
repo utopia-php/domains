@@ -51,14 +51,14 @@ class Registrar
      * Purchase a domain
      *
      * @param string $domain
-     * @param int $period
+     * @param int $periodYears
      * @param array|Contact $contacts
      * @param array $nameservers
      * @return PurchaseResult
      */
-    public function purchase(string $domain, array|Contact $contacts, int $period = 1, array $nameservers = []): PurchaseResult
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): PurchaseResult
     {
-        return $this->adapter->purchase($domain, $contacts, $period, $nameservers);
+        return $this->adapter->purchase($domain, $contacts, $periodYears, $nameservers);
     }
 
     /**
@@ -115,26 +115,26 @@ class Registrar
      * Get the price of a domain
      *
      * @param string $domain
-     * @param int $period
+     * @param int $periodYears
      * @param string $regType
      * @param int $ttl
      * @return PriceResult
      */
-    public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): PriceResult
     {
-        return $this->adapter->getPrice($domain, $period, $regType, $ttl);
+        return $this->adapter->getPrice($domain, $periodYears, $regType, $ttl);
     }
 
     /**
      * Renew a domain
      *
      * @param string $domain
-     * @param int $period
+     * @param int $periodYears
      * @return RenewResult
      */
-    public function renew(string $domain, int $period): RenewResult
+    public function renew(string $domain, int $periodYears): RenewResult
     {
-        return $this->adapter->renew($domain, $period);
+        return $this->adapter->renew($domain, $periodYears);
     }
 
     /**
@@ -146,9 +146,9 @@ class Registrar
      * @param array $nameservers
      * @return TransferResult
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $period = 1, array $nameservers = []): TransferResult
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): TransferResult
     {
-        return $this->adapter->transfer($domain, $authCode, $contacts, $period, $nameservers);
+        return $this->adapter->transfer($domain, $authCode, $contacts, $periodYears, $nameservers);
     }
 
     /**

@@ -10,7 +10,7 @@ final readonly class PurchaseResult
         public string $domainId,
         public bool $successful,
         public ?string $domain = null,
-        public ?int $period = null,
+        public ?int $periodYears = null,
         public ?array $nameservers = null,
     ) {
     }
