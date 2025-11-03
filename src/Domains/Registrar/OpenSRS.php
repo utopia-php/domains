@@ -619,7 +619,8 @@ class OpenSRS extends Adapter
         ];
 
         if ($contacts) {
-            if ($details['data'] !== 'contact_info') {
+            $data = $details['data'] ?? null;
+            if ($data !== 'contact_info') {
                 throw new Exception("Invalid data: data must be 'contact_info' in order to update contacts");
             }
             $contacts = is_array($contacts) ? $contacts : [$contacts];
