@@ -4,7 +4,7 @@ namespace Utopia\Domains;
 
 use Utopia\Domains\Registrar\Adapter as RegistrarAdapter;
 use Utopia\Domains\Registrar\Domain;
-use Utopia\Domains\Registrar\Registeration;
+use Utopia\Domains\Registrar\Registration;
 use Utopia\Domains\Registrar\Renew;
 use Utopia\Domains\Registrar\Contact;
 
@@ -53,9 +53,9 @@ class Registrar
      * @param int $periodYears
      * @param array|Contact $contacts
      * @param array $nameservers
-     * @return Registeration
+     * @return Registration
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
     {
         return $this->adapter->purchase($domain, $contacts, $periodYears, $nameservers);
     }
@@ -143,9 +143,9 @@ class Registrar
      * @param string $authCode
      * @param array|Contact $contacts
      * @param array $nameservers
-     * @return Registeration
+     * @return Registration
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
     {
         return $this->adapter->transfer($domain, $authCode, $contacts, $periodYears, $nameservers);
     }

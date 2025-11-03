@@ -30,9 +30,9 @@ abstract class Adapter extends DomainsAdapter
      * @param  array|Contact  $contacts
      * @param  int  $periodYears
      * @param  array  $nameservers
-     * @return Registeration
+     * @return Registration
      */
-    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration;
+    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration;
 
     /**
      * @param  array  $query
@@ -86,9 +86,9 @@ abstract class Adapter extends DomainsAdapter
      * @param  array|Contact  $contacts
      * @param  int  $periodYears
      * @param  array  $nameservers
-     * @return Registeration
+     * @return Registration
      */
-    abstract public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration;
+    abstract public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration;
 
     /**
      * Get the authorization code for an EPP domain

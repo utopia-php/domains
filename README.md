@@ -129,11 +129,11 @@ $transfer = $reg->transfer($domain, 'authcode', [$contact]);
 
 ## Library Registrar API
 * **available(string $domain): bool** - Checks to see if a domain is available for registration.
-* **purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration** - Purchase a domain name and returns a Registeration object.
+* **purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration** - Purchase a domain name and returns a Registration object.
 * **suggest(array $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array** - Suggest or search for domain names.
 * **getDomain(string $domain): Domain** - Get domain details and returns a Domain object.
 * **renew(string $domain, int $periodYears): Renew** - Renew a domain name and returns a Renew object.
-* **transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration** - Transfer a domain name and returns a Registeration object.
+* **transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration** - Transfer a domain name and returns a Registration object.
 
 
 ## System Requirements

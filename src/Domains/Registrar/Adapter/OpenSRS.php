@@ -13,7 +13,7 @@ use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar\Adapter;
-use Utopia\Domains\Registrar\Registeration;
+use Utopia\Domains\Registrar\Registration;
 use Utopia\Domains\Registrar\Renew;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Domain;
@@ -165,7 +165,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -183,7 +183,7 @@ class OpenSRS extends Adapter
 
             $result = $this->response($result);
 
-            return new Registeration(
+            return new Registration(
                 code: $result['code'],
                 id: $result['id'],
                 domainId: $result['domainId'],
@@ -208,7 +208,7 @@ class OpenSRS extends Adapter
         }
     }
 
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
     {
         $contacts = is_array($contacts) ? $contacts : [$contacts];
 
@@ -225,7 +225,7 @@ class OpenSRS extends Adapter
             $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, $authCode);
             $result = $this->response($result);
 
-            return new Registeration(
+            return new Registration(
                 code: $result['code'],
                 id: $result['id'],
                 domainId: $result['domainId'],
