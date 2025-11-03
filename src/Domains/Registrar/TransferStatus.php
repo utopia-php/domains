@@ -1,10 +1,10 @@
 <?php
 
-namespace Utopia\Domains\Registrar\Result;
+namespace Utopia\Domains\Registrar;
 
 use DateTime;
 
-enum TransferStatus: string
+enum TransferStatusEnum: string
 {
     case Transferrable = 'transferrable';
     case NotTransferrable = 'not_transferrable';
@@ -16,10 +16,10 @@ enum TransferStatus: string
     case ServiceUnavailable = 'service_unavailable';
 }
 
-final readonly class TransferStatusResult
+final readonly class TransferStatus
 {
     public function __construct(
-        public TransferStatus $status,
+        public TransferStatusEnum $status,
         public ?string $reason = null,
         public ?DateTime $timestamp = null,
     ) {

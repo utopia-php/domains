@@ -1,19 +1,20 @@
 <?php
 
-namespace Utopia\Tests;
+namespace Utopia\Tests\Registrar;
 
 use PHPUnit\Framework\TestCase;
 use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
-use Utopia\Domains\Contact;
+use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
-use Utopia\Domains\Registrar\OpenSRS;
+use Utopia\Domains\Registrar\Adapter\OpenSRS;
 use Utopia\Domains\Registrar;
+use Utopia\Domains\Registrar\TransferStatusEnum;
 
 class OpenSRSTest extends TestCase
 {
@@ -359,22 +360,22 @@ class OpenSRSTest extends TestCase
     {
         $result = $this->client->checkTransferStatus($this->domain, true, true);
 
-        $this->assertInstanceOf(\Utopia\Domains\Registrar\Result\TransferStatus::class, $result->status);
+        $this->assertInstanceOf(TransferStatusEnum::class, $result->status);
 
-        if ($result->status !== \Utopia\Domains\Registrar\Result\TransferStatus::Transferrable) {
+        if ($result->status !== TransferStatusEnum::Transferrable) {
             $this->assertNotNull($result->reason);
             $this->assertIsString($result->reason);
         }
 
         $this->assertContains($result->status, [
-            \Utopia\Domains\Registrar\Result\TransferStatus::Transferrable,
-            \Utopia\Domains\Registrar\Result\TransferStatus::NotTransferrable,
-            \Utopia\Domains\Registrar\Result\TransferStatus::PendingOwner,
-            \Utopia\Domains\Registrar\Result\TransferStatus::PendingAdmin,
-            \Utopia\Domains\Registrar\Result\TransferStatus::PendingRegistry,
-            \Utopia\Domains\Registrar\Result\TransferStatus::Completed,
-            \Utopia\Domains\Registrar\Result\TransferStatus::Cancelled,
-            \Utopia\Domains\Registrar\Result\TransferStatus::ServiceUnavailable,
+            TransferStatusEnum::Transferrable,
+            TransferStatusEnum::NotTransferrable,
+            TransferStatusEnum::PendingOwner,
+            TransferStatusEnum::PendingAdmin,
+            TransferStatusEnum::PendingRegistry,
+            TransferStatusEnum::Completed,
+            TransferStatusEnum::Cancelled,
+            TransferStatusEnum::ServiceUnavailable,
         ]);
     }
 
@@ -382,7 +383,7 @@ class OpenSRSTest extends TestCase
     {
         $result = $this->client->checkTransferStatus($this->domain, false, true);
 
-        $this->assertInstanceOf(\Utopia\Domains\Registrar\Result\TransferStatus::class, $result->status);
+        $this->assertInstanceOf(TransferStatusEnum::class, $result->status);
     }
 
     private static function purchaseContact(string $suffix = ''): array

@@ -3,11 +3,6 @@
 namespace Utopia\Domains\Registrar;
 
 use Utopia\Domains\Adapter as DomainsAdapter;
-use Utopia\Domains\Contact;
-use Utopia\Domains\Registrar\Result\DomainResult;
-use Utopia\Domains\Registrar\Result\RegisterResult;
-use Utopia\Domains\Registrar\Result\RenewResult;
-use Utopia\Domains\Registrar\Result\TransferStatusResult;
 
 abstract class Adapter extends DomainsAdapter
 {
@@ -32,12 +27,12 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
-     * @param  array|\Utopia\Domains\Contact  $contacts
+     * @param  array|Contact  $contacts
      * @param  int  $periodYears
      * @param  array  $nameservers
-     * @return RegisterResult
+     * @return Registeration
      */
-    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): RegisterResult;
+    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration;
 
     /**
      * @param  array  $query
@@ -57,9 +52,9 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
-     * @return DomainResult
+     * @return Domain
      */
-    abstract public function getDomain(string $domain): DomainResult;
+    abstract public function getDomain(string $domain): Domain;
 
     /**
      * @param  string  $domain
@@ -81,19 +76,19 @@ abstract class Adapter extends DomainsAdapter
     /**
      * @param  string  $domain
      * @param  int  $periodYears
-     * @return RenewResult
+     * @return Renew
      */
-    abstract public function renew(string $domain, int $periodYears): RenewResult;
+    abstract public function renew(string $domain, int $periodYears): Renew;
 
     /**
      * @param  string  $domain
      * @param  string  $authCode
-     * @param  array|\Utopia\Domains\Contact  $contacts
+     * @param  array|Contact  $contacts
      * @param  int  $periodYears
      * @param  array  $nameservers
-     * @return RegisterResult
+     * @return Registeration
      */
-    abstract public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): RegisterResult;
+    abstract public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration;
 
     /**
      * Get the authorization code for an EPP domain
@@ -109,7 +104,7 @@ abstract class Adapter extends DomainsAdapter
      * @param  string  $domain
      * @param  bool  $checkStatus
      * @param  bool  $getRequestAddress
-     * @return TransferStatusResult
+     * @return TransferStatus
      */
-    abstract public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatusResult;
+    abstract public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus;
 }

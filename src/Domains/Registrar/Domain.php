@@ -1,10 +1,10 @@
 <?php
 
-namespace Utopia\Domains\Registrar\Result;
+namespace Utopia\Domains\Registrar;
 
 use DateTime;
 
-final readonly class DomainResult
+final readonly class Domain
 {
     public function __construct(
         public string $domain,

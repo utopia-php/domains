@@ -1,10 +1,10 @@
 <?php
 
-namespace Utopia\Domains\Registrar\Result;
+namespace Utopia\Domains\Registrar;
 
 use DateTime;
 
-final readonly class RenewResult
+final readonly class Renew
 {
     public function __construct(
         public bool $successful,

@@ -1,8 +1,8 @@
 <?php
 
-namespace Utopia\Domains\Registrar\Result;
+namespace Utopia\Domains\Registrar;
 
-final readonly class RegisterResult
+final readonly class Registeration
 {
     public function __construct(
         public string $code,

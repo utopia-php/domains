@@ -1,10 +1,10 @@
 <?php
 
-namespace Utopia\Domains\Registrar;
+namespace Utopia\Domains\Registrar\Adapter;
 
 use DateTime;
 use Exception;
-use Utopia\Domains\Contact;
+use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
@@ -12,10 +12,12 @@ use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Cache;
-use Utopia\Domains\Registrar\Result\DomainResult;
-use Utopia\Domains\Registrar\Result\RegisterResult;
-use Utopia\Domains\Registrar\Result\RenewResult;
-use Utopia\Domains\Registrar\Result\TransferStatusResult;
+use Utopia\Domains\Registrar\Adapter;
+use Utopia\Domains\Registrar\Registeration;
+use Utopia\Domains\Registrar\Renew;
+use Utopia\Domains\Registrar\TransferStatus;
+use Utopia\Domains\Registrar\Domain;
+use Utopia\Domains\Registrar\TransferStatusEnum;
 
 class OpenSRS extends Adapter
 {
@@ -163,7 +165,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): RegisterResult
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -181,7 +183,7 @@ class OpenSRS extends Adapter
 
             $result = $this->response($result);
 
-            return new RegisterResult(
+            return new Registeration(
                 code: $result['code'],
                 id: $result['id'],
                 domainId: $result['domainId'],
@@ -206,7 +208,7 @@ class OpenSRS extends Adapter
         }
     }
 
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): RegisterResult
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration
     {
         $contacts = is_array($contacts) ? $contacts : [$contacts];
 
@@ -223,7 +225,7 @@ class OpenSRS extends Adapter
             $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, $authCode);
             $result = $this->response($result);
 
-            return new RegisterResult(
+            return new Registeration(
                 code: $result['code'],
                 id: $result['id'],
                 domainId: $result['domainId'],
@@ -520,7 +522,7 @@ class OpenSRS extends Adapter
         return [];
     }
 
-    public function getDomain(string $domain): DomainResult
+    public function getDomain(string $domain): Domain
     {
         $message = [
             'object' => 'DOMAIN',
@@ -575,7 +577,7 @@ class OpenSRS extends Adapter
             }
         }
 
-        return new DomainResult(
+        return new Domain(
             domain: $domain,
             createdAt: $registryCreateDate,
             expiresAt: $registryExpireDate,
@@ -653,9 +655,9 @@ class OpenSRS extends Adapter
      *
      * @param string $domain The domain name to renew
      * @param int $periodYears The number of years to renew the domain for
-     * @return RenewResult Contains the renewal information
+     * @return Renew Contains the renewal information
      */
-    public function renew(string $domain, int $periodYears): RenewResult
+    public function renew(string $domain, int $periodYears): Renew
     {
         $message = [
             'object' => 'DOMAIN',
@@ -695,7 +697,7 @@ class OpenSRS extends Adapter
             }
         }
 
-        return new RenewResult(
+        return new Renew(
             successful: $orderId !== null,
             orderId: $orderId,
             expiresAt: $newExpiration,
@@ -743,10 +745,10 @@ class OpenSRS extends Adapter
      * @param string $domain The fully qualified domain name
      * @param bool $checkStatus Flag to request the status of a transfer request
      * @param bool $getRequestAddress Flag to request the registrant's contact email address
-     * @return TransferStatusResult Contains transfer status information including 'status', 'reason', etc.
+     * @return TransferStatus Contains transfer status information including 'status', 'reason', etc.
      * @throws DomainsException When errors occur during the check
      */
-    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatusResult
+    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus
     {
         try {
             $message = [
@@ -796,17 +798,17 @@ class OpenSRS extends Adapter
 
             // Map OpenSRS response to TransferStatus enum
             $status = match (true) {
-                $noservice === 1 => Result\TransferStatus::ServiceUnavailable,
-                $transferrable === 1 => Result\TransferStatus::Transferrable,
-                $statusStr === 'pending_owner' => Result\TransferStatus::PendingOwner,
-                $statusStr === 'pending_admin' => Result\TransferStatus::PendingAdmin,
-                $statusStr === 'pending_registry' => Result\TransferStatus::PendingRegistry,
-                $statusStr === 'completed' => Result\TransferStatus::Completed,
-                $statusStr === 'cancelled' => Result\TransferStatus::Cancelled,
-                default => Result\TransferStatus::NotTransferrable,
+                $noservice === 1 => TransferStatusEnum::ServiceUnavailable,
+                $transferrable === 1 => TransferStatusEnum::Transferrable,
+                $statusStr === 'pending_owner' => TransferStatusEnum::PendingOwner,
+                $statusStr === 'pending_admin' => TransferStatusEnum::PendingAdmin,
+                $statusStr === 'pending_registry' => TransferStatusEnum::PendingRegistry,
+                $statusStr === 'completed' => TransferStatusEnum::Completed,
+                $statusStr === 'cancelled' => TransferStatusEnum::Cancelled,
+                default => TransferStatusEnum::NotTransferrable,
             };
 
-            return new TransferStatusResult(
+            return new TransferStatus(
                 status: $status,
                 reason: $reason,
                 timestamp: $timestamp,

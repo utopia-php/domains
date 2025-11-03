@@ -1,18 +1,20 @@
 <?php
 
-namespace Utopia\Domains\Registrar;
+namespace Utopia\Domains\Registrar\Adapter;
 
 use DateTime;
 use Utopia\Domains\Cache;
-use Utopia\Domains\Contact;
+use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
-use Utopia\Domains\Registrar\Result\DomainResult;
-use Utopia\Domains\Registrar\Result\RegisterResult;
-use Utopia\Domains\Registrar\Result\RenewResult;
-use Utopia\Domains\Registrar\Result\TransferStatusResult;
+use Utopia\Domains\Registrar\Domain;
+use Utopia\Domains\Registrar\Registeration;
+use Utopia\Domains\Registrar\Renew;
+use Utopia\Domains\Registrar\TransferStatus;
+use Utopia\Domains\Registrar\Adapter;
+use Utopia\Domains\Registrar\TransferStatusEnum;
 
 class Mock extends Adapter
 {
@@ -132,14 +134,14 @@ class Mock extends Adapter
      * Purchase a domain
      *
      * @param string $domain
-     * @param array|\Utopia\Domains\Contact $contacts
+     * @param array|Contact $contacts
      * @param int $periodYears
      * @param array $nameservers
-     * @return RegisterResult
+     * @return Registeration
      * @throws DomainTakenException
      * @throws InvalidContactException
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): RegisterResult
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration
     {
         if (!$this->available($domain)) {
             throw new DomainTakenException("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);
@@ -149,7 +151,7 @@ class Mock extends Adapter
 
         $this->purchasedDomains[] = $domain;
 
-        return new RegisterResult(
+        return new Registeration(
             code: (string) self::RESPONSE_CODE_SUCCESS,
             id: 'mock_' . md5($domain . time()),
             domainId: 'mock_domain_' . md5($domain),
@@ -241,16 +243,16 @@ class Mock extends Adapter
      * Get domain information
      *
      * @param string $domain
-     * @return DomainResult
+     * @return Domain
      * @throws DomainsException
      */
-    public function getDomain(string $domain): DomainResult
+    public function getDomain(string $domain): Domain
     {
         if (!in_array($domain, $this->purchasedDomains)) {
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
         }
 
-        return new DomainResult(
+        return new Domain(
             domain: $domain,
             createdAt: new DateTime(),
             expiresAt: new DateTime('+1 year'),
@@ -326,10 +328,10 @@ class Mock extends Adapter
      *
      * @param string $domain
      * @param int $periodYears
-     * @return RenewResult
+     * @return Renew
      * @throws DomainsException
      */
-    public function renew(string $domain, int $periodYears): RenewResult
+    public function renew(string $domain, int $periodYears): Renew
     {
         if (!in_array($domain, $this->purchasedDomains)) {
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
@@ -339,7 +341,7 @@ class Mock extends Adapter
         $currentExpiry = $domainInfo->expiresAt;
         $newExpiry = $currentExpiry ? (clone $currentExpiry)->modify("+{$periodYears} years") : new DateTime("+{$periodYears} years");
 
-        return new RenewResult(
+        return new Renew(
             successful: true,
             orderId: 'mock_order_' . md5($domain . time()),
             expiresAt: $newExpiry,
@@ -377,11 +379,11 @@ class Mock extends Adapter
      * @param array|Contact $contacts
      * @param int $periodYears
      * @param array $nameservers
-     * @return RegisterResult
+     * @return Registeration
      * @throws DomainTakenException
      * @throws InvalidContactException
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): RegisterResult
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registeration
     {
         if (in_array($domain, $this->purchasedDomains)) {
             throw new DomainTakenException("Domain {$domain} is already in this account", self::RESPONSE_CODE_DOMAIN_TAKEN);
@@ -392,7 +394,7 @@ class Mock extends Adapter
         $this->transferredDomains[] = $domain;
         $this->purchasedDomains[] = $domain;
 
-        return new RegisterResult(
+        return new Registeration(
             code: (string) self::RESPONSE_CODE_SUCCESS,
             id: 'mock_transfer_' . md5($domain . time()),
             domainId: 'mock_domain_' . md5($domain),
@@ -481,25 +483,25 @@ class Mock extends Adapter
      * @param string $domain
      * @param bool $checkStatus
      * @param bool $getRequestAddress
-     * @return TransferStatusResult
+     * @return TransferStatus
      */
-    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatusResult
+    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus
     {
         if (in_array($domain, $this->transferredDomains)) {
-            return new TransferStatusResult(
-                status: Result\TransferStatus::PendingRegistry,
+            return new TransferStatus(
+                status: TransferStatusEnum::PendingRegistry,
                 reason: 'Transfer in progress',
                 timestamp: new DateTime(),
             );
         } elseif (in_array($domain, $this->purchasedDomains)) {
-            return new TransferStatusResult(
-                status: Result\TransferStatus::Completed,
+            return new TransferStatus(
+                status: TransferStatusEnum::Completed,
                 reason: "Domain already exists in mock account",
                 timestamp: new DateTime(),
             );
         } else {
-            return new TransferStatusResult(
-                status: Result\TransferStatus::Transferrable,
+            return new TransferStatus(
+                status: TransferStatusEnum::Transferrable,
                 reason: null,
                 timestamp: null,
             );
