@@ -81,8 +81,8 @@ php ./data/import.php
 <?php
 
 use Utopia\Domains\Registrar;
-use Utopia\Domains\Contact;
-use Utopia\Domains\Registrar\OpenSRS;
+use Utopia\Domains\Registrar\Contact;
+use Utopia\Domains\Registrar\Adapter\OpenSRS;
 
 $opensrs = new OpenSRS(
   'apikey', 
@@ -117,26 +117,30 @@ $contact = new Contact(
 $domain = 'yourname.com';
 
 $available = $reg->available($domain);
-$purchase = $reg->purchase($domain, $contact); 
+$purchase = $reg->purchase($domain, [$contact]);
+$purchase = $reg->purchase($domain, [$contact], 1);
 $suggest = $reg->suggest(['yourname', 'yourname1.com'], ['com', 'net', 'org'], 10, 10000, 100);
 $domainDetails = $reg->getDomain($domain);
 $renew = $reg->renew($domain, 1);
 $transfer = $reg->transfer($domain, [$contact]);
+$transfer = $reg->transfer($domain, 'authcode', [$contact]);
 
 ```
 
 ## Library Registrar API
 * **available(string $domain): bool** - Checks to see if a domain is available for registration.
-* **purchase(string $domain, array $contacts, array $nameservers = []): array** - Purchase a domain name.
+* **purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration** - Purchase a domain name and returns a Registration object.
 * **suggest(array $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array** - Suggest or search for domain names.
-* **getDomain(string $domain): array** - Get domain details.
-* **renew(string $domain, int $years): array** - Renew a domain name.
-* **transfer(string $domain, array $contacts, array $nameservers = []): array** - Transfer a domain name.
+* **getDomain(string $domain): Domain** - Get domain details and returns a Domain object.
+* **renew(string $domain, int $periodYears): Renewal** - Renewal a domain name and returns a Renewal object.
+* **transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration** - Transfer a domain name and returns a Registration object.
+* **getAuthCode(string $domain): string** - Retrieve the authorization code for a domain.
+* **checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus** - Check the transfer status of a domain.
 
 
 ## System Requirements
 
-Utopia Framework requires PHP 8.0 or later. We recommend using the latest PHP version whenever possible.
+Utopia Framework requires PHP 8.2 or later. We recommend using the latest PHP version whenever possible.
 
 ## Authors
 

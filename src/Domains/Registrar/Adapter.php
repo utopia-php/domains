@@ -27,11 +27,12 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
-     * @param  array<\Utopia\Domains\Contact>  $contacts
+     * @param  array|Contact  $contacts
+     * @param  int  $periodYears
      * @param  array  $nameservers
-     * @return array
+     * @return Registration
      */
-    abstract public function purchase(string $domain, array $contacts, array $nameservers = []): array;
+    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration;
 
     /**
      * @param  array  $query
@@ -51,31 +52,59 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * @param  string  $domain
-     * @return array
+     * @return Domain
      */
-    abstract public function getDomain(string $domain): array;
+    abstract public function getDomain(string $domain): Domain;
 
     /**
      * @param  string  $domain
-     * @param  int  $period
+     * @param  array $details
+     * @param  array|Contact|null $contacts
+     * @return bool
+     */
+    abstract public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool;
+
+    /**
+     * @param  string  $domain
+     * @param  int  $periodYears
      * @param  string  $regType
      * @param  int  $ttl
-     * @return array
+     * @return float
      */
-    abstract public function getPrice(string $domain, int $period = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): array;
+    abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float;
 
     /**
      * @param  string  $domain
-     * @param  int  $years
-     * @return array
+     * @param  int  $periodYears
+     * @return Renewal
      */
-    abstract public function renew(string $domain, int $years): array;
+    abstract public function renew(string $domain, int $periodYears): Renewal;
 
     /**
      * @param  string  $domain
-     * @param  array<\Utopia\Domains\Contact>  $contacts
+     * @param  string  $authCode
+     * @param  array|Contact  $contacts
+     * @param  int  $periodYears
      * @param  array  $nameservers
-     * @return array
+     * @return Registration
      */
-    abstract public function transfer(string $domain, array $contacts, array $nameservers = []): array;
+    abstract public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration;
+
+    /**
+     * Get the authorization code for an EPP domain
+     *
+     * @param  string  $domain
+     * @return string
+     */
+    abstract public function getAuthCode(string $domain): string;
+
+    /**
+     * Check transfer status for a domain
+     *
+     * @param  string  $domain
+     * @param  bool  $checkStatus
+     * @param  bool  $getRequestAddress
+     * @return TransferStatus
+     */
+    abstract public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus;
 }

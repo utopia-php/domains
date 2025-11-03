@@ -1,6 +1,6 @@
 <?php
 
-namespace Utopia\Domains;
+namespace Utopia\Domains\Registrar;
 
 class Contact
 {
