@@ -120,8 +120,8 @@ class OpenSRSTest extends TestCase
         $result = $this->client->getDomain($this->domain);
 
         $this->assertEquals($this->domain, $result->domain);
-        $this->assertInstanceOf(\DateTime::class, $result->registryCreateDate);
-        $this->assertInstanceOf(\DateTime::class, $result->registryExpireDate);
+        $this->assertInstanceOf(\DateTime::class, $result->createdAt);
+        $this->assertInstanceOf(\DateTime::class, $result->expiresAt);
         $this->assertIsBool($result->autoRenew);
         $this->assertIsArray($result->nameservers);
     }

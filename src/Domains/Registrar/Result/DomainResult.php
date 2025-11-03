@@ -8,8 +8,8 @@ final readonly class DomainResult
 {
     public function __construct(
         public string $domain,
-        public ?DateTime $registryCreateDate = null,
-        public ?DateTime $registryExpireDate = null,
+        public ?DateTime $createdAt = null,
+        public ?DateTime $expiresAt = null,
         public ?bool $autoRenew = null,
         public ?array $nameservers = null
     ) {

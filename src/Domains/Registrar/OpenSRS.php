@@ -594,8 +594,8 @@ class OpenSRS extends Adapter
 
         return new DomainResult(
             domain: $domain,
-            registryCreateDate: $registryCreateDate,
-            registryExpireDate: $registryExpireDate,
+            createdAt: $registryCreateDate,
+            expiresAt: $registryExpireDate,
             autoRenew: $autoRenew,
             nameservers: $nameserverList,
         );

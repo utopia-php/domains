@@ -254,8 +254,8 @@ class Mock extends Adapter
 
         return new DomainResult(
             domain: $domain,
-            registryCreateDate: new DateTime(),
-            registryExpireDate: new DateTime('+1 year'),
+            createdAt: new DateTime(),
+            expiresAt: new DateTime('+1 year'),
             autoRenew: false,
             nameservers: [
                 'ns1.example.com',
@@ -356,7 +356,7 @@ class Mock extends Adapter
         }
 
         $domainInfo = $this->getDomain($domain);
-        $currentExpiry = $domainInfo->registryExpireDate;
+        $currentExpiry = $domainInfo->expiresAt;
         $newExpiry = $currentExpiry ? (clone $currentExpiry)->modify("+{$periodYears} years") : new DateTime("+{$periodYears} years");
 
         return new RenewResult(
