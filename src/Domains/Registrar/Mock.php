@@ -487,36 +487,21 @@ class Mock extends Adapter
     {
         if (in_array($domain, $this->transferredDomains)) {
             return new TransferStatusResult(
-                transferrable: 0,
-                noservice: 0,
+                status: Result\TransferStatus::PendingRegistry,
                 reason: 'Transfer in progress',
-                reasonCode: null,
-                status: 'pending_registry',
                 timestamp: new DateTime(),
-                type: null,
-                requestAddress: $getRequestAddress ? 'mock@example.com' : null,
             );
         } elseif (in_array($domain, $this->purchasedDomains)) {
             return new TransferStatusResult(
-                transferrable: 0,
-                noservice: 0,
+                status: Result\TransferStatus::Completed,
                 reason: "Domain already exists in mock account",
-                reasonCode: 'domain_already_belongs_to_current_reseller',
-                status: 'completed',
                 timestamp: new DateTime(),
-                type: null,
-                requestAddress: $getRequestAddress ? 'mock@example.com' : null,
             );
         } else {
             return new TransferStatusResult(
-                transferrable: 1,
-                noservice: 0,
+                status: Result\TransferStatus::Transferrable,
                 reason: null,
-                reasonCode: null,
-                status: null,
                 timestamp: null,
-                type: 'reg2reg',
-                requestAddress: $getRequestAddress ? 'mock@example.com' : null,
             );
         }
     }

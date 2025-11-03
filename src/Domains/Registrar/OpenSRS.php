@@ -743,7 +743,7 @@ class OpenSRS extends Adapter
      * @param string $domain The fully qualified domain name
      * @param bool $checkStatus Flag to request the status of a transfer request
      * @param bool $getRequestAddress Flag to request the registrant's contact email address
-     * @return TransferStatusResult Contains transfer status information including 'transferable', 'status', 'reason', etc.
+     * @return TransferStatusResult Contains transfer status information including 'status', 'reason', etc.
      * @throws DomainsException When errors occur during the check
      */
     public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatusResult
@@ -768,11 +768,8 @@ class OpenSRS extends Adapter
             $transferrable = 0;
             $noservice = 0;
             $reason = null;
-            $reasonCode = null;
-            $status = null;
+            $statusStr = null;
             $timestamp = null;
-            $type = null;
-            $requestAddress = null;
 
             foreach ($elements as $element) {
                 $key = (string) $element['key'];
@@ -788,33 +785,31 @@ class OpenSRS extends Adapter
                     case 'reason':
                         $reason = $value;
                         break;
-                    case 'reason_code':
-                        $reasonCode = $value;
-                        break;
                     case 'status':
-                        $status = $value;
+                        $statusStr = $value;
                         break;
                     case 'timestamp':
                         $timestamp = new DateTime($value);
                         break;
-                    case 'type':
-                        $type = $value;
-                        break;
-                    case 'request_address':
-                        $requestAddress = $value;
-                        break;
                 }
             }
 
+            // Map OpenSRS response to TransferStatus enum
+            $status = match (true) {
+                $noservice === 1 => Result\TransferStatus::ServiceUnavailable,
+                $transferrable === 1 => Result\TransferStatus::Transferrable,
+                $statusStr === 'pending_owner' => Result\TransferStatus::PendingOwner,
+                $statusStr === 'pending_admin' => Result\TransferStatus::PendingAdmin,
+                $statusStr === 'pending_registry' => Result\TransferStatus::PendingRegistry,
+                $statusStr === 'completed' => Result\TransferStatus::Completed,
+                $statusStr === 'cancelled' => Result\TransferStatus::Cancelled,
+                default => Result\TransferStatus::NotTransferrable,
+            };
+
             return new TransferStatusResult(
-                transferrable: $transferrable,
-                noservice: $noservice,
-                reason: $reason,
-                reasonCode: $reasonCode,
                 status: $status,
+                reason: $reason,
                 timestamp: $timestamp,
-                type: $type,
-                requestAddress: $requestAddress,
             );
         } catch (Exception $e) {
             throw new DomainsException('Failed to check transfer status: ' . $e->getMessage(), $e->getCode(), $e);

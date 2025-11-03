@@ -335,6 +335,18 @@ class OpenSRSTest extends TestCase
         }
     }
 
+    public function testTransferAlreadyExists(): void
+    {
+        try {
+            $result = $this->client->transfer($this->domain, 'test-auth-code', self::purchaseContact());
+            $this->assertTrue($result->successful);
+            $this->assertNotEmpty($result->code);
+        } catch (DomainNotTransferableException $e) {
+            $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
+            $this->assertStringContainsString('Domain is not transferable: Domain already exists', $e->getMessage());
+        }
+    }
+
     public function testGetAuthCode(): void
     {
         $authCode = $this->client->getAuthCode($this->domain);
@@ -347,34 +359,30 @@ class OpenSRSTest extends TestCase
     {
         $result = $this->client->checkTransferStatus($this->domain, true, true);
 
-        $this->assertIsInt($result->transferrable);
-        $this->assertIsInt($result->noservice);
+        $this->assertInstanceOf(\Utopia\Domains\Registrar\Result\TransferStatus::class, $result->status);
 
-        if ($result->transferrable === 0) {
+        if ($result->status !== \Utopia\Domains\Registrar\Result\TransferStatus::Transferrable) {
             $this->assertNotNull($result->reason);
             $this->assertIsString($result->reason);
         }
 
-        if ($result->status !== null) {
-            $this->assertContains($result->status, [
-                'pending_owner',
-                'pending_admin',
-                'pending_registry',
-                'completed',
-                'cancelled',
-                'undef'
-            ]);
-        }
+        $this->assertContains($result->status, [
+            \Utopia\Domains\Registrar\Result\TransferStatus::Transferrable,
+            \Utopia\Domains\Registrar\Result\TransferStatus::NotTransferrable,
+            \Utopia\Domains\Registrar\Result\TransferStatus::PendingOwner,
+            \Utopia\Domains\Registrar\Result\TransferStatus::PendingAdmin,
+            \Utopia\Domains\Registrar\Result\TransferStatus::PendingRegistry,
+            \Utopia\Domains\Registrar\Result\TransferStatus::Completed,
+            \Utopia\Domains\Registrar\Result\TransferStatus::Cancelled,
+            \Utopia\Domains\Registrar\Result\TransferStatus::ServiceUnavailable,
+        ]);
     }
 
     public function testCheckTransferStatusWithRequestAddress(): void
     {
         $result = $this->client->checkTransferStatus($this->domain, false, true);
 
-        if ($result->requestAddress !== null) {
-            $this->assertIsString($result->requestAddress);
-            $this->assertNotEmpty($result->requestAddress);
-        }
+        $this->assertInstanceOf(\Utopia\Domains\Registrar\Result\TransferStatus::class, $result->status);
     }
 
     private static function purchaseContact(string $suffix = ''): array

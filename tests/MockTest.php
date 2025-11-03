@@ -227,6 +227,19 @@ class MockTest extends TestCase
         $this->assertEquals($nameservers, $result->nameservers);
     }
 
+    public function testTransferAlreadyExists(): void
+    {
+        $domain = 'alreadyexists.com';
+        $contact = $this->createContact();
+        $authCode = 'test-auth-code-12345';
+
+        $this->adapter->purchase($domain, $contact, 1);
+
+        $this->expectException(DomainTakenException::class);
+        $this->expectExceptionMessage('Domain ' . $domain . ' is already in this account');
+        $this->adapter->transfer($domain, $authCode, $contact);
+    }
+
     public function testTransferWithInvalidContact(): void
     {
         $this->expectException(InvalidContactException::class);
@@ -296,24 +309,23 @@ class MockTest extends TestCase
         $domain = 'transferable.com';
         $result = $this->adapter->checkTransferStatus($domain, true, true);
 
-        $this->assertIsInt($result->transferrable);
-        $this->assertIsInt($result->noservice);
+        $this->assertInstanceOf(\Utopia\Domains\Registrar\Result\TransferStatus::class, $result->status);
 
-        if ($result->transferrable === 0) {
+        if ($result->status !== \Utopia\Domains\Registrar\Result\TransferStatus::Transferrable) {
             $this->assertNotNull($result->reason);
             $this->assertIsString($result->reason);
         }
 
-        if ($result->status !== null) {
-            $this->assertContains($result->status, [
-                'pending_owner',
-                'pending_admin',
-                'pending_registry',
-                'completed',
-                'cancelled',
-                'undef'
-            ]);
-        }
+        $this->assertContains($result->status, [
+            \Utopia\Domains\Registrar\Result\TransferStatus::Transferrable,
+            \Utopia\Domains\Registrar\Result\TransferStatus::NotTransferrable,
+            \Utopia\Domains\Registrar\Result\TransferStatus::PendingOwner,
+            \Utopia\Domains\Registrar\Result\TransferStatus::PendingAdmin,
+            \Utopia\Domains\Registrar\Result\TransferStatus::PendingRegistry,
+            \Utopia\Domains\Registrar\Result\TransferStatus::Completed,
+            \Utopia\Domains\Registrar\Result\TransferStatus::Cancelled,
+            \Utopia\Domains\Registrar\Result\TransferStatus::ServiceUnavailable,
+        ]);
     }
 
     public function testCheckTransferStatusWithRequestAddress(): void
@@ -321,10 +333,7 @@ class MockTest extends TestCase
         $domain = 'example.com';
         $result = $this->adapter->checkTransferStatus($domain, false, true);
 
-        if ($result->requestAddress !== null) {
-            $this->assertIsString($result->requestAddress);
-            $this->assertNotEmpty($result->requestAddress);
-        }
+        $this->assertInstanceOf(\Utopia\Domains\Registrar\Result\TransferStatus::class, $result->status);
     }
 
     private function createContact(): Contact
