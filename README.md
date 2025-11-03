@@ -134,6 +134,8 @@ $transfer = $reg->transfer($domain, 'authcode', [$contact]);
 * **getDomain(string $domain): Domain** - Get domain details and returns a Domain object.
 * **renew(string $domain, int $periodYears): Renew** - Renew a domain name and returns a Renew object.
 * **transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration** - Transfer a domain name and returns a Registration object.
+* **getAuthCode(string $domain): string** - Retrieve the authorization code for a domain.
+* **checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus** - Check the transfer status of a domain.
 
 
 ## System Requirements
