@@ -127,16 +127,16 @@ $transfer = $reg->transfer($domain, 'authcode', [$contact]);
 
 ## Library Registrar API
 * **available(string $domain): bool** - Checks to see if a domain is available for registration.
-* **purchase(string $domain, array $contacts, int $periodYears = 1, array $nameservers = []): array** - Purchase a domain name.
+* **purchase(string $domain, array $contacts, int $periodYears = 1, array $nameservers = []): PurchaseResult** - Purchase a domain name and returns a PurchaseResult object.
 * **suggest(array $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array** - Suggest or search for domain names.
-* **getDomain(string $domain): array** - Get domain details.
-* **renew(string $domain, int $periodYears): array** - Renew a domain name.
-* **transfer(string $domain, string $authCode, array $contacts, int $periodYears = 1, array $nameservers = []): array** - Transfer a domain name.
+* **getDomain(string $domain): DomainResult** - Get domain details and returns a DomainResult object.
+* **renew(string $domain, int $periodYears): RenewResult** - Renew a domain name and returns a RenewResult object.
+* **transfer(string $domain, string $authCode, array $contacts, int $periodYears = 1, array $nameservers = []): TransferResult** - Transfer a domain name and returns a TransferResult object.
 
 
 ## System Requirements
 
-Utopia Framework requires PHP 8.0 or later. We recommend using the latest PHP version whenever possible.
+Utopia Framework requires PHP 8.2 or later. We recommend using the latest PHP version whenever possible.
 
 ## Authors
 
