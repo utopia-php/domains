@@ -132,7 +132,7 @@ $transfer = $reg->transfer($domain, 'authcode', [$contact]);
 * **purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration** - Purchase a domain name and returns a Registration object.
 * **suggest(array $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array** - Suggest or search for domain names.
 * **getDomain(string $domain): Domain** - Get domain details and returns a Domain object.
-* **renew(string $domain, int $periodYears): Renew** - Renew a domain name and returns a Renew object.
+* **renew(string $domain, int $periodYears): Renewal** - Renewal a domain name and returns a Renewal object.
 * **transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration** - Transfer a domain name and returns a Registration object.
 * **getAuthCode(string $domain): string** - Retrieve the authorization code for a domain.
 * **checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus** - Check the transfer status of a domain.

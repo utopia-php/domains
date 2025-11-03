@@ -14,7 +14,7 @@ use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar\Adapter;
 use Utopia\Domains\Registrar\Registration;
-use Utopia\Domains\Registrar\Renew;
+use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
@@ -651,13 +651,13 @@ class OpenSRS extends Adapter
     }
 
     /**
-     * Renew a domain
+     * Renewal a domain
      *
      * @param string $domain The domain name to renew
      * @param int $periodYears The number of years to renew the domain for
-     * @return Renew Contains the renewal information
+     * @return Renewal Contains the renewal information
      */
-    public function renew(string $domain, int $periodYears): Renew
+    public function renew(string $domain, int $periodYears): Renewal
     {
         $message = [
             'object' => 'DOMAIN',
@@ -697,7 +697,7 @@ class OpenSRS extends Adapter
             }
         }
 
-        return new Renew(
+        return new Renewal(
             successful: $orderId !== null,
             orderId: $orderId,
             expiresAt: $newExpiration,

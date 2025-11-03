@@ -11,7 +11,7 @@ use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\Registration;
-use Utopia\Domains\Registrar\Renew;
+use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Adapter;
 use Utopia\Domains\Registrar\TransferStatusEnum;
@@ -324,14 +324,14 @@ class Mock extends Adapter
     }
 
     /**
-     * Renew a domain
+     * Renewal a domain
      *
      * @param string $domain
      * @param int $periodYears
-     * @return Renew
+     * @return Renewal
      * @throws DomainsException
      */
-    public function renew(string $domain, int $periodYears): Renew
+    public function renew(string $domain, int $periodYears): Renewal
     {
         if (!in_array($domain, $this->purchasedDomains)) {
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
@@ -341,7 +341,7 @@ class Mock extends Adapter
         $currentExpiry = $domainInfo->expiresAt;
         $newExpiry = $currentExpiry ? (clone $currentExpiry)->modify("+{$periodYears} years") : new DateTime("+{$periodYears} years");
 
-        return new Renew(
+        return new Renewal(
             successful: true,
             orderId: 'mock_order_' . md5($domain . time()),
             expiresAt: $newExpiry,

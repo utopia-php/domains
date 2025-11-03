@@ -76,9 +76,9 @@ abstract class Adapter extends DomainsAdapter
     /**
      * @param  string  $domain
      * @param  int  $periodYears
-     * @return Renew
+     * @return Renewal
      */
-    abstract public function renew(string $domain, int $periodYears): Renew;
+    abstract public function renew(string $domain, int $periodYears): Renewal;
 
     /**
      * @param  string  $domain

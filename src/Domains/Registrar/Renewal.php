@@ -4,7 +4,7 @@ namespace Utopia\Domains\Registrar;
 
 use DateTime;
 
-final readonly class Renew
+final readonly class Renewal
 {
     public function __construct(
         public bool $successful,

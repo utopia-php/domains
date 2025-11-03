@@ -5,7 +5,7 @@ namespace Utopia\Domains;
 use Utopia\Domains\Registrar\Adapter as RegistrarAdapter;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\Registration;
-use Utopia\Domains\Registrar\Renew;
+use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\Contact;
 
 class Registrar
@@ -125,13 +125,13 @@ class Registrar
     }
 
     /**
-     * Renew a domain
+     * Renewal a domain
      *
      * @param string $domain
      * @param int $periodYears
-     * @return Renew
+     * @return Renewal
      */
-    public function renew(string $domain, int $periodYears): Renew
+    public function renew(string $domain, int $periodYears): Renewal
     {
         return $this->adapter->renew($domain, $periodYears);
     }
