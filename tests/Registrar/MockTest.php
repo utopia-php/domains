@@ -34,7 +34,7 @@ class MockTest extends TestCase
 
     public function testGetName(): void
     {
-        $this->assertEquals('mock', $this->adapter->getName());
+        $this->assertSame('mock', $this->adapter->getName());
     }
 
     public function testAvailable(): void
@@ -51,7 +51,7 @@ class MockTest extends TestCase
         $result = $this->adapter->purchase($domain, $contact, 1);
 
         $this->assertTrue($result->successful);
-        $this->assertEquals($domain, $result->domain);
+        $this->assertSame($domain, $result->domain);
         $this->assertNotEmpty($result->id);
         $this->assertNotEmpty($result->domainId);
 
@@ -90,7 +90,7 @@ class MockTest extends TestCase
 
         $result = $this->adapter->getDomain($domain);
 
-        $this->assertEquals($domain, $result->domain);
+        $this->assertSame($domain, $result->domain);
         $this->assertInstanceOf(\DateTime::class, $result->createdAt);
         $this->assertInstanceOf(\DateTime::class, $result->expiresAt);
         $this->assertIsBool($result->autoRenew);
@@ -139,7 +139,7 @@ class MockTest extends TestCase
         $this->assertIsFloat($result1);
 
         $result2 = $this->adapterWithCache->getPrice('example.com', 1, Mock::REG_TYPE_NEW, 3600);
-        $this->assertEquals($result1, $result2);
+        $this->assertSame($result1, $result2);
     }
 
     public function testGetPriceWithCustomTtl(): void
@@ -200,7 +200,7 @@ class MockTest extends TestCase
         $result = $this->adapter->purchase($domain, $contact, 1, $nameservers);
 
         $this->assertTrue($result->successful);
-        $this->assertEquals($nameservers, $result->nameservers);
+        $this->assertSame($nameservers, $result->nameservers);
     }
 
     public function testTransfer(): void
@@ -212,7 +212,7 @@ class MockTest extends TestCase
         $result = $this->adapter->transfer($domain, $authCode, $contact);
 
         $this->assertTrue($result->successful);
-        $this->assertEquals($domain, $result->domain);
+        $this->assertSame($domain, $result->domain);
     }
 
     public function testTransferWithNameservers(): void
@@ -225,7 +225,7 @@ class MockTest extends TestCase
         $result = $this->adapter->transfer($domain, $authCode, $contact, 1, $nameservers);
 
         $this->assertTrue($result->successful);
-        $this->assertEquals($nameservers, $result->nameservers);
+        $this->assertSame($nameservers, $result->nameservers);
     }
 
     public function testTransferAlreadyExists(): void

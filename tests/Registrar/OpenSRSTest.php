@@ -57,7 +57,7 @@ class OpenSRSTest extends TestCase
 
     public function testGetName(): void
     {
-        $this->assertEquals('opensrs', $this->client->getName());
+        $this->assertSame('opensrs', $this->client->getName());
     }
 
     public function testAvailable(): void
@@ -125,7 +125,7 @@ class OpenSRSTest extends TestCase
     {
         $result = $this->client->getDomain($this->domain);
 
-        $this->assertEquals($this->domain, $result->domain);
+        $this->assertSame($this->domain, $result->domain);
         $this->assertInstanceOf(\DateTime::class, $result->createdAt);
         $this->assertInstanceOf(\DateTime::class, $result->expiresAt);
         $this->assertIsBool($result->autoRenew);
@@ -164,7 +164,7 @@ class OpenSRSTest extends TestCase
 
         $this->assertIsArray($result);
         foreach ($result as $domain => $data) {
-            $this->assertEquals('suggestion', $data['type']);
+            $this->assertSame('suggestion', $data['type']);
             if ($data['available'] && $data['price'] !== null) {
                 $this->assertIsFloat($data['price']);
                 $this->assertGreaterThan(0, $data['price']);
@@ -211,7 +211,7 @@ class OpenSRSTest extends TestCase
         $this->assertLessThanOrEqual(5, count($result));
 
         foreach ($result as $domain => $data) {
-            $this->assertEquals('premium', $data['type']);
+            $this->assertSame('premium', $data['type']);
             if ($data['price'] !== null) {
                 $this->assertIsFloat($data['price']);
                 $this->assertGreaterThanOrEqual(100, $data['price']);
@@ -233,7 +233,7 @@ class OpenSRSTest extends TestCase
         $this->assertLessThanOrEqual(5, count($result));
 
         foreach ($result as $domain => $data) {
-            $this->assertEquals('premium', $data['type']);
+            $this->assertSame('premium', $data['type']);
             if ($data['price'] !== null) {
                 $this->assertIsFloat($data['price']);
             }
@@ -251,7 +251,7 @@ class OpenSRSTest extends TestCase
         $this->assertLessThanOrEqual(3, count($result));
 
         foreach ($result as $domain => $data) {
-            $this->assertEquals('suggestion', $data['type']);
+            $this->assertSame('suggestion', $data['type']);
             $this->assertStringEndsWith('.org', $domain);
         }
     }
@@ -274,7 +274,7 @@ class OpenSRSTest extends TestCase
         $this->assertIsFloat($result1);
 
         $result2 = $this->clientWithCache->getPrice($this->domain, 1, Registrar::REG_TYPE_NEW, 3600);
-        $this->assertEquals($result1, $result2);
+        $this->assertSame($result1, $result2);
     }
 
     public function testGetPriceWithCustomTtl(): void
@@ -331,8 +331,8 @@ class OpenSRSTest extends TestCase
             $this->assertTrue($result->successful);
             $this->assertNotEmpty($result->code);
         } catch (DomainNotTransferableException $e) {
-            $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
-            $this->assertEquals('Domain is not transferable: Domain not registered', $e->getMessage());
+            $this->assertSame(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
+            $this->assertSame('Domain is not transferable: Domain not registered', $e->getMessage());
         }
     }
 
@@ -343,7 +343,7 @@ class OpenSRSTest extends TestCase
             $this->assertTrue($result->successful);
             $this->assertNotEmpty($result->code);
         } catch (DomainNotTransferableException $e) {
-            $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
+            $this->assertSame(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
             $this->assertStringContainsString('Domain is not transferable: Domain already exists', $e->getMessage());
         }
     }
