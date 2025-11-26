@@ -25,7 +25,7 @@
   },
   "require": {
       "php": ">=8.2",
-      "utopia-php/validators": "0.1.*",
+      "utopia-php/validators": "0.*",
       "utopia-php/cache": "0.13.*"
   },
   "require-dev": {
