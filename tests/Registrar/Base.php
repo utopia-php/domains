@@ -6,6 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Utopia\Domains\Registrar\Adapter;
 use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
+use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\TransferStatusEnum;
@@ -383,8 +384,7 @@ abstract class Base extends TestCase
                 $this->assertEquals($domain, $result->domain);
             }
         } catch (\Exception $e) {
-            // Transfer may fail for test domains, which is acceptable
-            $this->assertNotEmpty($e->getMessage());
+            $this->assertInstanceOf(DomainNotTransferableException::class, $e);
         }
     }
 

@@ -22,13 +22,12 @@ use Utopia\Domains\Registrar\TransferStatusEnum;
 class NameCom extends Adapter
 {
     /**
-     * Name.com API Response Codes
+     * Name.com API Error Messages
      */
-    public const RESPONSE_CODE_SUCCESS = 0;
-    public const RESPONSE_CODE_DOMAIN_TAKEN = 1000;
-    public const RESPONSE_CODE_INVALID_CONTACT = 1001;
-    public const RESPONSE_CODE_AUTH_FAILURE = 401;
-    public const RESPONSE_CODE_NOT_FOUND = 404;
+    public const ERROR_MESSAGE_DOMAIN_TAKEN = 'Domain is not available';
+    public const ERROR_MESSAGE_INVALID_CONTACT = 'invalid value for $country when calling';
+    public const ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE = 'we were unable to get authoritative domain information from the registry. this usually means that the domain name or auth code provided was not correct.';
+    public const ERROR_MESSAGE_PRICE_NOT_FOUND = 'none of the submitted domains are valid';
 
     protected string $username;
     protected string $token;
@@ -157,19 +156,18 @@ class NameCom extends Adapter
                 periodYears: $periodYears,
                 nameservers: $nameservers,
             );
+        } catch (AuthException $e) {
+            throw $e;
         } catch (Exception $e) {
             $message = 'Failed to purchase domain: ' . $e->getMessage();
             $code = $e->getCode();
             $errorLower = strtolower($e->getMessage());
 
-            if (str_contains($errorLower, 'unavailable') || str_contains($errorLower, 'not available') || str_contains($errorLower, 'already registered')) {
-                throw new DomainTakenException($message, self::RESPONSE_CODE_DOMAIN_TAKEN, $e);
+            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_TAKEN))) {
+                throw new DomainTakenException($message, $e->getCode(), $e);
             }
-            if (str_contains($errorLower, 'contact') || str_contains($errorLower, 'phone') || str_contains($errorLower, 'country') || str_contains($errorLower, 'email')) {
-                throw new InvalidContactException($message, self::RESPONSE_CODE_INVALID_CONTACT, $e);
-            }
-            if ($code === 401 || str_contains($errorLower, 'authentication') || str_contains($errorLower, 'unauthorized')) {
-                throw new AuthException($message, self::RESPONSE_CODE_AUTH_FAILURE, $e);
+            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT))) {
+                throw new InvalidContactException($message, $e->getCode(), $e);
             }
             throw new DomainsException($message, $code, $e);
         }
@@ -215,19 +213,21 @@ class NameCom extends Adapter
                 periodYears: $periodYears,
                 nameservers: $nameservers,
             );
+        } catch (AuthException $e) {
+            throw $e;
         } catch (Exception $e) {
             $message = 'Failed to transfer domain: ' . $e->getMessage();
             $code = $e->getCode();
             $errorLower = strtolower($e->getMessage());
 
-            if (str_contains($errorLower, 'not transferable') || str_contains($errorLower, 'transfer lock')) {
+            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE))) {
                 throw new DomainNotTransferableException($message, $code, $e);
             }
-            if (str_contains($errorLower, 'contact') || str_contains($errorLower, 'phone') || str_contains($errorLower, 'country') || str_contains($errorLower, 'email')) {
-                throw new InvalidContactException($message, self::RESPONSE_CODE_INVALID_CONTACT, $e);
+            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT))) {
+                throw new InvalidContactException($message, $e->getCode(), $e);
             }
-            if (str_contains($errorLower, 'already exists') || str_contains($errorLower, 'already in')) {
-                throw new DomainTakenException($message, self::RESPONSE_CODE_DOMAIN_TAKEN, $e);
+            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_TAKEN))) {
+                throw new DomainTakenException($message, $e->getCode(), $e);
             }
             throw new DomainsException($message, $code, $e);
         }
@@ -350,7 +350,7 @@ class NameCom extends Adapter
                 $price = isset($domainResult['purchasePrice']) ? (float) $domainResult['purchasePrice'] : null;
 
                 if ($price === null) {
-                    throw new PriceNotFoundException('Price not found for domain: ' . $domain, self::RESPONSE_CODE_NOT_FOUND);
+                    throw new PriceNotFoundException('Price not found for domain: ' . $domain, 400);
                 }
 
                 if ($this->cache) {
@@ -361,15 +361,16 @@ class NameCom extends Adapter
                 return $price;
             }
 
-            throw new PriceNotFoundException('Price not found for domain: ' . $domain, self::RESPONSE_CODE_NOT_FOUND);
+            throw new PriceNotFoundException('Price not found for domain: ' . $domain, 400);
         } catch (PriceNotFoundException $e) {
+            throw $e;
+        } catch (AuthException $e) {
             throw $e;
         } catch (Exception $e) {
             $message = 'Failed to get price for domain: ' . $e->getMessage();
             $errorLower = strtolower($e->getMessage());
 
-            // Check if this is a price-related error
-            if (str_contains($errorLower, 'invalid') || str_contains($errorLower, 'not valid') || str_contains($errorLower, 'not found') || str_contains($errorLower, 'none of') || str_contains($errorLower, 'are valid')) {
+            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_PRICE_NOT_FOUND))) {
                 throw new PriceNotFoundException($message, $e->getCode(), $e);
             }
 
@@ -497,7 +498,7 @@ class NameCom extends Adapter
                 return $result['authCode'];
             }
 
-            throw new DomainsException('Auth code not found in response', self::RESPONSE_CODE_NOT_FOUND);
+            throw new DomainsException('Auth code not found in response', 404);
         } catch (DomainsException $e) {
             throw $e;
         } catch (Exception $e) {
@@ -592,7 +593,7 @@ class NameCom extends Adapter
         if ($data !== null && in_array($method, ['POST', 'PUT', 'PATCH'])) {
             $jsonData = json_encode($data);
             if ($jsonData === false) {
-                $jsonError = function_exists('json_last_error_msg') ? json_last_error_msg() : 'Unknown JSON encoding error';
+                $jsonError = json_last_error_msg();
                 curl_close($ch);
                 throw new Exception('Failed to encode request data to JSON: ' . $jsonError);
             }
@@ -618,6 +619,11 @@ class NameCom extends Adapter
 
         if ($httpCode >= 400) {
             $message = $response['message'] ?? $response['details'] ?? 'Unknown error';
+
+            if ($httpCode === 401 && $message === 'Unauthorized') {
+                throw new AuthException('Failed to send request to Name.com: ' . $message, $httpCode);
+            }
+
             throw new Exception($message, $httpCode);
         }
 

@@ -16,14 +16,14 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Get the name of the adapter
-     * 
+     *
      * @return string
      */
     abstract public function getName(): string;
 
     /**
      * Check if a domain is available
-     * 
+     *
      * @param  string  $domain
      * @return bool
      */
@@ -31,7 +31,7 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Purchase a domain
-     * 
+     *
      * @param  string  $domain
      * @param  array|Contact  $contacts
      * @param  int  $periodYears
@@ -42,7 +42,7 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Suggest domain names
-     * 
+     *
      * @param  array  $query
      * @param  array  $tlds
      * @param  int|null $limit
@@ -55,14 +55,14 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Get the TLDs supported by the adapter
-     * 
+     *
      * @return array
      */
     abstract public function tlds(): array;
 
     /**
      * Get the domain information
-     * 
+     *
      * @param  string  $domain
      * @return Domain
      */
@@ -70,7 +70,7 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Update the domain information
-     * 
+     *
      * @param  string  $domain
      * @param  array $details
      * @param  array|Contact|null $contacts
@@ -80,7 +80,7 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Update the nameservers for a domain
-     * 
+     *
      * @param string $domain
      * @param array $nameservers
      * @return array
@@ -93,7 +93,7 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Get the price of a domain
-     * 
+     *
      * @param  string  $domain
      * @param  int  $periodYears
      * @param  string  $regType
@@ -104,7 +104,7 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Renew a domain
-     * 
+     *
      * @param  string  $domain
      * @param  int  $periodYears
      * @return Renewal
@@ -113,7 +113,7 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Transfer a domain
-     * 
+     *
      * @param  string  $domain
      * @param  string  $authCode
      * @param  array|Contact  $contacts
@@ -133,7 +133,7 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Check transfer status for a domain
-     * 
+     *
      * @param  string  $domain
      * @param  bool  $checkStatus
      * @param  bool  $getRequestAddress
