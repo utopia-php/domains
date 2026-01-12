@@ -5,11 +5,10 @@ namespace Utopia\Tests\Registrar;
 use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
-use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Adapter\NameCom;
 
-class NameComTest extends BaseRegistrarTest
+class NameComTest extends Base
 {
     private NameCom $client;
     private NameCom $clientWithCache;
@@ -45,12 +44,12 @@ class NameComTest extends BaseRegistrarTest
         );
     }
 
-    protected function getAdapter(): Registrar
+    protected function getAdapter(): NameCom
     {
         return $this->client;
     }
 
-    protected function getAdapterWithCache(): Registrar
+    protected function getAdapterWithCache(): NameCom
     {
         return $this->clientWithCache;
     }
@@ -75,6 +74,18 @@ class NameComTest extends BaseRegistrarTest
             'ns1.name.com',
             'ns2.name.com',
         ];
+    }
+
+    protected function shouldSkipTest(string $testName): bool
+    {
+        // NameCom supports all base tests including optional ones
+        return false;
+    }
+
+    protected function getPricingTestDomain(): string
+    {
+        // Name.com doesn't like 'example.com' for pricing
+        return 'example-test-domain.com';
     }
 
     // NameCom-specific tests

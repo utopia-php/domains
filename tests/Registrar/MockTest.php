@@ -5,13 +5,12 @@ namespace Utopia\Tests\Registrar;
 use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
-use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Adapter\Mock;
 
-class MockTest extends BaseRegistrarTest
+class MockTest extends Base
 {
     private Mock $adapter;
     private Mock $adapterWithCache;
@@ -30,12 +29,12 @@ class MockTest extends BaseRegistrarTest
         $this->adapter->reset();
     }
 
-    protected function getAdapter(): Registrar
+    protected function getAdapter(): Mock
     {
         return $this->adapter;
     }
 
-    protected function getAdapterWithCache(): Registrar
+    protected function getAdapterWithCache(): Mock
     {
         return $this->adapterWithCache;
     }

@@ -3,24 +3,24 @@
 namespace Utopia\Tests\Registrar;
 
 use PHPUnit\Framework\TestCase;
-use Utopia\Domains\Registrar;
+use Utopia\Domains\Registrar\Adapter;
 use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 
-abstract class BaseRegistrarTest extends TestCase
+abstract class Base extends TestCase
 {
     /**
      * Get the adapter instance to test
      */
-    abstract protected function getAdapter(): Registrar;
+    abstract protected function getAdapter(): Adapter;
 
     /**
      * Get the adapter instance with cache enabled
      */
-    abstract protected function getAdapterWithCache(): Registrar;
+    abstract protected function getAdapterWithCache(): Adapter;
 
     /**
      * Get a test domain that exists and is owned by the test account
@@ -35,10 +35,19 @@ abstract class BaseRegistrarTest extends TestCase
 
     /**
      * Check if a test should be skipped for this adapter
+     *
+     * By default, skip tests for optional methods that not all adapters implement:
+     * - testCancelPurchase (only NameCom, OpenSRS)
+     * - testUpdateNameservers (only NameCom, OpenSRS)
      */
     protected function shouldSkipTest(string $testName): bool
     {
-        return false;
+        $optionalTests = [
+            'testCancelPurchase',
+            'testUpdateNameservers',
+        ];
+
+        return in_array($testName, $optionalTests);
     }
 
     /**
@@ -49,7 +58,7 @@ abstract class BaseRegistrarTest extends TestCase
         $contact = new Contact(
             'Test' . $suffix,
             'Tester' . $suffix,
-            '+1.8031234567',
+            '+18031234567',
             'testing' . $suffix . '@test.com',
             '123 Main St' . $suffix,
             'Suite 100' . $suffix,
@@ -91,6 +100,15 @@ abstract class BaseRegistrarTest extends TestCase
     protected function getDefaultTld(): string
     {
         return 'com';
+    }
+
+    /**
+     * Get a domain to use for pricing tests
+     * Can be overridden by adapters if they have restrictions
+     */
+    protected function getPricingTestDomain(): string
+    {
+        return 'example.' . $this->getDefaultTld();
     }
 
     public function testGetName(): void
@@ -201,6 +219,7 @@ abstract class BaseRegistrarTest extends TestCase
             $this->markTestSkipped('Test not applicable for this adapter');
         }
 
+        // @phpstan-ignore-next-line - Optional method not in base Adapter
         $result = $this->getAdapter()->cancelPurchase();
         $this->assertTrue($result);
     }
@@ -249,8 +268,8 @@ abstract class BaseRegistrarTest extends TestCase
             $this->markTestSkipped('Test not applicable for this adapter');
         }
 
-        $domain = 'example.' . $this->getDefaultTld();
-        $result = $this->getAdapter()->getPrice($domain, 1, Registrar::REG_TYPE_NEW);
+        $domain = $this->getPricingTestDomain();
+        $result = $this->getAdapter()->getPrice($domain, 1, Adapter::REG_TYPE_NEW);
 
         $this->assertNotNull($result);
         $this->assertIsFloat($result);
@@ -264,7 +283,7 @@ abstract class BaseRegistrarTest extends TestCase
         }
 
         $this->expectException(PriceNotFoundException::class);
-        $this->getAdapter()->getPrice("invalid.invalidtld", 1, Registrar::REG_TYPE_NEW);
+        $this->getAdapter()->getPrice("invalid.invalidtld", 1, Adapter::REG_TYPE_NEW);
     }
 
     public function testGetPriceWithCache(): void
@@ -273,14 +292,14 @@ abstract class BaseRegistrarTest extends TestCase
             $this->markTestSkipped('Test not applicable for this adapter');
         }
 
-        $domain = 'example.' . $this->getDefaultTld();
+        $domain = $this->getPricingTestDomain();
         $adapter = $this->getAdapterWithCache();
 
-        $result1 = $adapter->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 3600);
+        $result1 = $adapter->getPrice($domain, 1, Adapter::REG_TYPE_NEW, 3600);
         $this->assertNotNull($result1);
         $this->assertIsFloat($result1);
 
-        $result2 = $adapter->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 3600);
+        $result2 = $adapter->getPrice($domain, 1, Adapter::REG_TYPE_NEW, 3600);
         $this->assertEquals($result1, $result2);
     }
 
@@ -290,8 +309,8 @@ abstract class BaseRegistrarTest extends TestCase
             $this->markTestSkipped('Test not applicable for this adapter');
         }
 
-        $domain = 'example.' . $this->getDefaultTld();
-        $result = $this->getAdapterWithCache()->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 7200);
+        $domain = $this->getPricingTestDomain();
+        $result = $this->getAdapterWithCache()->getPrice($domain, 1, Adapter::REG_TYPE_NEW, 7200);
 
         $this->assertIsFloat($result);
         $this->assertGreaterThan(0, $result);
@@ -306,6 +325,7 @@ abstract class BaseRegistrarTest extends TestCase
         $testDomain = $this->getTestDomain();
         $nameservers = $this->getDefaultNameservers();
 
+        // @phpstan-ignore-next-line - Optional method not in base Adapter
         $result = $this->getAdapter()->updateNameservers($testDomain, $nameservers);
 
         $this->assertTrue($result['successful']);

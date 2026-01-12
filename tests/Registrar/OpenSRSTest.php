@@ -5,12 +5,11 @@ namespace Utopia\Tests\Registrar;
 use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
-use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Adapter\OpenSRS;
 
-class OpenSRSTest extends BaseRegistrarTest
+class OpenSRSTest extends Base
 {
     private OpenSRS $client;
     private OpenSRS $clientWithCache;
@@ -48,12 +47,12 @@ class OpenSRSTest extends BaseRegistrarTest
         );
     }
 
-    protected function getAdapter(): Registrar
+    protected function getAdapter(): OpenSRS
     {
         return $this->client;
     }
 
-    protected function getAdapterWithCache(): Registrar
+    protected function getAdapterWithCache(): OpenSRS
     {
         return $this->clientWithCache;
     }
@@ -79,6 +78,12 @@ class OpenSRSTest extends BaseRegistrarTest
             'ns1.systemdns.com',
             'ns2.systemdns.com',
         ];
+    }
+
+    protected function shouldSkipTest(string $testName): bool
+    {
+        // OpenSRS supports all base tests including optional ones
+        return false;
     }
 
     // OpenSRS-specific tests

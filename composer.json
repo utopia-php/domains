@@ -17,6 +17,9 @@
   "autoload": {
       "psr-4": {"Utopia\\Domains\\": "src/Domains"}
   },
+  "autoload-dev": {
+      "psr-4": {"Utopia\\Tests\\": "tests"}
+  },
   "scripts": {
     "test": "vendor/bin/phpunit",
     "lint": "./vendor/bin/pint --test",
