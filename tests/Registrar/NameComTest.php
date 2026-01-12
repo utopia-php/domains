@@ -103,17 +103,15 @@ class NameComTest extends Base
         );
 
         $domain = $this->generateRandomString() . '.com';
-        echo "\n[testPurchaseWithInvalidCredentials] Testing purchase with invalid credentials for: {$domain} (expecting exception)\n";
 
         $this->expectException(AuthException::class);
-        $this->expectExceptionMessage("Failed to purchase domain:");
+        $this->expectExceptionMessage("Failed to purchase domain: Unauthorized");
 
         $client->purchase($domain, $this->getPurchaseContact(), 1);
     }
 
     public function testSuggestPremiumDomains(): void
     {
-        echo "\n[testSuggestPremiumDomains] Getting premium suggestions for 'business'...\n";
         $result = $this->client->suggest(
             'business',
             ['com'],
@@ -124,7 +122,6 @@ class NameComTest extends Base
         );
 
         $this->assertIsArray($result);
-        echo "[testSuggestPremiumDomains] Received " . count($result) . " premium suggestions\n";
 
         foreach ($result as $domain => $data) {
             $this->assertEquals('premium', $data['type']);
@@ -137,7 +134,6 @@ class NameComTest extends Base
 
     public function testSuggestWithFilter(): void
     {
-        echo "\n[testSuggestWithFilter] Getting suggestions for 'testdomain'...\n";
         $result = $this->client->suggest(
             'testdomain',
             ['com'],
@@ -146,7 +142,6 @@ class NameComTest extends Base
         );
 
         $this->assertIsArray($result);
-        echo "[testSuggestWithFilter] Received " . count($result) . " suggestions\n";
 
         foreach ($result as $domain => $data) {
             $this->assertEquals('suggestion', $data['type']);

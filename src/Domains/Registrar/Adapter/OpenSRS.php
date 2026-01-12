@@ -127,6 +127,7 @@ class OpenSRS extends Adapter
             'code' => $code,
             'text' => $text,
             'successful' => $successful,
+            'nameservers' => $nameservers,
         ];
     }
 

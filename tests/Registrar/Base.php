@@ -342,6 +342,7 @@ abstract class Base extends TestCase
             $testDomain,
             [
                 'autorenew' => true,
+                'data' => 'contact_info',
             ],
             $this->getPurchaseContact('2')
         );

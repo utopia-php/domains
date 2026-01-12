@@ -15,17 +15,23 @@ abstract class Adapter extends DomainsAdapter
     public const REG_TYPE_TRADE = 'trade';
 
     /**
+     * Get the name of the adapter
+     * 
      * @return string
      */
     abstract public function getName(): string;
 
     /**
+     * Check if a domain is available
+     * 
      * @param  string  $domain
      * @return bool
      */
     abstract public function available(string $domain): bool;
 
     /**
+     * Purchase a domain
+     * 
      * @param  string  $domain
      * @param  array|Contact  $contacts
      * @param  int  $periodYears
@@ -35,6 +41,8 @@ abstract class Adapter extends DomainsAdapter
     abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration;
 
     /**
+     * Suggest domain names
+     * 
      * @param  array  $query
      * @param  array  $tlds
      * @param  int|null $limit
@@ -46,17 +54,23 @@ abstract class Adapter extends DomainsAdapter
     abstract public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array;
 
     /**
+     * Get the TLDs supported by the adapter
+     * 
      * @return array
      */
     abstract public function tlds(): array;
 
     /**
+     * Get the domain information
+     * 
      * @param  string  $domain
      * @return Domain
      */
     abstract public function getDomain(string $domain): Domain;
 
     /**
+     * Update the domain information
+     * 
      * @param  string  $domain
      * @param  array $details
      * @param  array|Contact|null $contacts
@@ -65,6 +79,8 @@ abstract class Adapter extends DomainsAdapter
     abstract public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool;
 
     /**
+     * Update the nameservers for a domain
+     * 
      * @param string $domain
      * @param array $nameservers
      * @return array
@@ -76,6 +92,8 @@ abstract class Adapter extends DomainsAdapter
     }
 
     /**
+     * Get the price of a domain
+     * 
      * @param  string  $domain
      * @param  int  $periodYears
      * @param  string  $regType
@@ -85,6 +103,8 @@ abstract class Adapter extends DomainsAdapter
     abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float;
 
     /**
+     * Renew a domain
+     * 
      * @param  string  $domain
      * @param  int  $periodYears
      * @return Renewal
@@ -92,6 +112,8 @@ abstract class Adapter extends DomainsAdapter
     abstract public function renew(string $domain, int $periodYears): Renewal;
 
     /**
+     * Transfer a domain
+     * 
      * @param  string  $domain
      * @param  string  $authCode
      * @param  array|Contact  $contacts
@@ -110,6 +132,8 @@ abstract class Adapter extends DomainsAdapter
     abstract public function getAuthCode(string $domain): string;
 
     /**
+     * Check transfer status for a domain
+     * 
      * @param  string  $domain
      * @param  bool  $checkStatus
      * @param  bool  $getRequestAddress
