@@ -171,8 +171,8 @@ class OpenSRSTest extends Base
 
         try {
             $result = $this->registrar->transfer($domain, 'test-auth-code', $this->getPurchaseContact());
-            $this->assertTrue($result->successful);
-            $this->assertNotEmpty($result->code);
+            $this->assertIsString($result);
+            $this->assertNotEmpty($result);
         } catch (DomainNotTransferableException $e) {
             $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
             $this->assertEquals('Domain is not transferable: Domain not registered', $e->getMessage());
@@ -183,8 +183,8 @@ class OpenSRSTest extends Base
     {
         try {
             $result = $this->registrar->transfer($this->testDomain, 'test-auth-code', $this->getPurchaseContact());
-            $this->assertTrue($result->successful);
-            $this->assertNotEmpty($result->code);
+            $this->assertIsString($result);
+            $this->assertNotEmpty($result);
         } catch (DomainNotTransferableException $e) {
             $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
             $this->assertStringContainsString('Domain is not transferable: Domain already exists', $e->getMessage());

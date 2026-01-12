@@ -119,9 +119,9 @@ class NameCom extends Adapter
      * @param array|Contact $contacts Contact information
      * @param int $periodYears Registration period in years
      * @param array $nameservers Nameservers to use
-     * @return Registration Registration result
+     * @return string Order ID
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -139,18 +139,11 @@ class NameCom extends Adapter
             ];
 
             $result = $this->send('POST', '/core/v1/domains', $data);
+            return $result['order'];
 
-            return new Registration(
-                code: (string) ($result['order_id'] ?? '0'),
-                id: (string) ($result['order_id'] ?? ''),
-                domainId: (string) ($result['domain']['domainName'] ?? $domain),
-                successful: true,
-                domain: $domain,
-                periodYears: $periodYears,
-                nameservers: $nameservers,
-            );
         } catch (AuthException $e) {
             throw $e;
+
         } catch (Exception $e) {
             $message = 'Failed to purchase domain: ' . $e->getMessage();
             $code = $e->getCode();
@@ -174,9 +167,9 @@ class NameCom extends Adapter
      * @param array|Contact $contacts Contact information
      * @param int $periodYears Transfer period in years
      * @param array $nameservers Nameservers to use
-     * @return Registration Transfer result
+     * @return string Order ID
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -196,18 +189,11 @@ class NameCom extends Adapter
             }
 
             $result = $this->send('POST', '/core/v1/transfers', $data);
+            return $result['order'];
 
-            return new Registration(
-                code: (string) ($result['order_id'] ?? '0'),
-                id: (string) ($result['order_id'] ?? ''),
-                domainId: (string) ($result['domainName'] ?? $domain),
-                successful: true,
-                domain: $domain,
-                periodYears: $periodYears,
-                nameservers: $nameservers,
-            );
         } catch (AuthException $e) {
             throw $e;
+
         } catch (Exception $e) {
             $message = 'Failed to transfer domain: ' . $e->getMessage();
             $code = $e->getCode();

@@ -164,7 +164,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -179,18 +179,9 @@ class OpenSRS extends Adapter
             $regType = Registrar::REG_TYPE_NEW;
 
             $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears);
-
             $result = $this->response($result);
+            return $result['id'];
 
-            return new Registration(
-                code: $result['code'],
-                id: $result['id'],
-                domainId: $result['domainId'],
-                successful: $result['successful'],
-                domain: $domain,
-                periodYears: $periodYears,
-                nameservers: $nameservers,
-            );
         } catch (Exception $e) {
             $message = 'Failed to purchase domain: ' . $e->getMessage();
 
@@ -207,7 +198,7 @@ class OpenSRS extends Adapter
         }
     }
 
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
     {
         $contacts = is_array($contacts) ? $contacts : [$contacts];
 
@@ -223,16 +214,8 @@ class OpenSRS extends Adapter
         try {
             $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, $authCode);
             $result = $this->response($result);
+            return $result['id'];
 
-            return new Registration(
-                code: $result['code'],
-                id: $result['id'],
-                domainId: $result['domainId'],
-                successful: $result['successful'],
-                domain: $domain,
-                periodYears: $periodYears,
-                nameservers: $nameservers,
-            );
         } catch (Exception $e) {
             $code = $e->getCode();
             if ($code === self::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE) {

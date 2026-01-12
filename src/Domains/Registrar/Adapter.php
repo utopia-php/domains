@@ -94,9 +94,9 @@ abstract class Adapter extends DomainsAdapter
      * @param  array|Contact  $contacts
      * @param  int  $periodYears
      * @param  array  $nameservers
-     * @return Registration
+     * @return string Order ID
      */
-    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration;
+    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string;
 
     /**
      * Suggest domain names
@@ -177,9 +177,9 @@ abstract class Adapter extends DomainsAdapter
      * @param  array|Contact  $contacts
      * @param  int  $periodYears
      * @param  array  $nameservers
-     * @return Registration
+     * @return string Order ID
      */
-    abstract public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration;
+    abstract public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string;
 
     /**
      * Get the authorization code for an EPP domain

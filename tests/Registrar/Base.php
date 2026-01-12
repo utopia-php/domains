@@ -122,8 +122,8 @@ abstract class Base extends TestCase
         $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
         $result = $this->getRegistrar()->purchase($domain, $this->getPurchaseContact(), 1);
 
-        $this->assertTrue($result->successful);
-        $this->assertEquals($domain, $result->domain);
+        $this->assertIsString($result);
+        $this->assertNotEmpty($result);
     }
 
     public function testPurchaseTakenDomain(): void
@@ -276,7 +276,8 @@ abstract class Base extends TestCase
 
         try {
             $result = $this->getRegistrar()->renew($testDomain, 1);
-            $this->assertIsBool($result->successful);
+            $this->assertIsString($result);
+            $this->assertNotEmpty($result);
         } catch (\Exception $e) {
             // Renewal may fail for various reasons depending on the registrar
             $this->assertNotEmpty($e->getMessage());
@@ -290,10 +291,8 @@ abstract class Base extends TestCase
         try {
             $result = $this->getRegistrar()->transfer($domain, 'test-auth-code', $this->getPurchaseContact());
 
-            if ($result->successful) {
-                $this->assertNotEmpty($result->code);
-                $this->assertEquals($domain, $result->domain);
-            }
+            $this->assertIsString($result);
+            $this->assertNotEmpty($result);
         } catch (\Exception $e) {
             $this->assertInstanceOf(DomainNotTransferableException::class, $e);
         }

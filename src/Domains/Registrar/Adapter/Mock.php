@@ -3,14 +3,12 @@
 namespace Utopia\Domains\Registrar\Adapter;
 
 use DateTime;
-use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\Domain;
-use Utopia\Domains\Registrar\Registration;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Adapter;
@@ -22,7 +20,6 @@ class Mock extends Adapter
     /**
      * Mock API Response Codes
      */
-    private const RESPONSE_CODE_SUCCESS = 200;
     private const RESPONSE_CODE_BAD_REQUEST = 400;
     private const RESPONSE_CODE_NOT_FOUND = 404;
     private const RESPONSE_CODE_INVALID_CONTACT = 465;
@@ -130,11 +127,11 @@ class Mock extends Adapter
      * @param array|Contact $contacts
      * @param int $periodYears
      * @param array $nameservers
-     * @return Registration
+     * @return string Order ID
      * @throws DomainTakenException
      * @throws InvalidContactException
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
     {
         if (!$this->available($domain)) {
             throw new DomainTakenException("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);
@@ -144,15 +141,7 @@ class Mock extends Adapter
 
         $this->purchasedDomains[] = $domain;
 
-        return new Registration(
-            code: (string) self::RESPONSE_CODE_SUCCESS,
-            id: 'mock_' . md5($domain . time()),
-            domainId: 'mock_domain_' . md5($domain),
-            successful: true,
-            domain: $domain,
-            periodYears: $periodYears,
-            nameservers: $nameservers,
-        );
+        return 'mock_' . md5($domain . time());
     }
 
     /**
@@ -372,11 +361,11 @@ class Mock extends Adapter
      * @param array|Contact $contacts
      * @param int $periodYears
      * @param array $nameservers
-     * @return Registration
+     * @return string Order ID
      * @throws DomainTakenException
      * @throws InvalidContactException
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
     {
         if (in_array($domain, $this->purchasedDomains)) {
             throw new DomainTakenException("Domain {$domain} is already in this account", self::RESPONSE_CODE_DOMAIN_TAKEN);
@@ -387,15 +376,7 @@ class Mock extends Adapter
         $this->transferredDomains[] = $domain;
         $this->purchasedDomains[] = $domain;
 
-        return new Registration(
-            code: (string) self::RESPONSE_CODE_SUCCESS,
-            id: 'mock_transfer_' . md5($domain . time()),
-            domainId: 'mock_domain_' . md5($domain),
-            successful: true,
-            domain: $domain,
-            periodYears: $periodYears,
-            nameservers: $nameservers,
-        );
+        return 'mock_transfer_' . md5($domain . time());
     }
 
     /**

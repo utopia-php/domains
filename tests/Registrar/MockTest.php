@@ -73,8 +73,8 @@ class MockTest extends Base
 
         $result = $this->registrar->purchase($domain, $contact, 1, $nameservers);
 
-        $this->assertTrue($result->successful);
-        $this->assertEquals($nameservers, $result->nameservers);
+        $this->assertIsString($result);
+        $this->assertNotEmpty($result);
     }
 
     public function testTransferWithNameservers(): void
@@ -86,8 +86,8 @@ class MockTest extends Base
 
         $result = $this->registrar->transfer($domain, $authCode, $contact, 1, $nameservers);
 
-        $this->assertTrue($result->successful);
-        $this->assertEquals($nameservers, $result->nameservers);
+        $this->assertIsString($result);
+        $this->assertNotEmpty($result);
     }
 
     public function testTransferAlreadyExists(): void
