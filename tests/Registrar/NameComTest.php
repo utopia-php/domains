@@ -5,13 +5,15 @@ namespace Utopia\Tests\Registrar;
 use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
+use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Adapter\NameCom;
 
 class NameComTest extends Base
 {
-    private NameCom $client;
-    private NameCom $clientWithCache;
+    private Registrar $registrar;
+    private Registrar $registrarWithCache;
+    private NameCom $adapter;
 
     protected function setUp(): void
     {
@@ -23,35 +25,38 @@ class NameComTest extends Base
         $this->assertNotEmpty($username, 'NAMECOM_USERNAME environment variable must be set');
         $this->assertNotEmpty($token, 'NAMECOM_TOKEN environment variable must be set');
 
-        $this->client = new NameCom(
+        $this->adapter = new NameCom(
             $username,
             $token,
-            [
-                'ns1.name.com',
-                'ns2.name.com',
-            ],
             'https://api.dev.name.com'
         );
-        $this->clientWithCache = new NameCom(
-            $username,
-            $token,
+
+        $this->registrar = new Registrar(
+            $this->adapter,
+            [
+                'ns1.name.com',
+                'ns2.name.com',
+            ]
+        );
+
+        $this->registrarWithCache = new Registrar(
+            $this->adapter,
             [
                 'ns1.name.com',
                 'ns2.name.com',
             ],
-            'https://api.dev.name.com',
             $cache
         );
     }
 
-    protected function getAdapter(): NameCom
+    protected function getRegistrar(): Registrar
     {
-        return $this->client;
+        return $this->registrar;
     }
 
-    protected function getAdapterWithCache(): NameCom
+    protected function getRegistrarWithCache(): Registrar
     {
-        return $this->clientWithCache;
+        return $this->registrarWithCache;
     }
 
     protected function getTestDomain(): string
@@ -59,7 +64,7 @@ class NameComTest extends Base
         // For tests that need an existing domain, we'll purchase one on the fly
         // or return a domain we know exists
         $testDomain = $this->generateRandomString() . '.com';
-        $this->client->purchase($testDomain, $this->getPurchaseContact(), 1);
+        $this->registrar->purchase($testDomain, $this->getPurchaseContact(), 1);
         return $testDomain;
     }
 
@@ -88,14 +93,18 @@ class NameComTest extends Base
 
     public function testPurchaseWithInvalidCredentials(): void
     {
-        $client = new NameCom(
+        $adapter = new NameCom(
             'invalid-username',
             'invalid-token',
+            'https://api.dev.name.com'
+        );
+
+        $registrar = new Registrar(
+            $adapter,
             [
                 'ns1.name.com',
                 'ns2.name.com',
-            ],
-            'https://api.dev.name.com'
+            ]
         );
 
         $domain = $this->generateRandomString() . '.com';
@@ -103,12 +112,12 @@ class NameComTest extends Base
         $this->expectException(AuthException::class);
         $this->expectExceptionMessage("Failed to send request to Name.com: Unauthorized");
 
-        $client->purchase($domain, $this->getPurchaseContact(), 1);
+        $registrar->purchase($domain, $this->getPurchaseContact(), 1);
     }
 
     public function testSuggestPremiumDomains(): void
     {
-        $result = $this->client->suggest(
+        $result = $this->registrar->suggest(
             'business',
             ['com'],
             5,
@@ -130,7 +139,7 @@ class NameComTest extends Base
 
     public function testSuggestWithFilter(): void
     {
-        $result = $this->client->suggest(
+        $result = $this->registrar->suggest(
             'testdomain',
             ['com'],
             5,

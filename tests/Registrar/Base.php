@@ -3,7 +3,7 @@
 namespace Utopia\Tests\Registrar;
 
 use PHPUnit\Framework\TestCase;
-use Utopia\Domains\Registrar\Adapter;
+use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
@@ -14,14 +14,14 @@ use Utopia\Domains\Registrar\TransferStatusEnum;
 abstract class Base extends TestCase
 {
     /**
-     * Get the adapter instance to test
+     * Get the registrar instance to test
      */
-    abstract protected function getAdapter(): Adapter;
+    abstract protected function getRegistrar(): Registrar;
 
     /**
-     * Get the adapter instance with cache enabled
+     * Get the registrar instance with cache enabled
      */
-    abstract protected function getAdapterWithCache(): Adapter;
+    abstract protected function getRegistrarWithCache(): Registrar;
 
     /**
      * Get a test domain that exists and is owned by the test account
@@ -97,14 +97,14 @@ abstract class Base extends TestCase
 
     public function testGetName(): void
     {
-        $name = $this->getAdapter()->getName();
+        $name = $this->getRegistrar()->getName();
         $this->assertEquals($this->getExpectedAdapterName(), $name);
     }
 
     public function testAvailable(): void
     {
         $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
-        $result = $this->getAdapter()->available($domain);
+        $result = $this->getRegistrar()->available($domain);
 
         $this->assertTrue($result);
     }
@@ -112,7 +112,7 @@ abstract class Base extends TestCase
     public function testAvailableForTakenDomain(): void
     {
         $domain = 'google.com';
-        $result = $this->getAdapter()->available($domain);
+        $result = $this->getRegistrar()->available($domain);
 
         $this->assertFalse($result);
     }
@@ -120,7 +120,7 @@ abstract class Base extends TestCase
     public function testPurchase(): void
     {
         $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
-        $result = $this->getAdapter()->purchase($domain, $this->getPurchaseContact(), 1);
+        $result = $this->getRegistrar()->purchase($domain, $this->getPurchaseContact(), 1);
 
         $this->assertTrue($result->successful);
         $this->assertEquals($domain, $result->domain);
@@ -131,7 +131,7 @@ abstract class Base extends TestCase
         $domain = 'google.com';
 
         $this->expectException(DomainTakenException::class);
-        $this->getAdapter()->purchase($domain, $this->getPurchaseContact(), 1);
+        $this->getRegistrar()->purchase($domain, $this->getPurchaseContact(), 1);
     }
 
     public function testPurchaseWithInvalidContact(): void
@@ -139,7 +139,7 @@ abstract class Base extends TestCase
         $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
 
         $this->expectException(InvalidContactException::class);
-        $this->getAdapter()->purchase($domain, [
+        $this->getRegistrar()->purchase($domain, [
             new Contact(
                 'John',
                 'Doe',
@@ -160,7 +160,7 @@ abstract class Base extends TestCase
     public function testDomainInfo(): void
     {
         $testDomain = $this->getTestDomain();
-        $result = $this->getAdapter()->getDomain($testDomain);
+        $result = $this->getRegistrar()->getDomain($testDomain);
 
         $this->assertEquals($testDomain, $result->domain);
         $this->assertInstanceOf(\DateTime::class, $result->createdAt);
@@ -171,19 +171,19 @@ abstract class Base extends TestCase
 
     public function testCancelPurchase(): void
     {
-        $result = $this->getAdapter()->cancelPurchase();
+        $result = $this->getRegistrar()->cancelPurchase();
         $this->assertTrue($result);
     }
 
     public function testTlds(): void
     {
-        $tlds = $this->getAdapter()->tlds();
+        $tlds = $this->getRegistrar()->tlds();
         $this->assertIsArray($tlds);
     }
 
     public function testSuggest(): void
     {
-        $result = $this->getAdapter()->suggest(
+        $result = $this->getRegistrar()->suggest(
             'example',
             ['com', 'net', 'org'],
             5
@@ -208,7 +208,7 @@ abstract class Base extends TestCase
     public function testGetPrice(): void
     {
         $domain = $this->getPricingTestDomain();
-        $result = $this->getAdapter()->getPrice($domain, 1, Adapter::REG_TYPE_NEW);
+        $result = $this->getRegistrar()->getPrice($domain, 1, Registrar::REG_TYPE_NEW);
 
         $this->assertNotNull($result);
         $this->assertIsFloat($result);
@@ -218,26 +218,26 @@ abstract class Base extends TestCase
     public function testGetPriceWithInvalidDomain(): void
     {
         $this->expectException(PriceNotFoundException::class);
-        $this->getAdapter()->getPrice("invalid.invalidtld", 1, Adapter::REG_TYPE_NEW);
+        $this->getRegistrar()->getPrice("invalid.invalidtld", 1, Registrar::REG_TYPE_NEW);
     }
 
     public function testGetPriceWithCache(): void
     {
         $domain = $this->getPricingTestDomain();
-        $adapter = $this->getAdapterWithCache();
+        $registrar = $this->getRegistrarWithCache();
 
-        $result1 = $adapter->getPrice($domain, 1, Adapter::REG_TYPE_NEW, 3600);
+        $result1 = $registrar->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 3600);
         $this->assertNotNull($result1);
         $this->assertIsFloat($result1);
 
-        $result2 = $adapter->getPrice($domain, 1, Adapter::REG_TYPE_NEW, 3600);
+        $result2 = $registrar->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 3600);
         $this->assertEquals($result1, $result2);
     }
 
     public function testGetPriceWithCustomTtl(): void
     {
         $domain = $this->getPricingTestDomain();
-        $result = $this->getAdapterWithCache()->getPrice($domain, 1, Adapter::REG_TYPE_NEW, 7200);
+        $result = $this->getRegistrarWithCache()->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 7200);
 
         $this->assertIsFloat($result);
         $this->assertGreaterThan(0, $result);
@@ -248,7 +248,7 @@ abstract class Base extends TestCase
         $testDomain = $this->getTestDomain();
         $nameservers = $this->getDefaultNameservers();
 
-        $result = $this->getAdapter()->updateNameservers($testDomain, $nameservers);
+        $result = $this->getRegistrar()->updateNameservers($testDomain, $nameservers);
 
         $this->assertTrue($result['successful']);
         $this->assertArrayHasKey('nameservers', $result);
@@ -258,7 +258,7 @@ abstract class Base extends TestCase
     {
         $testDomain = $this->getTestDomain();
 
-        $result = $this->getAdapter()->updateDomain(
+        $result = $this->getRegistrar()->updateDomain(
             $testDomain,
             [
                 'autorenew' => true,
@@ -275,10 +275,10 @@ abstract class Base extends TestCase
         $testDomain = $this->getTestDomain();
 
         try {
-            $result = $this->getAdapter()->renew($testDomain, 1);
+            $result = $this->getRegistrar()->renew($testDomain, 1);
             $this->assertIsBool($result->successful);
         } catch (\Exception $e) {
-            // Renewal may fail for various reasons depending on the adapter
+            // Renewal may fail for various reasons depending on the registrar
             $this->assertNotEmpty($e->getMessage());
         }
     }
@@ -288,7 +288,7 @@ abstract class Base extends TestCase
         $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
 
         try {
-            $result = $this->getAdapter()->transfer($domain, 'test-auth-code', $this->getPurchaseContact());
+            $result = $this->getRegistrar()->transfer($domain, 'test-auth-code', $this->getPurchaseContact());
 
             if ($result->successful) {
                 $this->assertNotEmpty($result->code);
@@ -304,7 +304,7 @@ abstract class Base extends TestCase
         $testDomain = $this->getTestDomain();
 
         try {
-            $authCode = $this->getAdapter()->getAuthCode($testDomain);
+            $authCode = $this->getRegistrar()->getAuthCode($testDomain);
             $this->assertIsString($authCode);
             $this->assertNotEmpty($authCode);
         } catch (\Exception $e) {
@@ -316,7 +316,7 @@ abstract class Base extends TestCase
     public function testCheckTransferStatus(): void
     {
         $testDomain = $this->getTestDomain();
-        $result = $this->getAdapter()->checkTransferStatus($testDomain, true, true);
+        $result = $this->getRegistrar()->checkTransferStatus($testDomain, true, true);
 
         $this->assertInstanceOf(TransferStatusEnum::class, $result->status);
 
@@ -341,7 +341,7 @@ abstract class Base extends TestCase
     public function testCheckTransferStatusWithoutCheckStatus(): void
     {
         $testDomain = $this->getTestDomain();
-        $result = $this->getAdapter()->checkTransferStatus($testDomain, false, false);
+        $result = $this->getRegistrar()->checkTransferStatus($testDomain, false, false);
 
         $this->assertInstanceOf(TransferStatusEnum::class, $result->status);
     }

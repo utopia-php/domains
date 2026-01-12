@@ -18,6 +18,7 @@ use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
+use Utopia\Domains\Registrar;
 
 class NameCom extends Adapter
 {
@@ -38,21 +39,13 @@ class NameCom extends Adapter
      *
      * @param  string  $username  Name.com API username
      * @param  string  $token  Name.com API token
-     * @param  array  $defaultNameservers  Default nameservers for domain registration
      * @param  string  $endpoint  The endpoint to use for the API (use https://api.name.com for production)
-     * @param  Cache|null  $cache  Optional cache instance
-     * @param  int  $connectTimeout  Connection timeout in seconds
-     * @param  int  $timeout  Total request timeout in seconds
      * @return void
      */
     public function __construct(
         string $username,
         string $token,
-        protected array $defaultNameservers = [],
-        protected string $endpoint = 'https://api.name.com',
-        protected ?Cache $cache = null,
-        protected int $connectTimeout = 5,
-        protected int $timeout = 10
+        protected string $endpoint = 'https://api.name.com'
     ) {
         $this->username = $username;
         $this->token = $token;
@@ -329,7 +322,7 @@ class NameCom extends Adapter
      * @param int $ttl Time to live for the cache
      * @return float The price of the domain
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float
     {
         if ($this->cache) {
             $cacheKey = $domain . '_' . $regType . '_' . $periodYears;

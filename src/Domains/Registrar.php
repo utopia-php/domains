@@ -7,22 +7,48 @@ use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\Registration;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\Contact;
+use Utopia\Domains\Registrar\TransferStatus;
 
 class Registrar
 {
     /**
      * Registration Types
      */
-    public const REG_TYPE_NEW = RegistrarAdapter::REG_TYPE_NEW;
-    public const REG_TYPE_TRANSFER = RegistrarAdapter::REG_TYPE_TRANSFER;
-    public const REG_TYPE_RENEWAL = RegistrarAdapter::REG_TYPE_RENEWAL;
-    public const REG_TYPE_TRADE = RegistrarAdapter::REG_TYPE_TRADE;
+    public const REG_TYPE_NEW = 'new';
+    public const REG_TYPE_TRANSFER = 'transfer';
+    public const REG_TYPE_RENEWAL = 'renewal';
+    public const REG_TYPE_TRADE = 'trade';
 
     protected RegistrarAdapter $adapter;
 
-    public function __construct(RegistrarAdapter $adapter)
-    {
+    /**
+     * Constructor
+     *
+     * @param RegistrarAdapter $adapter The registrar adapter to use
+     * @param array $defaultNameservers Default nameservers for domain registration
+     * @param Cache|null $cache Optional cache instance
+     * @param int $connectTimeout Connection timeout in seconds
+     * @param int $timeout Request timeout in seconds
+     */
+    public function __construct(
+        RegistrarAdapter $adapter,
+        array $defaultNameservers = [],
+        ?Cache $cache = null,
+        int $connectTimeout = 5,
+        int $timeout = 10
+    ) {
         $this->adapter = $adapter;
+
+        if (!empty($defaultNameservers)) {
+            $this->adapter->setDefaultNameservers($defaultNameservers);
+        }
+
+        if ($cache !== null) {
+            $this->adapter->setCache($cache);
+        }
+
+        $this->adapter->setConnectTimeout($connectTimeout);
+        $this->adapter->setTimeout($timeout);
     }
 
     /**
@@ -181,5 +207,18 @@ class Registrar
     public function cancelPurchase(): bool
     {
         return $this->adapter->cancelPurchase();
+    }
+
+    /**
+     * Check transfer status for a domain
+     *
+     * @param string $domain
+     * @param bool $checkStatus
+     * @param bool $getRequestAddress
+     * @return TransferStatus
+     */
+    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus
+    {
+        return $this->adapter->checkTransferStatus($domain, $checkStatus, $getRequestAddress);
     }
 }

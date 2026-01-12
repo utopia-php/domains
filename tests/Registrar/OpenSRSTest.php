@@ -5,14 +5,16 @@ namespace Utopia\Tests\Registrar;
 use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
+use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Adapter\OpenSRS;
 
 class OpenSRSTest extends Base
 {
-    private OpenSRS $client;
-    private OpenSRS $clientWithCache;
+    private Registrar $registrar;
+    private Registrar $registrarWithCache;
+    private OpenSRS $adapter;
     private string $testDomain = 'kffsfudlvc.net';
 
     protected function setUp(): void
@@ -25,36 +27,38 @@ class OpenSRSTest extends Base
         $this->assertNotEmpty($key);
         $this->assertNotEmpty($username);
 
-        $this->client = new OpenSRS(
+        $this->adapter = new OpenSRS(
             $key,
             $username,
-            $this->generateRandomString(),
+            $this->generateRandomString()
+        );
+
+        $this->registrar = new Registrar(
+            $this->adapter,
             [
                 'ns1.systemdns.com',
                 'ns2.systemdns.com',
             ]
         );
-        $this->clientWithCache = new OpenSRS(
-            $key,
-            $username,
-            $this->generateRandomString(),
+
+        $this->registrarWithCache = new Registrar(
+            $this->adapter,
             [
                 'ns1.systemdns.com',
                 'ns2.systemdns.com',
             ],
-            'https://horizon.opensrs.net:55443',
             $cache
         );
     }
 
-    protected function getAdapter(): OpenSRS
+    protected function getRegistrar(): Registrar
     {
-        return $this->client;
+        return $this->registrar;
     }
 
-    protected function getAdapterWithCache(): OpenSRS
+    protected function getRegistrarWithCache(): Registrar
     {
-        return $this->clientWithCache;
+        return $this->registrarWithCache;
     }
 
     protected function getTestDomain(): string
@@ -86,26 +90,30 @@ class OpenSRSTest extends Base
 
     public function testPurchaseWithInvalidPassword(): void
     {
-        $client = new OpenSRS(
+        $adapter = new OpenSRS(
             getenv('OPENSRS_KEY'),
             getenv('OPENSRS_USERNAME'),
-            'password',
+            'password'
+        );
+
+        $registrar = new Registrar(
+            $adapter,
             [
                 'ns1.systemdns.com',
                 'ns2.systemdns.com',
-            ],
+            ]
         );
 
         $domain = $this->generateRandomString() . '.net';
         $this->expectException(AuthException::class);
         $this->expectExceptionMessage("Failed to purchase domain: Invalid password");
-        $client->purchase($domain, $this->getPurchaseContact(), 1);
+        $registrar->purchase($domain, $this->getPurchaseContact(), 1);
     }
 
     public function testSuggestWithMultipleKeywords(): void
     {
         // Test suggestion domains only with prices
-        $result = $this->client->suggest(
+        $result = $this->registrar->suggest(
             [
                 'monkeys',
                 'kittens',
@@ -132,7 +140,7 @@ class OpenSRSTest extends Base
     public function testSuggestPremiumWithPriceFilter(): void
     {
         // Premium domains with price filters
-        $result = $this->client->suggest(
+        $result = $this->registrar->suggest(
             'computer',
             [
                 'com',
@@ -162,7 +170,7 @@ class OpenSRSTest extends Base
         $domain = $this->generateRandomString() . '.net';
 
         try {
-            $result = $this->client->transfer($domain, 'test-auth-code', $this->getPurchaseContact());
+            $result = $this->registrar->transfer($domain, 'test-auth-code', $this->getPurchaseContact());
             $this->assertTrue($result->successful);
             $this->assertNotEmpty($result->code);
         } catch (DomainNotTransferableException $e) {
@@ -174,7 +182,7 @@ class OpenSRSTest extends Base
     public function testTransferAlreadyExists(): void
     {
         try {
-            $result = $this->client->transfer($this->testDomain, 'test-auth-code', $this->getPurchaseContact());
+            $result = $this->registrar->transfer($this->testDomain, 'test-auth-code', $this->getPurchaseContact());
             $this->assertTrue($result->successful);
             $this->assertNotEmpty($result->code);
         } catch (DomainNotTransferableException $e) {

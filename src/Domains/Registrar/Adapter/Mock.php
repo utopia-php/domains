@@ -15,6 +15,7 @@ use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Adapter;
 use Utopia\Domains\Registrar\TransferStatusEnum;
+use Utopia\Domains\Registrar;
 
 class Mock extends Adapter
 {
@@ -73,11 +74,6 @@ class Mock extends Adapter
     ];
 
     /**
-     * Cache instance
-     */
-    protected ?Cache $cache = null;
-
-    /**
      * @return string
      */
     public function getName(): string
@@ -91,13 +87,11 @@ class Mock extends Adapter
      * @param array $takenDomains Optional list of domains to mark as taken
      * @param array $supportedTlds Optional list of supported TLDs
      * @param float $defaultPrice Optional default price for domains
-     * @param Cache|null $cache Optional cache instance
      */
     public function __construct(
         array $takenDomains = [],
         array $supportedTlds = [],
-        float $defaultPrice = 12.99,
-        ?Cache $cache = null
+        float $defaultPrice = 12.99
     ) {
         if (!empty($takenDomains)) {
             $this->takenDomains = array_merge($this->takenDomains, $takenDomains);
@@ -108,7 +102,6 @@ class Mock extends Adapter
         }
 
         $this->defaultPrice = $defaultPrice;
-        $this->cache = $cache;
     }
 
     /**
@@ -274,7 +267,7 @@ class Mock extends Adapter
      * @return float
      * @throws PriceNotFoundException
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
@@ -307,9 +300,9 @@ class Mock extends Adapter
 
         $basePrice = $this->defaultPrice;
         $multiplier = match ($regType) {
-            self::REG_TYPE_TRANSFER => 1.0,
-            self::REG_TYPE_RENEWAL => 1.1,
-            self::REG_TYPE_TRADE => 1.2,
+            Registrar::REG_TYPE_TRANSFER => 1.0,
+            Registrar::REG_TYPE_RENEWAL => 1.1,
+            Registrar::REG_TYPE_TRADE => 1.2,
             default => 1.0,
         };
 

@@ -18,6 +18,7 @@ use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
+use Utopia\Domains\Registrar;
 
 class OpenSRS extends Adapter
 {
@@ -47,7 +48,6 @@ class OpenSRS extends Adapter
      * @param  string  $apiKey
      * @param  string  $username
      * @param  string  $password
-     * @param  array  $defaultNameservers
      * @param  string  $endpoint - The endpoint to use for the API (use rr-n1-tor.opensrs.net:55443 for production)
      * @return void
      */
@@ -55,9 +55,7 @@ class OpenSRS extends Adapter
         protected string $apiKey,
         string $username,
         string $password,
-        protected array $defaultNameservers = [],
-        protected string $endpoint = 'https://horizon.opensrs.net:55443',
-        protected ?Cache $cache = null
+        protected string $endpoint = 'https://horizon.opensrs.net:55443'
     ) {
         if (str_starts_with($endpoint, 'http://')) {
             $this->endpoint = 'https://' . substr($endpoint, 7);
@@ -178,7 +176,7 @@ class OpenSRS extends Adapter
 
             $contacts = $this->sanitizeContacts($contacts);
 
-            $regType = self::REG_TYPE_NEW;
+            $regType = Registrar::REG_TYPE_NEW;
 
             $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears);
 
@@ -220,7 +218,7 @@ class OpenSRS extends Adapter
 
         $contacts = $this->sanitizeContacts($contacts);
 
-        $regType = self::REG_TYPE_TRANSFER;
+        $regType = Registrar::REG_TYPE_TRANSFER;
 
         try {
             $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, $authCode);
@@ -468,7 +466,7 @@ class OpenSRS extends Adapter
      * @throws PriceNotFoundException When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);

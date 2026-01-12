@@ -3,16 +3,74 @@
 namespace Utopia\Domains\Registrar;
 
 use Utopia\Domains\Adapter as DomainsAdapter;
+use Utopia\Domains\Cache;
+use Utopia\Domains\Registrar;
 
 abstract class Adapter extends DomainsAdapter
 {
     /**
-     * Registration Types
+     * Default nameservers for domain registration
      */
-    public const REG_TYPE_NEW = 'new';
-    public const REG_TYPE_TRANSFER = 'transfer';
-    public const REG_TYPE_RENEWAL = 'renewal';
-    public const REG_TYPE_TRADE = 'trade';
+    protected array $defaultNameservers = [];
+
+    /**
+     * Cache instance
+     */
+    protected ?Cache $cache = null;
+
+    /**
+     * Connection timeout in seconds
+     */
+    protected int $connectTimeout = 5;
+
+    /**
+     * Request timeout in seconds
+     */
+    protected int $timeout = 10;
+
+    /**
+     * Set default nameservers
+     *
+     * @param array $nameservers
+     * @return void
+     */
+    public function setDefaultNameservers(array $nameservers): void
+    {
+        $this->defaultNameservers = $nameservers;
+    }
+
+    /**
+     * Set cache instance
+     *
+     * @param Cache|null $cache
+     * @return void
+     */
+    public function setCache(?Cache $cache): void
+    {
+        $this->cache = $cache;
+    }
+
+    /**
+     * Set connection timeout
+     *
+     * @param int $connectTimeout
+     * @return void
+     */
+    public function setConnectTimeout(int $connectTimeout): void
+    {
+        $this->connectTimeout = $connectTimeout;
+    }
+
+    /**
+     * Set request timeout
+     *
+     * @param int $timeout
+     * @return void
+     */
+    public function setTimeout(int $timeout): void
+    {
+        $this->timeout = $timeout;
+    }
 
     /**
      * Get the name of the adapter
@@ -100,7 +158,7 @@ abstract class Adapter extends DomainsAdapter
      * @param  int  $ttl
      * @return float
      */
-    abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float;
+    abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float;
 
     /**
      * Renew a domain

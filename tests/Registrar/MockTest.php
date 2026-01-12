@@ -5,6 +5,7 @@ namespace Utopia\Tests\Registrar;
 use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
+use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
@@ -12,8 +13,9 @@ use Utopia\Domains\Registrar\Adapter\Mock;
 
 class MockTest extends Base
 {
+    private Registrar $registrar;
+    private Registrar $registrarWithCache;
     private Mock $adapter;
-    private Mock $adapterWithCache;
 
     protected function setUp(): void
     {
@@ -21,7 +23,8 @@ class MockTest extends Base
         $cache = new Cache($utopiaCache);
 
         $this->adapter = new Mock();
-        $this->adapterWithCache = new Mock([], [], 12.99, $cache);
+        $this->registrar = new Registrar($this->adapter);
+        $this->registrarWithCache = new Registrar($this->adapter, [], $cache);
     }
 
     protected function tearDown(): void
@@ -29,21 +32,21 @@ class MockTest extends Base
         $this->adapter->reset();
     }
 
-    protected function getAdapter(): Mock
+    protected function getRegistrar(): Registrar
     {
-        return $this->adapter;
+        return $this->registrar;
     }
 
-    protected function getAdapterWithCache(): Mock
+    protected function getRegistrarWithCache(): Registrar
     {
-        return $this->adapterWithCache;
+        return $this->registrarWithCache;
     }
 
     protected function getTestDomain(): string
     {
         // For mock, we purchase a domain on the fly
         $testDomain = $this->generateRandomString() . '.com';
-        $this->adapter->purchase($testDomain, $this->getPurchaseContact(), 1);
+        $this->registrar->purchase($testDomain, $this->getPurchaseContact(), 1);
         return $testDomain;
     }
 
@@ -68,7 +71,7 @@ class MockTest extends Base
         $contact = $this->getPurchaseContact();
         $nameservers = ['ns1.example.com', 'ns2.example.com'];
 
-        $result = $this->adapter->purchase($domain, $contact, 1, $nameservers);
+        $result = $this->registrar->purchase($domain, $contact, 1, $nameservers);
 
         $this->assertTrue($result->successful);
         $this->assertEquals($nameservers, $result->nameservers);
@@ -81,7 +84,7 @@ class MockTest extends Base
         $authCode = 'test-auth-code-12345';
         $nameservers = ['ns1.example.com', 'ns2.example.com'];
 
-        $result = $this->adapter->transfer($domain, $authCode, $contact, 1, $nameservers);
+        $result = $this->registrar->transfer($domain, $authCode, $contact, 1, $nameservers);
 
         $this->assertTrue($result->successful);
         $this->assertEquals($nameservers, $result->nameservers);
@@ -93,11 +96,11 @@ class MockTest extends Base
         $contact = $this->getPurchaseContact();
         $authCode = 'test-auth-code-12345';
 
-        $this->adapter->purchase($domain, $contact, 1);
+        $this->registrar->purchase($domain, $contact, 1);
 
         $this->expectException(DomainTakenException::class);
         $this->expectExceptionMessage('Domain ' . $domain . ' is already in this account');
-        $this->adapter->transfer($domain, $authCode, $contact);
+        $this->registrar->transfer($domain, $authCode, $contact);
     }
 
     public function testTransferWithInvalidContact(): void
@@ -120,13 +123,13 @@ class MockTest extends Base
             'Test Inc'
         );
 
-        $this->adapter->transfer('transfer.com', 'auth-code', [$invalidContact]);
+        $this->registrar->transfer('transfer.com', 'auth-code', [$invalidContact]);
     }
 
     public function testUpdateDomainWithInvalidContact(): void
     {
         $domain = 'testdomain.com';
-        $this->adapter->purchase($domain, $this->getPurchaseContact(), 1);
+        $this->registrar->purchase($domain, $this->getPurchaseContact(), 1);
 
         $this->expectException(InvalidContactException::class);
         $this->expectExceptionMessage('missing required field');
@@ -146,7 +149,7 @@ class MockTest extends Base
             'Test Inc'
         );
 
-        $this->adapter->updateDomain(
+        $this->registrar->updateDomain(
             $domain,
             ['data' => 'contact_info'],
             [$invalidContact]
@@ -156,7 +159,7 @@ class MockTest extends Base
     public function testCheckTransferStatusWithRequestAddress(): void
     {
         $domain = 'example.com';
-        $result = $this->adapter->checkTransferStatus($domain, false, true);
+        $result = $this->registrar->checkTransferStatus($domain, false, true);
 
         $this->assertInstanceOf(\Utopia\Domains\Registrar\TransferStatusEnum::class, $result->status);
     }
