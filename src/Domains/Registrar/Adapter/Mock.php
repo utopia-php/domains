@@ -509,6 +509,16 @@ class Mock extends Adapter
     }
 
     /**
+     * Cancel pending purchase orders
+     *
+     * @return bool
+     */
+    public function cancelPurchase(): bool
+    {
+        return true;
+    }
+
+    /**
      * Validate contacts
      *
      * @param array|Contact $contacts

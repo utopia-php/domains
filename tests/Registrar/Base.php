@@ -219,7 +219,6 @@ abstract class Base extends TestCase
             $this->markTestSkipped('Test not applicable for this adapter');
         }
 
-        // @phpstan-ignore-next-line - Optional method not in base Adapter
         $result = $this->getAdapter()->cancelPurchase();
         $this->assertTrue($result);
     }
@@ -325,7 +324,6 @@ abstract class Base extends TestCase
         $testDomain = $this->getTestDomain();
         $nameservers = $this->getDefaultNameservers();
 
-        // @phpstan-ignore-next-line - Optional method not in base Adapter
         $result = $this->getAdapter()->updateNameservers($testDomain, $nameservers);
 
         $this->assertTrue($result['successful']);

@@ -111,6 +111,18 @@ class Registrar
     }
 
     /**
+     * Update nameservers of a domain
+     *
+     * @param string $domain
+     * @param array $nameservers
+     * @return array
+     */
+    public function updateNameservers(string $domain, array $nameservers): array
+    {
+        return $this->adapter->updateNameservers($domain, $nameservers);
+    }
+
+    /**
      * Get the price of a domain
      *
      * @param string $domain
@@ -159,5 +171,15 @@ class Registrar
     public function getAuthCode(string $domain): string
     {
         return $this->adapter->getAuthCode($domain);
+    }
+
+    /**
+     * Cancel pending purchase orders
+     *
+     * @return bool
+     */
+    public function cancelPurchase(): bool
+    {
+        return $this->adapter->cancelPurchase();
     }
 }

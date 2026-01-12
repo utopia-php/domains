@@ -65,6 +65,17 @@ abstract class Adapter extends DomainsAdapter
     abstract public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool;
 
     /**
+     * @param string $domain
+     * @param array $nameservers
+     * @return array
+     * @throws \Exception
+     */
+    public function updateNameservers(string $domain, array $nameservers): array
+    {
+        throw new \Exception('Method not implemented');
+    }
+
+    /**
      * @param  string  $domain
      * @param  int  $periodYears
      * @param  string  $regType
@@ -99,12 +110,17 @@ abstract class Adapter extends DomainsAdapter
     abstract public function getAuthCode(string $domain): string;
 
     /**
-     * Check transfer status for a domain
-     *
      * @param  string  $domain
      * @param  bool  $checkStatus
      * @param  bool  $getRequestAddress
      * @return TransferStatus
      */
     abstract public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus;
+
+    /**
+     * Cancel pending purchase orders
+     *
+     * @return bool
+     */
+    abstract public function cancelPurchase(): bool;
 }
