@@ -76,11 +76,7 @@ class NameComTest extends Base
         ];
     }
 
-    protected function shouldSkipTest(string $testName): bool
-    {
-        // NameCom supports all base tests including optional ones
-        return false;
-    }
+
 
     protected function getPricingTestDomain(): string
     {

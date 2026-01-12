@@ -80,11 +80,7 @@ class OpenSRSTest extends Base
         ];
     }
 
-    protected function shouldSkipTest(string $testName): bool
-    {
-        // OpenSRS supports all base tests including optional ones
-        return false;
-    }
+
 
     // OpenSRS-specific tests
 

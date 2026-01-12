@@ -509,6 +509,21 @@ class Mock extends Adapter
     }
 
     /**
+     * Update the nameservers for a domain
+     *
+     * @param string $domain
+     * @param array $nameservers
+     * @return array
+     */
+    public function updateNameservers(string $domain, array $nameservers): array
+    {
+        return [
+            'successful' => true,
+            'nameservers' => $nameservers,
+        ];
+    }
+
+    /**
      * Cancel pending purchase orders
      *
      * @return bool

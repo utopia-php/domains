@@ -35,23 +35,6 @@ abstract class Base extends TestCase
     abstract protected function getExpectedAdapterName(): string;
 
     /**
-     * Check if a test should be skipped for this adapter
-     *
-     * By default, skip tests for optional methods that not all adapters implement:
-     * - testCancelPurchase (only NameCom, OpenSRS)
-     * - testUpdateNameservers (only NameCom, OpenSRS)
-     */
-    protected function shouldSkipTest(string $testName): bool
-    {
-        $optionalTests = [
-            'testCancelPurchase',
-            'testUpdateNameservers',
-        ];
-
-        return in_array($testName, $optionalTests);
-    }
-
-    /**
      * Get purchase contact info
      */
     protected function getPurchaseContact(string $suffix = ''): array
@@ -114,20 +97,12 @@ abstract class Base extends TestCase
 
     public function testGetName(): void
     {
-        if ($this->shouldSkipTest('testGetName')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $name = $this->getAdapter()->getName();
         $this->assertEquals($this->getExpectedAdapterName(), $name);
     }
 
     public function testAvailable(): void
     {
-        if ($this->shouldSkipTest('testAvailable')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
         $result = $this->getAdapter()->available($domain);
 
@@ -136,10 +111,6 @@ abstract class Base extends TestCase
 
     public function testAvailableForTakenDomain(): void
     {
-        if ($this->shouldSkipTest('testAvailableForTakenDomain')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $domain = 'google.com';
         $result = $this->getAdapter()->available($domain);
 
@@ -148,10 +119,6 @@ abstract class Base extends TestCase
 
     public function testPurchase(): void
     {
-        if ($this->shouldSkipTest('testPurchase')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
         $result = $this->getAdapter()->purchase($domain, $this->getPurchaseContact(), 1);
 
@@ -161,10 +128,6 @@ abstract class Base extends TestCase
 
     public function testPurchaseTakenDomain(): void
     {
-        if ($this->shouldSkipTest('testPurchaseTakenDomain')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $domain = 'google.com';
 
         $this->expectException(DomainTakenException::class);
@@ -173,10 +136,6 @@ abstract class Base extends TestCase
 
     public function testPurchaseWithInvalidContact(): void
     {
-        if ($this->shouldSkipTest('testPurchaseWithInvalidContact')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
 
         $this->expectException(InvalidContactException::class);
@@ -200,10 +159,6 @@ abstract class Base extends TestCase
 
     public function testDomainInfo(): void
     {
-        if ($this->shouldSkipTest('testDomainInfo')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $testDomain = $this->getTestDomain();
         $result = $this->getAdapter()->getDomain($testDomain);
 
@@ -216,30 +171,18 @@ abstract class Base extends TestCase
 
     public function testCancelPurchase(): void
     {
-        if ($this->shouldSkipTest('testCancelPurchase')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $result = $this->getAdapter()->cancelPurchase();
         $this->assertTrue($result);
     }
 
     public function testTlds(): void
     {
-        if ($this->shouldSkipTest('testTlds')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $tlds = $this->getAdapter()->tlds();
         $this->assertIsArray($tlds);
     }
 
     public function testSuggest(): void
     {
-        if ($this->shouldSkipTest('testSuggest')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $result = $this->getAdapter()->suggest(
             'example',
             ['com', 'net', 'org'],
@@ -264,10 +207,6 @@ abstract class Base extends TestCase
 
     public function testGetPrice(): void
     {
-        if ($this->shouldSkipTest('testGetPrice')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $domain = $this->getPricingTestDomain();
         $result = $this->getAdapter()->getPrice($domain, 1, Adapter::REG_TYPE_NEW);
 
@@ -278,20 +217,12 @@ abstract class Base extends TestCase
 
     public function testGetPriceWithInvalidDomain(): void
     {
-        if ($this->shouldSkipTest('testGetPriceWithInvalidDomain')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $this->expectException(PriceNotFoundException::class);
         $this->getAdapter()->getPrice("invalid.invalidtld", 1, Adapter::REG_TYPE_NEW);
     }
 
     public function testGetPriceWithCache(): void
     {
-        if ($this->shouldSkipTest('testGetPriceWithCache')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $domain = $this->getPricingTestDomain();
         $adapter = $this->getAdapterWithCache();
 
@@ -305,10 +236,6 @@ abstract class Base extends TestCase
 
     public function testGetPriceWithCustomTtl(): void
     {
-        if ($this->shouldSkipTest('testGetPriceWithCustomTtl')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $domain = $this->getPricingTestDomain();
         $result = $this->getAdapterWithCache()->getPrice($domain, 1, Adapter::REG_TYPE_NEW, 7200);
 
@@ -318,10 +245,6 @@ abstract class Base extends TestCase
 
     public function testUpdateNameservers(): void
     {
-        if ($this->shouldSkipTest('testUpdateNameservers')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $testDomain = $this->getTestDomain();
         $nameservers = $this->getDefaultNameservers();
 
@@ -333,10 +256,6 @@ abstract class Base extends TestCase
 
     public function testUpdateDomain(): void
     {
-        if ($this->shouldSkipTest('testUpdateDomain')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $testDomain = $this->getTestDomain();
 
         $result = $this->getAdapter()->updateDomain(
@@ -353,10 +272,6 @@ abstract class Base extends TestCase
 
     public function testRenewDomain(): void
     {
-        if ($this->shouldSkipTest('testRenewDomain')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $testDomain = $this->getTestDomain();
 
         try {
@@ -370,10 +285,6 @@ abstract class Base extends TestCase
 
     public function testTransfer(): void
     {
-        if ($this->shouldSkipTest('testTransfer')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
 
         try {
@@ -390,10 +301,6 @@ abstract class Base extends TestCase
 
     public function testGetAuthCode(): void
     {
-        if ($this->shouldSkipTest('testGetAuthCode')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $testDomain = $this->getTestDomain();
 
         try {
@@ -408,10 +315,6 @@ abstract class Base extends TestCase
 
     public function testCheckTransferStatus(): void
     {
-        if ($this->shouldSkipTest('testCheckTransferStatus')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $testDomain = $this->getTestDomain();
         $result = $this->getAdapter()->checkTransferStatus($testDomain, true, true);
 
@@ -437,10 +340,6 @@ abstract class Base extends TestCase
 
     public function testCheckTransferStatusWithoutCheckStatus(): void
     {
-        if ($this->shouldSkipTest('testCheckTransferStatusWithoutCheckStatus')) {
-            $this->markTestSkipped('Test not applicable for this adapter');
-        }
-
         $testDomain = $this->getTestDomain();
         $result = $this->getAdapter()->checkTransferStatus($testDomain, false, false);
 
