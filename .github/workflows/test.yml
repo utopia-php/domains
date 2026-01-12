@@ -28,4 +28,6 @@ jobs:
       run: |
         export OPENSRS_KEY=${{ secrets.OPENSRS_KEY }}
         export OPENSRS_USERNAME=${{ secrets.OPENSRS_USERNAME }}
+        export NAMECOM_USERNAME=${{ secrets.NAMECOM_USERNAME }}
+        export NAMECOM_TOKEN=${{ secrets.NAMECOM_TOKEN }}
         composer test

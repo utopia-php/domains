@@ -77,6 +77,12 @@ php ./data/import.php
 
 
 ## Using the Registrar API
+
+The library supports multiple domain registrar adapters:
+- **OpenSRS** - OpenSRS domain registrar
+- **NameCom** - Name.com domain registrar
+
+### Using OpenSRS Adapter
 ```php
 <?php
 
@@ -85,18 +91,45 @@ use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Adapter\OpenSRS;
 
 $opensrs = new OpenSRS(
-  'apikey', 
-  'apisecret', 
-  'username', 
-  'password', 
+  'apikey',
+  'username',
+  'password',
   [
     'ns1.nameserver.com',
     'ns2.nameserver.com',
-  ]
+  ],
+  'https://horizon.opensrs.net:55443' // or 'https://rr-n1-tor.opensrs.net:55443' for production
 );
 
-
 $reg = new Registrar($opensrs);
+```
+
+### Using NameCom Adapter
+```php
+<?php
+
+use Utopia\Domains\Registrar;
+use Utopia\Domains\Registrar\Contact;
+use Utopia\Domains\Registrar\Adapter\NameCom;
+
+$namecom = new NameCom(
+  'username',
+  'api-token',
+  [
+    'ns1.name.com',
+    'ns2.name.com',
+  ],
+  'https://api.name.com' // or 'https://api.dev.name.com' for testing
+);
+
+$reg = new Registrar($namecom);
+```
+
+### Using the Registrar
+Once you have initialized an adapter, you can use the Registrar API:
+
+```php
+$reg = new Registrar($adapter); // $adapter can be OpenSRS or NameCom
 
 $contact = new Contact(
   'firstname',
