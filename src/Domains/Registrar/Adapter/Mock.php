@@ -324,7 +324,6 @@ class Mock extends Adapter
         $newExpiry = $currentExpiry ? (clone $currentExpiry)->modify("+{$periodYears} years") : new DateTime("+{$periodYears} years");
 
         return new Renewal(
-            successful: true,
             orderId: 'mock_order_' . md5($domain . time()),
             expiresAt: $newExpiry,
         );

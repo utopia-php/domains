@@ -276,8 +276,10 @@ abstract class Base extends TestCase
 
         try {
             $result = $this->getRegistrar()->renew($testDomain, 1);
-            $this->assertIsString($result);
-            $this->assertNotEmpty($result);
+            $this->assertIsString($result->orderId);
+            $this->assertNotEmpty($result->orderId);
+            $this->assertInstanceOf(\DateTime::class, $result->expiresAt);
+            $this->assertNotEmpty($result->expiresAt);
         } catch (\Exception $e) {
             // Renewal may fail for various reasons depending on the registrar
             $this->assertNotEmpty($e->getMessage());

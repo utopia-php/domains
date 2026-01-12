@@ -680,7 +680,6 @@ class OpenSRS extends Adapter
         }
 
         return new Renewal(
-            successful: $orderId !== null,
             orderId: $orderId,
             expiresAt: $newExpiration,
         );

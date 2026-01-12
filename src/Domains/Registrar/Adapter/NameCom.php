@@ -453,7 +453,6 @@ class NameCom extends Adapter
             $expiresAt = isset($result['domain']['expireDate']) ? new DateTime($result['domain']['expireDate']) : null;
 
             return new Renewal(
-                successful: !empty($orderId),
                 orderId: $orderId,
                 expiresAt: $expiresAt,
             );
@@ -617,6 +616,10 @@ class NameCom extends Adapter
      */
     private function sanitizeContacts(array $contacts): array
     {
+        if (empty($contacts)) {
+            throw new InvalidContactException('Contacts must be a non-empty array', 400);
+        }
+
         $result = [];
 
         // Name.com expects specific contact types
