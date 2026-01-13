@@ -10,8 +10,7 @@ use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Adapter\Mock;
-use Utopia\Domains\Registrar\Adapter\MockUpdateDetails;
-use Utopia\Domains\Registrar\UpdateDetails;
+use Utopia\Domains\Registrar\Adapter\Mock\UpdateDetails;
 
 class MockTest extends Base
 {
@@ -67,7 +66,7 @@ class MockTest extends Base
 
     protected function getUpdateDetails(array $details = [], array|Contact|null $contacts = null): UpdateDetails
     {
-        return new MockUpdateDetails($details, $contacts);
+        return new UpdateDetails($details, $contacts);
     }
 
     // Mock-specific tests
@@ -158,7 +157,7 @@ class MockTest extends Base
 
         $this->registrar->updateDomain(
             $domain,
-            new MockUpdateDetails(['data' => 'contact_info'], [$invalidContact])
+            new UpdateDetails(['data' => 'contact_info'], [$invalidContact])
         );
     }
 
