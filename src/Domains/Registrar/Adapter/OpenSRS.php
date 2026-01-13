@@ -11,13 +11,13 @@ use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
-use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar\Adapter;
-use Utopia\Domains\Registrar\Registration;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
+use Utopia\Domains\Registrar\UpdateDetails as UpdateDetails;
+use Utopia\Domains\Registrar;
 
 class OpenSRS extends Adapter
 {
@@ -29,6 +29,14 @@ class OpenSRS extends Adapter
     public const RESPONSE_CODE_INVALID_CONTACT = 465;
     public const RESPONSE_CODE_DOMAIN_TAKEN = 485;
     public const RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE = 487;
+
+    /**
+     * Contact Types
+     */
+    public const CONTACT_TYPE_OWNER = 'owner';
+    public const CONTACT_TYPE_ADMIN = 'admin';
+    public const CONTACT_TYPE_TECH = 'tech';
+    public const CONTACT_TYPE_BILLING = 'billing';
 
     protected array $user;
 
@@ -47,7 +55,6 @@ class OpenSRS extends Adapter
      * @param  string  $apiKey
      * @param  string  $username
      * @param  string  $password
-     * @param  array  $defaultNameservers
      * @param  string  $endpoint - The endpoint to use for the API (use rr-n1-tor.opensrs.net:55443 for production)
      * @return void
      */
@@ -55,9 +62,7 @@ class OpenSRS extends Adapter
         protected string $apiKey,
         string $username,
         string $password,
-        protected array $defaultNameservers = [],
-        protected string $endpoint = 'https://horizon.opensrs.net:55443',
-        protected ?Cache $cache = null
+        protected string $endpoint = 'https://horizon.opensrs.net:55443'
     ) {
         if (str_starts_with($endpoint, 'http://')) {
             $this->endpoint = 'https://' . substr($endpoint, 7);
@@ -127,6 +132,7 @@ class OpenSRS extends Adapter
             'code' => $code,
             'text' => $text,
             'successful' => $successful,
+            'nameservers' => $nameservers,
         ];
     }
 
@@ -165,7 +171,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
     {
         try {
             $contacts = is_array($contacts) ? $contacts : [$contacts];
@@ -177,21 +183,12 @@ class OpenSRS extends Adapter
 
             $contacts = $this->sanitizeContacts($contacts);
 
-            $regType = self::REG_TYPE_NEW;
+            $regType = Registrar::REG_TYPE_NEW;
 
             $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears);
-
             $result = $this->response($result);
+            return $result['id'];
 
-            return new Registration(
-                code: $result['code'],
-                id: $result['id'],
-                domainId: $result['domainId'],
-                successful: $result['successful'],
-                domain: $domain,
-                periodYears: $periodYears,
-                nameservers: $nameservers,
-            );
         } catch (Exception $e) {
             $message = 'Failed to purchase domain: ' . $e->getMessage();
 
@@ -208,7 +205,7 @@ class OpenSRS extends Adapter
         }
     }
 
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
     {
         $contacts = is_array($contacts) ? $contacts : [$contacts];
 
@@ -219,21 +216,13 @@ class OpenSRS extends Adapter
 
         $contacts = $this->sanitizeContacts($contacts);
 
-        $regType = self::REG_TYPE_TRANSFER;
+        $regType = Registrar::REG_TYPE_TRANSFER;
 
         try {
             $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, $authCode);
             $result = $this->response($result);
+            return $result['id'];
 
-            return new Registration(
-                code: $result['code'],
-                id: $result['id'],
-                domainId: $result['domainId'],
-                successful: $result['successful'],
-                domain: $domain,
-                periodYears: $periodYears,
-                nameservers: $nameservers,
-            );
         } catch (Exception $e) {
             $code = $e->getCode();
             if ($code === self::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE) {
@@ -467,7 +456,7 @@ class OpenSRS extends Adapter
      * @throws PriceNotFoundException When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
@@ -591,42 +580,49 @@ class OpenSRS extends Adapter
      *
      * Example request 1:
      * <code>
-     * $reg->updateDomain('example.com', [
-     *     'data' => 'contact_info',
-     * ], [
-     *     new Contact('John Doe', 'john.doe@example.com', '+1234567890'),
-     * ]);
+     * $details = new OpenSRSUpdateDetails(
+     *     data: 'contact_info',
+     *     contacts: [
+     *         'owner' => new Contact(...),
+     *         'admin' => new Contact(...),
+     *     ]
+     * );
+     * $reg->updateDomain('example.com', $details);
      * </code>
      *
      * Example request 2:
      * <code>
-     * $reg->updateDomain('example.com', [
-     *     'data' => 'ca_whois_display_setting',
-     *     'display' => 'FULL',
-     * ]);
+     * $details = new OpenSRSUpdateDetails(
+     *     data: 'ca_whois_display_setting',
+     *     display: 'FULL'
+     * );
+     * $reg->updateDomain('example.com', $details);
      * </code>
      *
      * @param string $domain The domain name to update
-     * @param array $details The details to update the domain with
-     * @param array|Contact|null $contacts The contacts to update the domain with (optional)
+     * @param UpdateDetails $details The details to update the domain with
      * @return bool True if the domain was updated successfully, false otherwise
      */
-    public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool
+    public function updateDomain(string $domain, UpdateDetails $details): bool
     {
+        if (!$details instanceof OpenSRS\UpdateDetails) {
+            throw new Exception("Invalid details type: expected OpenSRS\\UpdateDetails");
+        }
+
+        $attributes = $details->toArray();
+
         $message = [
             'object' => 'DOMAIN',
             'action' => 'MODIFY',
             'domain' => $domain,
-            'attributes' => $details,
+            'attributes' => $attributes,
         ];
 
-        if ($contacts) {
-            $data = $details['data'] ?? null;
-            if ($data !== 'contact_info') {
+        if ($details->contacts !== null) {
+            if ($details->data !== 'contact_info') {
                 throw new Exception("Invalid data: data must be 'contact_info' in order to update contacts");
             }
-            $contacts = is_array($contacts) ? $contacts : [$contacts];
-            $contacts = $this->sanitizeContacts($contacts);
+            $contacts = $this->sanitizeContacts($details->contacts);
             $message['attributes']['contact_set'] = $contacts;
         }
 
@@ -698,7 +694,6 @@ class OpenSRS extends Adapter
         }
 
         return new Renewal(
-            successful: $orderId !== null,
             orderId: $orderId,
             expiresAt: $newExpiration,
         );
@@ -743,12 +738,10 @@ class OpenSRS extends Adapter
      * Check transfer status for a domain
      *
      * @param string $domain The fully qualified domain name
-     * @param bool $checkStatus Flag to request the status of a transfer request
-     * @param bool $getRequestAddress Flag to request the registrant's contact email address
      * @return TransferStatus Contains transfer status information including 'status', 'reason', etc.
      * @throws DomainsException When errors occur during the check
      */
-    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus
+    public function checkTransferStatus(string $domain): TransferStatus
     {
         try {
             $message = [
@@ -756,8 +749,8 @@ class OpenSRS extends Adapter
                 'action' => 'CHECK_TRANSFER',
                 'attributes' => [
                     'domain' => $domain,
-                    'check_status' => $checkStatus ? 1 : 0,
-                    'get_request_address' => $getRequestAddress ? 1 : 0,
+                    'check_status' => 1, // Always check status
+                    'get_request_address' => 0, // Never get request address
                 ],
             ];
 
@@ -1154,10 +1147,10 @@ class OpenSRS extends Adapter
     {
         if (count(array_keys($contacts)) == 1) {
             return [
-                'owner' => $contacts[0]->toArray(),
-                'admin' => $contacts[0]->toArray(),
-                'tech' => $contacts[0]->toArray(),
-                'billing' => $contacts[0]->toArray(),
+                self::CONTACT_TYPE_OWNER => $contacts[0]->toArray(),
+                self::CONTACT_TYPE_ADMIN => $contacts[0]->toArray(),
+                self::CONTACT_TYPE_TECH => $contacts[0]->toArray(),
+                self::CONTACT_TYPE_BILLING => $contacts[0]->toArray(),
             ];
         }
 
