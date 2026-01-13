@@ -25,10 +25,11 @@ class NameCom extends Adapter
     /**
      * Name.com API Error Messages
      */
+    public const ERROR_MESSAGE_NOT_FOUND = 'Not Found';
     public const ERROR_MESSAGE_DOMAIN_TAKEN = 'Domain is not available';
-    public const ERROR_MESSAGE_INVALID_CONTACT = 'invalid value for $country when calling';
     public const ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE = 'we were unable to get authoritative domain information from the registry. this usually means that the domain name or auth code provided was not correct.';
-    public const ERROR_MESSAGE_PRICE_NOT_FOUND = 'Not Found';
+    public const ERROR_MESSAGE_INVALID_CONTACT = 'invalid value for $country when calling';
+    public const ERROR_MESSAGE_INVALID_DOMAIN = 'Invalid Domain Name';
 
     /**
      * Contact Types
@@ -332,18 +333,7 @@ class NameCom extends Adapter
         }
 
         try {
-            $isAvailable = $this->available($domain);
-            if (!$isAvailable) {
-                throw new DomainNotFoundException('Domain is not available: ' . $domain, 400);
-            }
-        } catch (DomainNotFoundException $e) {
-            throw $e;
-        } catch (Exception $e) {
-            throw new DomainsException('Failed to get price for domain: ' . $e->getMessage(), $e->getCode(), $e);
-        }
-
-        try {
-            $result = $this->send('GET', '/core/v1/domains/' . $domain . ':getPrice' . '?years=' . $periodYears);
+            $result = $this->send('GET', '/core/v1/domains/' . $domain . ':getPricing' . '?years=' . $periodYears);
             $purchasePrice = (float) ($result['purchasePrice'] ?? 0);
             $renewalPrice = (float) ($result['renewalPrice'] ?? 0);
             $transferPrice = (float) ($result['transferPrice'] ?? 0);
@@ -372,10 +362,13 @@ class NameCom extends Adapter
             throw $e;
 
         } catch (Exception $e) {
-            $message = 'Failed to get price for domain: ' . $e->getMessage();
+            $message = 'Failed to get price for domain: ' . $domain . ' - ' . $e->getMessage();
             $errorLower = strtolower($e->getMessage());
 
-            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_PRICE_NOT_FOUND))) {
+            if (
+                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_NOT_FOUND)) ||
+                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_DOMAIN))
+            ) {
                 throw new PriceNotFoundException($message, $e->getCode(), $e);
             }
 
@@ -621,7 +614,12 @@ class NameCom extends Adapter
         }
 
         if ($httpCode >= 400) {
-            $message = $response['message'] ?? $response['details'] ?? 'Unknown error';
+            $message = $response['message'] ?? 'Unknown error';
+            $details = $response['details'] ?? null;
+
+            if ($details) {
+                $message .= '(' . $details . ')';
+            }
 
             if ($httpCode === 401 && $message === 'Unauthorized') {
                 throw new AuthException('Failed to send request to Name.com: ' . $message, $httpCode);

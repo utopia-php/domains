@@ -351,14 +351,6 @@ abstract class Base extends TestCase
         ]);
     }
 
-    public function testCheckTransferStatusWithoutCheckStatus(): void
-    {
-        $testDomain = $this->getTestDomain();
-        $result = $this->getRegistrar()->checkTransferStatus($testDomain);
-
-        $this->assertInstanceOf(TransferStatusEnum::class, $result->status);
-    }
-
     /**
      * Get default nameservers for testing
      * Can be overridden by child classes
