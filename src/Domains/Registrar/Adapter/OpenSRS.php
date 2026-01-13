@@ -31,6 +31,14 @@ class OpenSRS extends Adapter
     public const RESPONSE_CODE_DOMAIN_TAKEN = 485;
     public const RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE = 487;
 
+    /**
+     * Contact Types
+     */
+    public const CONTACT_TYPE_OWNER = 'owner';
+    public const CONTACT_TYPE_ADMIN = 'admin';
+    public const CONTACT_TYPE_TECH = 'tech';
+    public const CONTACT_TYPE_BILLING = 'billing';
+
     protected array $user;
 
     /**
@@ -1133,10 +1141,10 @@ class OpenSRS extends Adapter
     {
         if (count(array_keys($contacts)) == 1) {
             return [
-                'owner' => $contacts[0]->toArray(),
-                'admin' => $contacts[0]->toArray(),
-                'tech' => $contacts[0]->toArray(),
-                'billing' => $contacts[0]->toArray(),
+                self::CONTACT_TYPE_OWNER => $contacts[0]->toArray(),
+                self::CONTACT_TYPE_ADMIN => $contacts[0]->toArray(),
+                self::CONTACT_TYPE_TECH => $contacts[0]->toArray(),
+                self::CONTACT_TYPE_BILLING => $contacts[0]->toArray(),
             ];
         }
 

@@ -29,6 +29,15 @@ class NameCom extends Adapter
     public const ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE = 'we were unable to get authoritative domain information from the registry. this usually means that the domain name or auth code provided was not correct.';
     public const ERROR_MESSAGE_PRICE_NOT_FOUND = 'Not Found';
 
+    /**
+     * Contact Types
+     */
+    public const CONTACT_TYPE_REGISTRANT = 'registrant';
+    public const CONTACT_TYPE_ADMIN = 'admin';
+    public const CONTACT_TYPE_TECH = 'tech';
+    public const CONTACT_TYPE_BILLING = 'billing';
+    public const CONTACT_TYPE_OWNER = 'owner';
+
     protected string $username;
     protected string $token;
 
@@ -447,7 +456,7 @@ class NameCom extends Adapter
 
     /**
      * Renew a domain
-     * 
+     *
      * @see https://docs.name.com/docs/api-reference/domains/renew-domain#renew-domain
      *
      * @param string $domain The domain name to renew
@@ -633,35 +642,39 @@ class NameCom extends Adapter
             throw new InvalidContactException('Contacts must be a non-empty array', 400);
         }
 
+        // Validate all items are Contact instances
+        foreach ($contacts as $key => $contact) {
+            if (!$contact instanceof Contact) {
+                $keyInfo = is_int($key) ? "index $key" : "key '$key'";
+                throw new InvalidContactException("Contact at $keyInfo must be an instance of Contact", 400);
+            }
+        }
+
+        // Use first contact as default fallback
+        $defaultContact = reset($contacts);
+
+        // Map contacts to required types using null coalescing
+        // Checks associative keys first, then numeric indices, then falls back to default
+        $mappings = [
+            self::CONTACT_TYPE_REGISTRANT => $contacts[self::CONTACT_TYPE_REGISTRANT]
+                ?? $contacts[self::CONTACT_TYPE_OWNER]
+                ?? $contacts[0]
+                ?? $defaultContact,
+            self::CONTACT_TYPE_ADMIN => $contacts[self::CONTACT_TYPE_ADMIN]
+                ?? $contacts[1]
+                ?? $defaultContact,
+            self::CONTACT_TYPE_TECH => $contacts[self::CONTACT_TYPE_TECH]
+                ?? $contacts[2]
+                ?? $defaultContact,
+            self::CONTACT_TYPE_BILLING => $contacts[self::CONTACT_TYPE_BILLING]
+                ?? $contacts[3]
+                ?? $defaultContact,
+        ];
+
+        // Format all contacts
         $result = [];
-
-        // Name.com expects specific contact types
-        $types = ['registrant', 'admin', 'tech', 'billing'];
-
-        if (count($contacts) === 1) {
-            // Use the same contact for all types
-            $contact = $contacts[0];
-            foreach ($types as $type) {
-                $result[$type] = $this->formatContact($contact);
-            }
-        } elseif (array_keys($contacts) === range(0, count($contacts) - 1)) {
-            // Numerically-indexed array: map by position to types
-            // 0→registrant, 1→admin, 2→tech, 3→billing
-            $firstContact = $contacts[0];
-            foreach ($types as $index => $type) {
-                // Use contact at position if exists, otherwise fall back to first contact
-                $contact = $contacts[$index] ?? $firstContact;
-                $result[$type] = $this->formatContact($contact);
-            }
-        } else {
-            // Associative array: map provided contacts to Name.com types
-            foreach ($contacts as $key => $contact) {
-                if (in_array($key, $types)) {
-                    $result[$key] = $this->formatContact($contact);
-                } elseif ($key === 'owner') {
-                    $result['registrant'] = $this->formatContact($contact);
-                }
-            }
+        foreach ($mappings as $type => $contact) {
+            $result[$type] = $this->formatContact($contact);
         }
 
         return $result;
