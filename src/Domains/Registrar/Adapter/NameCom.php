@@ -11,9 +11,8 @@ use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
-use Utopia\Domains\Cache;
+use Utopia\Domains\Registrar\Exception\DomainNotAvailableException;
 use Utopia\Domains\Registrar\Adapter;
-use Utopia\Domains\Registrar\Registration;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Domain;
@@ -139,7 +138,7 @@ class NameCom extends Adapter
             ];
 
             $result = $this->send('POST', '/core/v1/domains', $data);
-            return $result['order'];
+            return (string) ($result['order'] ?? '');
 
         } catch (AuthException $e) {
             throw $e;
@@ -189,7 +188,7 @@ class NameCom extends Adapter
             }
 
             $result = $this->send('POST', '/core/v1/transfers', $data);
-            return $result['order'];
+            return (string) ($result['order'] ?? '');
 
         } catch (AuthException $e) {
             throw $e;
@@ -199,10 +198,16 @@ class NameCom extends Adapter
             $code = $e->getCode();
             $errorLower = strtolower($e->getMessage());
 
-            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE))) {
+            if (
+                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE)) ||
+                $code === 409
+            ) {
                 throw new DomainNotTransferableException($message, $code, $e);
             }
-            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT))) {
+            if (
+                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT)) ||
+                $code === 422
+            ) {
                 throw new InvalidContactException($message, $e->getCode(), $e);
             }
             if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_TAKEN))) {
@@ -311,40 +316,47 @@ class NameCom extends Adapter
     public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float
     {
         if ($this->cache) {
-            $cacheKey = $domain . '_' . $regType . '_' . $periodYears;
+            $cacheKey = $domain . '_' . $periodYears;
             $cached = $this->cache->load($cacheKey, $ttl);
-            if ($cached !== null && is_array($cached)) {
-                return $cached['price'];
+            if ($cached !== null && is_array($cached) && isset($cached[$regType])) {
+                return (float) $cached[$regType];
             }
         }
 
+        $isAvailable = $this->available($domain);
+        if (!$isAvailable) {
+            throw new DomainNotAvailableException('Domain is not available: ' . $domain, 400);
+        }
+
         try {
-            // Use checkAvailability to get price information
-            $result = $this->send('POST', '/core/v1/domains:checkAvailability', [
-                'domainNames' => [$domain],
-            ]);
+            $result = $this->send('GET', '/core/v1/domains/' . $domain . ':getPrice' . '?years=' . $periodYears);
+            $purchasePrice = (float) ($result['purchasePrice'] ?? 0);
+            $renewalPrice = (float) ($result['renewalPrice'] ?? 0);
+            $transferPrice = (float) ($result['transferPrice'] ?? 0);
 
-            if (isset($result['results']) && is_array($result['results']) && count($result['results']) > 0) {
-                $domainResult = $result['results'][0];
-                $price = isset($domainResult['purchasePrice']) ? (float) $domainResult['purchasePrice'] : null;
+            if ($this->cache) {
+                $cacheKey = $domain . '_' . $periodYears;
+                $this->cache->save($cacheKey, [
+                    Registrar::REG_TYPE_NEW => $purchasePrice,
+                    Registrar::REG_TYPE_RENEWAL => $renewalPrice,
+                    Registrar::REG_TYPE_TRANSFER => $transferPrice,
+                ]);
+            }
 
-                if ($price === null) {
-                    throw new PriceNotFoundException('Price not found for domain: ' . $domain, 400);
-                }
-
-                if ($this->cache) {
-                    $cacheKey = $domain . '_' . $regType . '_' . $periodYears;
-                    $this->cache->save($cacheKey, ['price' => $price]);
-                }
-
-                return $price;
+            switch ($regType) {
+                case Registrar::REG_TYPE_NEW:
+                    return $purchasePrice;
+                case Registrar::REG_TYPE_RENEWAL:
+                    return $renewalPrice;
+                case Registrar::REG_TYPE_TRANSFER:
+                    return $transferPrice;
             }
 
             throw new PriceNotFoundException('Price not found for domain: ' . $domain, 400);
+
         } catch (PriceNotFoundException $e) {
             throw $e;
-        } catch (AuthException $e) {
-            throw $e;
+
         } catch (Exception $e) {
             $message = 'Failed to get price for domain: ' . $e->getMessage();
             $errorLower = strtolower($e->getMessage());
