@@ -27,7 +27,7 @@ class NameCom extends Adapter
     public const ERROR_MESSAGE_DOMAIN_TAKEN = 'Domain is not available';
     public const ERROR_MESSAGE_INVALID_CONTACT = 'invalid value for $country when calling';
     public const ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE = 'we were unable to get authoritative domain information from the registry. this usually means that the domain name or auth code provided was not correct.';
-    public const ERROR_MESSAGE_PRICE_NOT_FOUND = 'none of the submitted domains are valid';
+    public const ERROR_MESSAGE_PRICE_NOT_FOUND = 'Not Found';
 
     protected string $username;
     protected string $token;
@@ -447,6 +447,8 @@ class NameCom extends Adapter
 
     /**
      * Renew a domain
+     * 
+     * @see https://docs.name.com/docs/api-reference/domains/renew-domain#renew-domain
      *
      * @param string $domain The domain name to renew
      * @param int $periodYears The number of years to renew
@@ -476,6 +478,8 @@ class NameCom extends Adapter
     /**
      * Get the authorization code for an EPP domain
      *
+     * @see https://docs.name.com/docs/api-reference/domains/get-auth-code-for-domain#get-auth-code-for-domain
+     *
      * @param string $domain The domain name
      * @return string The authorization code
      */
@@ -500,42 +504,32 @@ class NameCom extends Adapter
      * Check transfer status for a domain
      *
      * @param string $domain The domain name
-     * @param bool $checkStatus Flag to check status
-     * @param bool $getRequestAddress Flag to get request address
      * @return TransferStatus Transfer status information
      */
-    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus
+    public function checkTransferStatus(string $domain): TransferStatus
     {
         try {
-            // List all transfers and find the one for this domain
-            $result = $this->send('GET', '/core/v1/transfers');
+            // Use efficient single-domain lookup endpoint
+            $result = $this->send('GET', '/core/v1/transfers/' . $domain);
 
-            if (isset($result['transfers']) && is_array($result['transfers'])) {
-                foreach ($result['transfers'] as $transfer) {
-                    if (isset($transfer['domainName']) && $transfer['domainName'] === $domain) {
-                        $status = $this->mapTransferStatus($transfer['status'] ?? 'unknown');
-                        $reason = null;
+            $status = $this->mapTransferStatus($result['status'] ?? 'unknown');
+            $reason = isset($result['statusDetails']) ? $result['statusDetails'] : null;
 
-                        if ($status === TransferStatusEnum::NotTransferrable) {
-                            $reason = $transfer['statusDetails'] ?? 'Domain is not transferable';
-                        }
-
-                        return new TransferStatus(
-                            status: $status,
-                            reason: $reason,
-                            timestamp: isset($transfer['created']) ? new DateTime($transfer['created']) : null,
-                        );
-                    }
-                }
-            }
-
-            // If no transfer found, domain is transferable (or no transfer initiated)
             return new TransferStatus(
-                status: TransferStatusEnum::Transferrable,
-                reason: null,
-                timestamp: null,
+                status: $status,
+                reason: $reason,
+                timestamp: isset($result['created']) ? new DateTime($result['created']) : null,
             );
         } catch (Exception $e) {
+            // If transfer not found (404), domain is transferable (no transfer initiated)
+            if ($e->getCode() === 404) {
+                return new TransferStatus(
+                    status: TransferStatusEnum::Transferrable,
+                    reason: null,
+                    timestamp: null,
+                );
+            }
+
             throw new DomainsException('Failed to check transfer status: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
@@ -543,17 +537,24 @@ class NameCom extends Adapter
     /**
      * Map Name.com transfer status to TransferStatusEnum
      *
+     * Name.com statuses: canceled, canceled_pending_refund, completed, failed,
+     * pending, pending_insert, pending_new_auth_code, pending_transfer,
+     * pending_unlock, rejected, submitting_transfer
+     *
+     * @see https://docs.name.com/docs/api-reference/transfers/get-transfer#get-transfer
+     *
      * @param string $status Name.com status string
      * @return TransferStatusEnum
      */
     private function mapTransferStatus(string $status): TransferStatusEnum
     {
         return match (strtolower($status)) {
-            'pending' => TransferStatusEnum::PendingRegistry,
-            'approved', 'complete', 'completed' => TransferStatusEnum::Completed,
-            'cancelled', 'rejected' => TransferStatusEnum::Cancelled,
-            'pending_owner' => TransferStatusEnum::PendingOwner,
-            'pending_admin' => TransferStatusEnum::PendingAdmin,
+            'completed' => TransferStatusEnum::Completed,
+            'canceled', 'canceled_pending_refund', 'rejected' => TransferStatusEnum::Cancelled,
+            'pending', 'pending_transfer', 'submitting_transfer' => TransferStatusEnum::PendingRegistry,
+            'pending_insert' => TransferStatusEnum::PendingAdmin,
+            'pending_new_auth_code', 'pending_unlock' => TransferStatusEnum::PendingOwner,
+            'failed' => TransferStatusEnum::NotTransferrable,
             default => TransferStatusEnum::NotTransferrable,
         };
     }

@@ -724,12 +724,10 @@ class OpenSRS extends Adapter
      * Check transfer status for a domain
      *
      * @param string $domain The fully qualified domain name
-     * @param bool $checkStatus Flag to request the status of a transfer request
-     * @param bool $getRequestAddress Flag to request the registrant's contact email address
      * @return TransferStatus Contains transfer status information including 'status', 'reason', etc.
      * @throws DomainsException When errors occur during the check
      */
-    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus
+    public function checkTransferStatus(string $domain): TransferStatus
     {
         try {
             $message = [
@@ -737,8 +735,8 @@ class OpenSRS extends Adapter
                 'action' => 'CHECK_TRANSFER',
                 'attributes' => [
                     'domain' => $domain,
-                    'check_status' => $checkStatus ? 1 : 0,
-                    'get_request_address' => $getRequestAddress ? 1 : 0,
+                    'check_status' => 1, // Always check status
+                    'get_request_address' => 0, // Never get request address
                 ],
             ];
 

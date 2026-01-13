@@ -193,11 +193,9 @@ abstract class Adapter extends DomainsAdapter
      * Check transfer status for a domain
      *
      * @param  string  $domain
-     * @param  bool  $checkStatus
-     * @param  bool  $getRequestAddress
      * @return TransferStatus
      */
-    abstract public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus;
+    abstract public function checkTransferStatus(string $domain): TransferStatus;
 
     /**
      * Cancel pending purchase orders
