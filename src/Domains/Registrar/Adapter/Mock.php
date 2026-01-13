@@ -14,6 +14,7 @@ use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Adapter;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar;
+use Utopia\Domains\Registrar\UpdateDetails;
 
 class Mock extends Adapter
 {
@@ -333,20 +334,23 @@ class Mock extends Adapter
      * Update domain information
      *
      * @param string $domain
-     * @param array|Contact|null $contacts
-     * @param array $details
+     * @param UpdateDetails $details
      * @return bool
      * @throws DomainsException
      * @throws InvalidContactException
      */
-    public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool
+    public function updateDomain(string $domain, UpdateDetails $details): bool
     {
         if (!in_array($domain, $this->purchasedDomains)) {
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
         }
 
-        if ($contacts) {
-            $this->validateContacts($contacts);
+        // Extract details from UpdateDetails object
+        $detailsArray = $details->toArray();
+
+        // Validate contacts if present
+        if (isset($detailsArray['contacts']) && $detailsArray['contacts']) {
+            $this->validateContacts($detailsArray['contacts']);
         }
 
         return true;
@@ -454,11 +458,9 @@ class Mock extends Adapter
      * Check transfer status for a domain
      *
      * @param string $domain
-     * @param bool $checkStatus
-     * @param bool $getRequestAddress
      * @return TransferStatus
      */
-    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus
+    public function checkTransferStatus(string $domain): TransferStatus
     {
         if (in_array($domain, $this->transferredDomains)) {
             return new TransferStatus(

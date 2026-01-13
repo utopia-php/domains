@@ -10,6 +10,8 @@ use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Adapter\Mock;
+use Utopia\Domains\Registrar\Adapter\MockUpdateDetails;
+use Utopia\Domains\Registrar\UpdateDetails;
 
 class MockTest extends Base
 {
@@ -61,6 +63,11 @@ class MockTest extends Base
             'ns1.example.com',
             'ns2.example.com',
         ];
+    }
+
+    protected function getUpdateDetails(array $details = [], array|Contact|null $contacts = null): UpdateDetails
+    {
+        return new MockUpdateDetails($details, $contacts);
     }
 
     // Mock-specific tests
@@ -151,15 +158,14 @@ class MockTest extends Base
 
         $this->registrar->updateDomain(
             $domain,
-            ['data' => 'contact_info'],
-            [$invalidContact]
+            new MockUpdateDetails(['data' => 'contact_info'], [$invalidContact])
         );
     }
 
     public function testCheckTransferStatusWithRequestAddress(): void
     {
         $domain = 'example.com';
-        $result = $this->registrar->checkTransferStatus($domain, false, true);
+        $result = $this->registrar->checkTransferStatus($domain);
 
         $this->assertInstanceOf(\Utopia\Domains\Registrar\TransferStatusEnum::class, $result->status);
     }

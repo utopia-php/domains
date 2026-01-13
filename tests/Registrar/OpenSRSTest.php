@@ -9,6 +9,9 @@ use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Adapter\OpenSRS;
+use Utopia\Domains\Registrar\Adapter\OpenSRSUpdateDetails;
+use Utopia\Domains\Registrar\UpdateDetails;
+use Utopia\Domains\Registrar\Contact;
 
 class OpenSRSTest extends Base
 {
@@ -84,7 +87,11 @@ class OpenSRSTest extends Base
         ];
     }
 
-
+    protected function getUpdateDetails(array $details = [], array|Contact|null $contacts = null): UpdateDetails
+    {
+        $data = $details['data'] ?? 'contact_info';
+        return new OpenSRSUpdateDetails($data, $contacts);
+    }
 
     // OpenSRS-specific tests
 

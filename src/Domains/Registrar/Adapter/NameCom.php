@@ -208,17 +208,15 @@ class NameCom extends Adapter
             $code = $e->getCode();
             $errorLower = strtolower($e->getMessage());
 
-            if (
-                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE)) ||
-                $code === 409
-            ) {
-                throw new DomainNotTransferableException($message, $code, $e);
-            }
-            if (
-                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT)) ||
-                $code === 422
+            if ($code === 422 ||
+            str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT))
             ) {
                 throw new InvalidContactException($message, $e->getCode(), $e);
+            }
+            if ($code === 409 ||
+                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE))
+            ) {
+                throw new DomainNotTransferableException($message, $code, $e);
             }
             if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_TAKEN))) {
                 throw new DomainTakenException($message, $e->getCode(), $e);

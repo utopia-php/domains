@@ -1,10 +1,10 @@
 <?php
 
-namespace Utopia\Domains\Registrar\Adapter;
+namespace Utopia\Domains\Registrar\Adapter\NameCom;
 
-use Utopia\Domains\Registrar\UpdateDetails;
+use Utopia\Domains\Registrar\UpdateDetails as BaseUpdateDetails;
 
-class NameComUpdateDetails extends UpdateDetails
+class UpdateDetails extends BaseUpdateDetails
 {
     /**
      * @param bool|null $autorenewEnabled Enable or disable automatic renewal

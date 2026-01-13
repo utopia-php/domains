@@ -7,6 +7,7 @@ use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\TransferStatus;
+use Utopia\Domains\Registrar\UpdateDetails;
 
 class Registrar
 {
@@ -126,13 +127,12 @@ class Registrar
      * Update the details of a domain
      *
      * @param string $domain
-     * @param array $details
-     * @param array|Contact|null $contacts
+     * @param UpdateDetails $details
      * @return bool
      */
-    public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool
+    public function updateDomain(string $domain, UpdateDetails $details): bool
     {
-        return $this->adapter->updateDomain($domain, $details, $contacts);
+        return $this->adapter->updateDomain($domain, $details);
     }
 
     /**
@@ -212,12 +212,10 @@ class Registrar
      * Check transfer status for a domain
      *
      * @param string $domain
-     * @param bool $checkStatus
-     * @param bool $getRequestAddress
      * @return TransferStatus
      */
-    public function checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus
+    public function checkTransferStatus(string $domain): TransferStatus
     {
-        return $this->adapter->checkTransferStatus($domain, $checkStatus, $getRequestAddress);
+        return $this->adapter->checkTransferStatus($domain);
     }
 }

@@ -10,6 +10,7 @@ use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\TransferStatusEnum;
+use Utopia\Domains\Registrar\UpdateDetails;
 
 abstract class Base extends TestCase
 {
@@ -33,6 +34,15 @@ abstract class Base extends TestCase
      * Get the expected adapter name
      */
     abstract protected function getExpectedAdapterName(): string;
+
+    /**
+     * Get an UpdateDetails instance for testing
+     *
+     * @param array<string,mixed> $details Domain details to update
+     * @param array<string,Contact>|Contact|null $contacts Contacts to update
+     * @return UpdateDetails
+     */
+    abstract protected function getUpdateDetails(array $details = [], array|Contact|null $contacts = null): UpdateDetails;
 
     /**
      * Get purchase contact info
@@ -260,11 +270,13 @@ abstract class Base extends TestCase
 
         $result = $this->getRegistrar()->updateDomain(
             $testDomain,
-            [
-                'autorenew' => true,
-                'data' => 'contact_info',
-            ],
-            $this->getPurchaseContact('2')
+            $this->getUpdateDetails(
+                [
+                    'autorenew' => true,
+                    'data' => 'contact_info',
+                ],
+                $this->getPurchaseContact('2')
+            )
         );
 
         $this->assertTrue($result);
@@ -317,7 +329,7 @@ abstract class Base extends TestCase
     public function testCheckTransferStatus(): void
     {
         $testDomain = $this->getTestDomain();
-        $result = $this->getRegistrar()->checkTransferStatus($testDomain, true, true);
+        $result = $this->getRegistrar()->checkTransferStatus($testDomain);
 
         $this->assertInstanceOf(TransferStatusEnum::class, $result->status);
 
@@ -342,7 +354,7 @@ abstract class Base extends TestCase
     public function testCheckTransferStatusWithoutCheckStatus(): void
     {
         $testDomain = $this->getTestDomain();
-        $result = $this->getRegistrar()->checkTransferStatus($testDomain, false, false);
+        $result = $this->getRegistrar()->checkTransferStatus($testDomain);
 
         $this->assertInstanceOf(TransferStatusEnum::class, $result->status);
     }

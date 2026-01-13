@@ -11,14 +11,12 @@ use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
-use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar\Adapter;
-use Utopia\Domains\Registrar\Registration;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
-use Utopia\Domains\Registrar\UpdateDetails;
+use Utopia\Domains\Registrar\UpdateDetails as UpdateDetails;
 use Utopia\Domains\Registrar;
 
 class OpenSRS extends Adapter
@@ -607,8 +605,8 @@ class OpenSRS extends Adapter
      */
     public function updateDomain(string $domain, UpdateDetails $details): bool
     {
-        if (!$details instanceof OpenSRSUpdateDetails) {
-            throw new Exception("Invalid details type: expected OpenSRSUpdateDetails");
+        if (!$details instanceof OpenSRS\UpdateDetails) {
+            throw new Exception("Invalid details type: expected OpenSRS\\UpdateDetails");
         }
 
         $attributes = $details->toArray();

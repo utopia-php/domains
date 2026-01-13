@@ -1,11 +1,11 @@
 <?php
 
-namespace Utopia\Domains\Registrar\Adapter;
+namespace Utopia\Domains\Registrar\Adapter\OpenSRS;
 
-use Utopia\Domains\Registrar\UpdateDetails;
+use Utopia\Domains\Registrar\UpdateDetails as BaseUpdateDetails;
 use Utopia\Domains\Registrar\Contact;
 
-class OpenSRSUpdateDetails extends UpdateDetails
+class UpdateDetails extends BaseUpdateDetails
 {
     /**
      * @param string $data The data type to update (e.g., 'contact_info', 'ca_whois_display_setting')
