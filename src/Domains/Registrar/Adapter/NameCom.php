@@ -11,7 +11,7 @@ use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
-use Utopia\Domains\Registrar\Exception\DomainNotAvailableException;
+use Utopia\Domains\Registrar\Exception\DomainNotFoundException;
 use Utopia\Domains\Registrar\Adapter;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
@@ -334,9 +334,9 @@ class NameCom extends Adapter
         try {
             $isAvailable = $this->available($domain);
             if (!$isAvailable) {
-                throw new DomainNotAvailableException('Domain is not available: ' . $domain, 400);
+                throw new DomainNotFoundException('Domain is not available: ' . $domain, 400);
             }
-        } catch (DomainNotAvailableException $e) {
+        } catch (DomainNotFoundException $e) {
             throw $e;
         } catch (Exception $e) {
             throw new DomainsException('Failed to get price for domain: ' . $e->getMessage(), $e->getCode(), $e);
@@ -527,7 +527,6 @@ class NameCom extends Adapter
     public function checkTransferStatus(string $domain): TransferStatus
     {
         try {
-            // Use efficient single-domain lookup endpoint
             $result = $this->send('GET', '/core/v1/transfers/' . $domain);
 
             $status = $this->mapTransferStatus($result['status'] ?? 'unknown');
@@ -539,13 +538,8 @@ class NameCom extends Adapter
                 timestamp: isset($result['created']) ? new DateTime($result['created']) : null,
             );
         } catch (Exception $e) {
-            // If transfer not found (404), domain is transferable (no transfer initiated)
             if ($e->getCode() === 404) {
-                return new TransferStatus(
-                    status: TransferStatusEnum::Transferrable,
-                    reason: null,
-                    timestamp: null,
-                );
+                throw new DomainNotFoundException('Domain not found: ' . $domain, $e->getCode(), $e);
             }
 
             throw new DomainsException('Failed to check transfer status: ' . $e->getMessage(), $e->getCode(), $e);
