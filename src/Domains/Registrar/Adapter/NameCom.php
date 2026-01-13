@@ -17,6 +17,7 @@ use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
+use Utopia\Domains\Registrar\UpdateDetails;
 use Utopia\Domains\Registrar;
 
 class NameCom extends Adapter
@@ -332,9 +333,15 @@ class NameCom extends Adapter
             }
         }
 
-        $isAvailable = $this->available($domain);
-        if (!$isAvailable) {
-            throw new DomainNotAvailableException('Domain is not available: ' . $domain, 400);
+        try {
+            $isAvailable = $this->available($domain);
+            if (!$isAvailable) {
+                throw new DomainNotAvailableException('Domain is not available: ' . $domain, 400);
+            }
+        } catch (DomainNotAvailableException $e) {
+            throw $e;
+        } catch (Exception $e) {
+            throw new DomainsException('Failed to get price for domain: ' . $e->getMessage(), $e->getCode(), $e);
         }
 
         try {
@@ -420,35 +427,39 @@ class NameCom extends Adapter
     /**
      * Update domain information
      *
+     * Example request:
+     * <code>
+     * $details = new NameComUpdateDetails(
+     *     autorenewEnabled: true,
+     *     privacyEnabled: true,
+     *     locked: false
+     * );
+     * $reg->updateDomain('example.com', $details);
+     * </code>
+     *
+     * @see https://docs.name.com/docs/api-reference/domains/update-a-domain
+     *
      * @param string $domain The domain name to update
-     * @param array $details The details to update
-     * @param array|Contact|null $contacts The contacts to update
+     * @param UpdateDetails $details The details to update
      * @return bool True if successful
      */
-    public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool
+    public function updateDomain(string $domain, UpdateDetails $details): bool
     {
         try {
-            // Name.com allows combining multiple updates in a single PATCH request
-            $data = [];
-
-            // Add contacts if provided
-            if ($contacts !== null) {
-                $contacts = is_array($contacts) ? $contacts : [$contacts];
-                $contactData = $this->sanitizeContacts($contacts);
-                $data['contacts'] = $contactData;
+            $data = $details->toArray();
+            if (empty($data)) {
+                throw new DomainsException(
+                    'Details must contain at least one of: autorenewEnabled, privacyEnabled, locked',
+                    400
+                );
             }
 
-            // Add autorenew if provided
-            if (isset($details['autorenew'])) {
-                $data['autorenewEnabled'] = (bool) $details['autorenew'];
-            }
-
-            // Only send request if there's something to update
-            if (!empty($data)) {
-                $this->send('PATCH', '/core/v1/domains/' . $domain, $data);
-            }
-
+            $this->send('PATCH', '/core/v1/domains/' . $domain, $data);
             return true;
+
+        } catch (DomainsException $e) {
+            throw $e;
+
         } catch (Exception $e) {
             throw new DomainsException('Failed to update domain: ' . $e->getMessage(), $e->getCode(), $e);
         }

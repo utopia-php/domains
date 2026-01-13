@@ -18,6 +18,7 @@ use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
+use Utopia\Domains\Registrar\UpdateDetails;
 use Utopia\Domains\Registrar;
 
 class OpenSRS extends Adapter
@@ -581,42 +582,49 @@ class OpenSRS extends Adapter
      *
      * Example request 1:
      * <code>
-     * $reg->updateDomain('example.com', [
-     *     'data' => 'contact_info',
-     * ], [
-     *     new Contact('John Doe', 'john.doe@example.com', '+1234567890'),
-     * ]);
+     * $details = new OpenSRSUpdateDetails(
+     *     data: 'contact_info',
+     *     contacts: [
+     *         'owner' => new Contact(...),
+     *         'admin' => new Contact(...),
+     *     ]
+     * );
+     * $reg->updateDomain('example.com', $details);
      * </code>
      *
      * Example request 2:
      * <code>
-     * $reg->updateDomain('example.com', [
-     *     'data' => 'ca_whois_display_setting',
-     *     'display' => 'FULL',
-     * ]);
+     * $details = new OpenSRSUpdateDetails(
+     *     data: 'ca_whois_display_setting',
+     *     display: 'FULL'
+     * );
+     * $reg->updateDomain('example.com', $details);
      * </code>
      *
      * @param string $domain The domain name to update
-     * @param array $details The details to update the domain with
-     * @param array|Contact|null $contacts The contacts to update the domain with (optional)
+     * @param UpdateDetails $details The details to update the domain with
      * @return bool True if the domain was updated successfully, false otherwise
      */
-    public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool
+    public function updateDomain(string $domain, UpdateDetails $details): bool
     {
+        if (!$details instanceof OpenSRSUpdateDetails) {
+            throw new Exception("Invalid details type: expected OpenSRSUpdateDetails");
+        }
+
+        $attributes = $details->toArray();
+
         $message = [
             'object' => 'DOMAIN',
             'action' => 'MODIFY',
             'domain' => $domain,
-            'attributes' => $details,
+            'attributes' => $attributes,
         ];
 
-        if ($contacts) {
-            $data = $details['data'] ?? null;
-            if ($data !== 'contact_info') {
+        if ($details->contacts !== null) {
+            if ($details->data !== 'contact_info') {
                 throw new Exception("Invalid data: data must be 'contact_info' in order to update contacts");
             }
-            $contacts = is_array($contacts) ? $contacts : [$contacts];
-            $contacts = $this->sanitizeContacts($contacts);
+            $contacts = $this->sanitizeContacts($details->contacts);
             $message['attributes']['contact_set'] = $contacts;
         }
 

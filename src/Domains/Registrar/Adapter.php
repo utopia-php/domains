@@ -130,11 +130,10 @@ abstract class Adapter extends DomainsAdapter
      * Update the domain information
      *
      * @param  string  $domain
-     * @param  array $details
-     * @param  array|Contact|null $contacts
+     * @param  UpdateDetails $details
      * @return bool
      */
-    abstract public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool;
+    abstract public function updateDomain(string $domain, UpdateDetails $details): bool;
 
     /**
      * Update the nameservers for a domain
