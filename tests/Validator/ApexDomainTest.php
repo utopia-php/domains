@@ -22,7 +22,7 @@ class ApexDomainTest extends TestCase
     {
         // Description
         $this->assertEquals('Value must be a public apex domain', $this->domain->getDescription());
-        
+
         // Valid apex domains
         $this->assertTrue($this->domain->isValid('example.com'));
         $this->assertTrue($this->domain->isValid('google.com'));
@@ -30,7 +30,7 @@ class ApexDomainTest extends TestCase
         $this->assertTrue($this->domain->isValid('appwrite.io'));
         $this->assertTrue($this->domain->isValid('usa.gov'));
         $this->assertTrue($this->domain->isValid('stanford.edu'));
-        
+
         // Invalid apex domains
         $this->assertFalse($this->domain->isValid('blog.bbc.co.uk'));
         $this->assertFalse($this->domain->isValid('www.google.com'));

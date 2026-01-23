@@ -3,7 +3,6 @@
 namespace Utopia\Domains\Validator;
 
 use Utopia\Domains\Domain;
-use Utopia\Domains\Validator\PublicDomain;
 
 /**
  *
@@ -27,10 +26,12 @@ class ApexDomain extends PublicDomain
      */
     public function isValid($value): bool
     {
-        $valid = parent::isValid($value);
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            $value = parse_url($value, PHP_URL_HOST);
+        }
 
-        if (!$valid) {
-            return $valid;
+        if (!parent::isValid($value)) {
+            return false;
         }
 
         $domain = new Domain($value);
