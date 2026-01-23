@@ -30,11 +30,13 @@ class ApexDomainTest extends TestCase
         $this->assertTrue($this->domain->isValid('appwrite.io'));
         $this->assertTrue($this->domain->isValid('usa.gov'));
         $this->assertTrue($this->domain->isValid('stanford.edu'));
+        $this->assertTrue($this->domain->isValid('http://google.com'));
 
         // Invalid apex domains
         $this->assertFalse($this->domain->isValid('blog.bbc.co.uk'));
         $this->assertFalse($this->domain->isValid('www.google.com'));
         $this->assertFalse($this->domain->isValid('test.usa.gov'));
         $this->assertFalse($this->domain->isValid('test.com.test'));
+        $this->assertFalse($this->domain->isValid('http://www.google.com'));
     }
 }
