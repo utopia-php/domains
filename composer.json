@@ -17,6 +17,9 @@
   "autoload": {
       "psr-4": {"Utopia\\Domains\\": "src/Domains"}
   },
+  "autoload-dev": {
+      "psr-4": {"Utopia\\Tests\\": "tests"}
+  },
   "scripts": {
     "test": "vendor/bin/phpunit",
     "lint": "./vendor/bin/pint --test",
@@ -25,7 +28,7 @@
   },
   "require": {
       "php": ">=8.2",
-      "utopia-php/validators": "0.0.*",
+      "utopia-php/validators": "0.*",
       "utopia-php/cache": "0.13.*"
   },
   "require-dev": {

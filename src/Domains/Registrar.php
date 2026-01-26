@@ -4,25 +4,51 @@ namespace Utopia\Domains;
 
 use Utopia\Domains\Registrar\Adapter as RegistrarAdapter;
 use Utopia\Domains\Registrar\Domain;
-use Utopia\Domains\Registrar\Registration;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\Contact;
+use Utopia\Domains\Registrar\TransferStatus;
+use Utopia\Domains\Registrar\UpdateDetails;
 
 class Registrar
 {
     /**
      * Registration Types
      */
-    public const REG_TYPE_NEW = RegistrarAdapter::REG_TYPE_NEW;
-    public const REG_TYPE_TRANSFER = RegistrarAdapter::REG_TYPE_TRANSFER;
-    public const REG_TYPE_RENEWAL = RegistrarAdapter::REG_TYPE_RENEWAL;
-    public const REG_TYPE_TRADE = RegistrarAdapter::REG_TYPE_TRADE;
+    public const REG_TYPE_NEW = 'new';
+    public const REG_TYPE_TRANSFER = 'transfer';
+    public const REG_TYPE_RENEWAL = 'renewal';
+    public const REG_TYPE_TRADE = 'trade';
 
     protected RegistrarAdapter $adapter;
 
-    public function __construct(RegistrarAdapter $adapter)
-    {
+    /**
+     * Constructor
+     *
+     * @param RegistrarAdapter $adapter The registrar adapter to use
+     * @param array $defaultNameservers Default nameservers for domain registration
+     * @param Cache|null $cache Optional cache instance
+     * @param int $connectTimeout Connection timeout in seconds
+     * @param int $timeout Request timeout in seconds
+     */
+    public function __construct(
+        RegistrarAdapter $adapter,
+        array $defaultNameservers = [],
+        ?Cache $cache = null,
+        int $connectTimeout = 5,
+        int $timeout = 10
+    ) {
         $this->adapter = $adapter;
+
+        if (!empty($defaultNameservers)) {
+            $this->adapter->setDefaultNameservers($defaultNameservers);
+        }
+
+        if ($cache !== null) {
+            $this->adapter->setCache($cache);
+        }
+
+        $this->adapter->setConnectTimeout($connectTimeout);
+        $this->adapter->setTimeout($timeout);
     }
 
     /**
@@ -53,9 +79,9 @@ class Registrar
      * @param int $periodYears
      * @param array|Contact $contacts
      * @param array $nameservers
-     * @return Registration
+     * @return string Order ID
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
     {
         return $this->adapter->purchase($domain, $contacts, $periodYears, $nameservers);
     }
@@ -101,13 +127,24 @@ class Registrar
      * Update the details of a domain
      *
      * @param string $domain
-     * @param array $details
-     * @param array|Contact|null $contacts
+     * @param UpdateDetails $details
      * @return bool
      */
-    public function updateDomain(string $domain, array $details, array|Contact|null $contacts = null): bool
+    public function updateDomain(string $domain, UpdateDetails $details): bool
     {
-        return $this->adapter->updateDomain($domain, $details, $contacts);
+        return $this->adapter->updateDomain($domain, $details);
+    }
+
+    /**
+     * Update nameservers of a domain
+     *
+     * @param string $domain
+     * @param array $nameservers
+     * @return array
+     */
+    public function updateNameservers(string $domain, array $nameservers): array
+    {
+        return $this->adapter->updateNameservers($domain, $nameservers);
     }
 
     /**
@@ -143,9 +180,9 @@ class Registrar
      * @param string $authCode
      * @param array|Contact $contacts
      * @param array $nameservers
-     * @return Registration
+     * @return string Order ID
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration
+    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
     {
         return $this->adapter->transfer($domain, $authCode, $contacts, $periodYears, $nameservers);
     }
@@ -159,5 +196,26 @@ class Registrar
     public function getAuthCode(string $domain): string
     {
         return $this->adapter->getAuthCode($domain);
+    }
+
+    /**
+     * Cancel pending purchase orders
+     *
+     * @return bool
+     */
+    public function cancelPurchase(): bool
+    {
+        return $this->adapter->cancelPurchase();
+    }
+
+    /**
+     * Check transfer status for a domain
+     *
+     * @param string $domain
+     * @return TransferStatus
+     */
+    public function checkTransferStatus(string $domain): TransferStatus
+    {
+        return $this->adapter->checkTransferStatus($domain);
     }
 }
