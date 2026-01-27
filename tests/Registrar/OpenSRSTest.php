@@ -135,7 +135,7 @@ class OpenSRSTest extends Base
 
         $this->assertIsArray($result);
         foreach ($result as $domain => $data) {
-            $this->assertEquals('suggestion', $data['type']);
+            $this->assertSame('suggestion', $data['type']);
             if ($data['available'] && $data['price'] !== null) {
                 $this->assertIsFloat($data['price']);
                 $this->assertGreaterThan(0, $data['price']);
@@ -162,7 +162,7 @@ class OpenSRSTest extends Base
         $this->assertLessThanOrEqual(5, count($result));
 
         foreach ($result as $domain => $data) {
-            $this->assertEquals('premium', $data['type']);
+            $this->assertSame('premium', $data['type']);
             if ($data['price'] !== null) {
                 $this->assertIsFloat($data['price']);
                 $this->assertGreaterThanOrEqual(100, $data['price']);
@@ -180,8 +180,8 @@ class OpenSRSTest extends Base
             $this->assertIsString($result);
             $this->assertNotEmpty($result);
         } catch (DomainNotTransferableException $e) {
-            $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
-            $this->assertEquals('Domain is not transferable: Domain not registered', $e->getMessage());
+            $this->assertSame(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
+            $this->assertSame('Domain is not transferable: Domain not registered', $e->getMessage());
         }
     }
 
@@ -192,7 +192,7 @@ class OpenSRSTest extends Base
             $this->assertIsString($result);
             $this->assertNotEmpty($result);
         } catch (DomainNotTransferableException $e) {
-            $this->assertEquals(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
+            $this->assertSame(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
             $this->assertStringContainsString('Domain is not transferable: Domain already exists', $e->getMessage());
         }
     }
