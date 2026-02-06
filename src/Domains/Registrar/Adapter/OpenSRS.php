@@ -16,7 +16,7 @@ use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
-use Utopia\Domains\Registrar\UpdateDetails as UpdateDetails;
+use Utopia\Domains\Registrar\UpdateDetails;
 use Utopia\Domains\Registrar;
 
 class OpenSRS extends Adapter
@@ -578,23 +578,10 @@ class OpenSRS extends Adapter
     /**
      * Update the domain information
      *
-     * Example request 1:
+     * Example request:
      * <code>
-     * $details = new OpenSRSUpdateDetails(
-     *     data: 'contact_info',
-     *     contacts: [
-     *         'owner' => new Contact(...),
-     *         'admin' => new Contact(...),
-     *     ]
-     * );
-     * $reg->updateDomain('example.com', $details);
-     * </code>
-     *
-     * Example request 2:
-     * <code>
-     * $details = new OpenSRSUpdateDetails(
-     *     data: 'ca_whois_display_setting',
-     *     display: 'FULL'
+     * $details = new UpdateDetails(
+     *     autoRenew: true
      * );
      * $reg->updateDomain('example.com', $details);
      * </code>
@@ -605,11 +592,14 @@ class OpenSRS extends Adapter
      */
     public function updateDomain(string $domain, UpdateDetails $details): bool
     {
-        if (!$details instanceof OpenSRS\UpdateDetails) {
-            throw new Exception("Invalid details type: expected OpenSRS\\UpdateDetails");
+        if ($details->autoRenew === null) {
+            throw new DomainsException('Details must include autoRenew', 400);
         }
 
-        $attributes = $details->toArray();
+        $attributes = [
+            'data' => 'auto_renew',
+            'auto_renew' => $details->autoRenew ? 1 : 0,
+        ];
 
         $message = [
             'object' => 'DOMAIN',
@@ -617,14 +607,6 @@ class OpenSRS extends Adapter
             'domain' => $domain,
             'attributes' => $attributes,
         ];
-
-        if ($details->contacts !== null) {
-            if ($details->data !== 'contact_info') {
-                throw new Exception("Invalid data: data must be 'contact_info' in order to update contacts");
-            }
-            $contacts = $this->sanitizeContacts($details->contacts);
-            $message['attributes']['contact_set'] = $contacts;
-        }
 
         $xpath = implode('/', [
             '//body',

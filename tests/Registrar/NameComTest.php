@@ -8,8 +8,7 @@ use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Adapter\NameCom;
-use Utopia\Domains\Registrar\Adapter\NameCom\UpdateDetails;
-use Utopia\Domains\Registrar\Contact;
+use Utopia\Domains\Registrar\UpdateDetails;
 
 class NameComTest extends Base
 {
@@ -83,12 +82,9 @@ class NameComTest extends Base
         ];
     }
 
-    protected function getUpdateDetails(array $details = [], array|Contact|null $contacts = null): UpdateDetails
+    protected function getUpdateDetails(?bool $autoRenew = null): UpdateDetails
     {
-        $autorenewEnabled = $details['autorenew'] ?? null;
-        $privacyEnabled = $details['privacy'] ?? null;
-        $locked = $details['locked'] ?? null;
-        return new UpdateDetails($autorenewEnabled, $privacyEnabled, $locked);
+        return new UpdateDetails($autoRenew);
     }
 
     protected function getPricingTestDomain(): string
