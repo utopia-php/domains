@@ -420,10 +420,8 @@ class NameCom extends Adapter
      *
      * Example request:
      * <code>
-     * $details = new NameComUpdateDetails(
-     *     autorenewEnabled: true,
-     *     privacyEnabled: true,
-     *     locked: false
+     * $details = new UpdateDetails(
+     *     autoRenew: true
      * );
      * $reg->updateDomain('example.com', $details);
      * </code>
@@ -437,10 +435,14 @@ class NameCom extends Adapter
     public function updateDomain(string $domain, UpdateDetails $details): bool
     {
         try {
-            $data = $details->toArray();
+            $data = [];
+            if ($details->autoRenew !== null) {
+                $data['autorenewEnabled'] = $details->autoRenew;
+            }
+
             if (empty($data)) {
                 throw new DomainsException(
-                    'Details must contain at least one of: autorenewEnabled, privacyEnabled, locked',
+                    'Details must include autoRenew',
                     400
                 );
             }

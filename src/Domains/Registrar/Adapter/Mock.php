@@ -337,7 +337,6 @@ class Mock extends Adapter
      * @param UpdateDetails $details
      * @return bool
      * @throws DomainsException
-     * @throws InvalidContactException
      */
     public function updateDomain(string $domain, UpdateDetails $details): bool
     {
@@ -345,12 +344,8 @@ class Mock extends Adapter
             throw new DomainsException("Domain {$domain} not found in mock registry", self::RESPONSE_CODE_NOT_FOUND);
         }
 
-        // Extract details from UpdateDetails object
-        $detailsArray = $details->toArray();
-
-        // Validate contacts if present
-        if (isset($detailsArray['contacts']) && $detailsArray['contacts']) {
-            $this->validateContacts($detailsArray['contacts']);
+        if ($details->autoRenew === null) {
+            throw new DomainsException('Details must include autoRenew', 400);
         }
 
         return true;

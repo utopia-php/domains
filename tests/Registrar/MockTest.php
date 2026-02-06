@@ -10,7 +10,7 @@ use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Adapter\Mock;
-use Utopia\Domains\Registrar\Adapter\Mock\UpdateDetails;
+use Utopia\Domains\Registrar\UpdateDetails;
 
 class MockTest extends Base
 {
@@ -64,9 +64,9 @@ class MockTest extends Base
         ];
     }
 
-    protected function getUpdateDetails(array $details = [], array|Contact|null $contacts = null): UpdateDetails
+    protected function getUpdateDetails(?bool $autoRenew = null): UpdateDetails
     {
-        return new UpdateDetails($details, $contacts);
+        return new UpdateDetails($autoRenew);
     }
 
     // Mock-specific tests
@@ -130,35 +130,6 @@ class MockTest extends Base
         );
 
         $this->registrar->transfer('transfer.com', 'auth-code', [$invalidContact]);
-    }
-
-    public function testUpdateDomainWithInvalidContact(): void
-    {
-        $domain = 'testdomain.com';
-        $this->registrar->purchase($domain, $this->getPurchaseContact(), 1);
-
-        $this->expectException(InvalidContactException::class);
-        $this->expectExceptionMessage('missing required field');
-
-        $invalidContact = new Contact(
-            '',  // Empty firstname
-            'Doe',
-            '+1.5551234567',
-            'john.doe@example.com',
-            '123 Main St',
-            'Suite 100',
-            '',
-            'San Francisco',
-            'CA',
-            'US',
-            '94105',
-            'Test Inc'
-        );
-
-        $this->registrar->updateDomain(
-            $domain,
-            new UpdateDetails(['data' => 'contact_info'], [$invalidContact])
-        );
     }
 
     public function testCheckTransferStatusWithRequestAddress(): void

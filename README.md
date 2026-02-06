@@ -160,11 +160,20 @@ $transfer = $reg->transfer($domain, 'authcode', [$contact]);
 
 ```
 
+### Update Auto-Renew
+```php
+use Utopia\Domains\Registrar\UpdateDetails;
+
+$details = new UpdateDetails(autoRenew: true);
+$reg->updateDomain($domain, $details);
+```
+
 ## Library Registrar API
 * **available(string $domain): bool** - Checks to see if a domain is available for registration.
 * **purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration** - Purchase a domain name and returns a Registration object.
 * **suggest(array $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array** - Suggest or search for domain names.
 * **getDomain(string $domain): Domain** - Get domain details and returns a Domain object.
+* **updateDomain(string $domain, UpdateDetails $details): bool** - Update domain details such as auto-renew.
 * **renew(string $domain, int $periodYears): Renewal** - Renewal a domain name and returns a Renewal object.
 * **transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration** - Transfer a domain name and returns a Registration object.
 * **getAuthCode(string $domain): string** - Retrieve the authorization code for a domain.

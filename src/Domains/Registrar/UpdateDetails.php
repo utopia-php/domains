@@ -2,12 +2,13 @@
 
 namespace Utopia\Domains\Registrar;
 
-abstract class UpdateDetails
+final class UpdateDetails
 {
     /**
-     * Convert details to array format
-     *
-     * @return array
+     * @param bool|null $autoRenew Enable or disable automatic renewal
      */
-    abstract public function toArray(): array;
+    public function __construct(
+        public ?bool $autoRenew = null,
+    ) {
+    }
 }

@@ -38,11 +38,10 @@ abstract class Base extends TestCase
     /**
      * Get an UpdateDetails instance for testing
      *
-     * @param array<string,mixed> $details Domain details to update
-     * @param array<string,Contact>|Contact|null $contacts Contacts to update
+     * @param bool|null $autoRenew Enable or disable automatic renewal
      * @return UpdateDetails
      */
-    abstract protected function getUpdateDetails(array $details = [], array|Contact|null $contacts = null): UpdateDetails;
+    abstract protected function getUpdateDetails(?bool $autoRenew = null): UpdateDetails;
 
     /**
      * Get purchase contact info
@@ -270,13 +269,7 @@ abstract class Base extends TestCase
 
         $result = $this->getRegistrar()->updateDomain(
             $testDomain,
-            $this->getUpdateDetails(
-                [
-                    'autorenew' => true,
-                    'data' => 'contact_info',
-                ],
-                $this->getPurchaseContact('2')
-            )
+            $this->getUpdateDetails(true)
         );
 
         $this->assertTrue($result);
