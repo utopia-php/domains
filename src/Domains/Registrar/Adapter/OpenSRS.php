@@ -597,8 +597,10 @@ class OpenSRS extends Adapter
         }
 
         $attributes = [
-            'data' => 'auto_renew',
+            'data' => 'expire_action',
+            'affect_domains' => 0,
             'auto_renew' => $details->autoRenew ? 1 : 0,
+            'let_expire' => $details->autoRenew ? 0 : 1,
         ];
 
         $message = [
