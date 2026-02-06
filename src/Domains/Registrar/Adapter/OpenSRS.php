@@ -626,6 +626,13 @@ class OpenSRS extends Adapter
         $result = $this->send($message);
         $result = $this->sanitizeResponse($result);
         $elements = $result->xpath($xpath);
+        if (empty($elements)) {
+            $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="is_success"]');
+        }
+
+        if (empty($elements)) {
+            throw new DomainsException('Failed to update domain: invalid response from OpenSRS', 500);
+        }
 
         return (string) $elements[0] === '1';
     }
