@@ -12,6 +12,7 @@ use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\Exception\DomainNotFoundException;
+use Utopia\Domains\Registrar\Exception\RateLimitException;
 use Utopia\Domains\Registrar\Exception\UnsupportedTldException;
 use Utopia\Domains\Registrar\Adapter;
 use Utopia\Domains\Registrar\Renewal;
@@ -37,6 +38,7 @@ class NameCom extends Adapter
     public const ERROR_TLD_NOT_SUPPORTED = 'TLD not supported';
     public const ERROR_UNSUPPORTED_TRANSFER = 'do not support transfers for';
     public const ERROR_UNAUTHORIZED = 'Unauthorized';
+    public const ERROR_RATE_LIMIT_EXCEEDED = 'Rate Limit Exceeded';
 
     /**
      * Name.com API Error Map: [message => code]
@@ -52,6 +54,7 @@ class NameCom extends Adapter
         self::ERROR_TLD_NOT_SUPPORTED => null,
         self::ERROR_UNSUPPORTED_TRANSFER => 400,
         self::ERROR_UNAUTHORIZED => 401,
+        self::ERROR_RATE_LIMIT_EXCEEDED => 429,
     ];
 
     /**
@@ -146,6 +149,8 @@ class NameCom extends Adapter
                 'successful' => true,
                 'nameservers' => $result['nameservers'] ?? $nameservers,
             ];
+        } catch (RateLimitException $e) {
+            throw $e;
         } catch (Exception $e) {
             return [
                 'successful' => false,
@@ -183,6 +188,8 @@ class NameCom extends Adapter
             $result = $this->send('POST', '/core/v1/domains', $data);
             return (string) ($result['order'] ?? '');
 
+        } catch (RateLimitException $e) {
+            throw $e;
         } catch (Exception $e) {
             $message = 'Failed to purchase domain: ' . $e->getMessage();
             $code = $e->getCode();
@@ -230,6 +237,8 @@ class NameCom extends Adapter
             $result = $this->send('POST', '/core/v1/transfers', $data);
             return (string) ($result['order'] ?? '');
 
+        } catch (RateLimitException $e) {
+            throw $e;
         } catch (Exception $e) {
             $message = 'Failed to transfer domain: ' . $e->getMessage();
             $code = $e->getCode();
@@ -352,66 +361,58 @@ class NameCom extends Adapter
      */
     public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): Price
     {
+        $cacheKey = $domain . '_' . $periodYears;
+
         if ($this->cache) {
-            $cacheKey = $domain . '_' . $periodYears;
             $cached = $this->cache->load($cacheKey, $ttl);
-            if (is_array($cached) && isset($cached[$regType]) && is_array($cached[$regType])) {
+            if (is_array($cached[$regType] ?? null)) {
                 return new Price($cached[$regType]['price'], $cached[$regType]['premium']);
             }
         }
 
         try {
-            $result = $this->send('GET', '/core/v1/domains/' . $domain . ':getPricing' . '?years=' . $periodYears);
-            $purchasePrice = isset($result['purchasePrice']) ? (float) $result['purchasePrice'] : null;
-            $renewalPrice = isset($result['renewalPrice']) ? (float) $result['renewalPrice'] : null;
-            $transferPrice = isset($result['transferPrice']) ? (float) $result['transferPrice'] : null;
-            $isPremium = isset($result['premium']) && $result['premium'] === true;
+            $result = $this->send('GET', "/core/v1/domains/{$domain}:getPricing?years={$periodYears}");
+            $isPremium = !empty($result['premium']);
 
-            if ($purchasePrice === null && $renewalPrice === null && $transferPrice === null) {
-                throw new PriceNotFoundException('Price not found for domain: ' . $domain, 400);
+            $priceMap = [
+                Registrar::REG_TYPE_NEW      => $result['purchasePrice'] ?? null,
+                Registrar::REG_TYPE_RENEWAL   => $result['renewalPrice'] ?? null,
+                Registrar::REG_TYPE_TRANSFER  => $result['transferPrice'] ?? null,
+            ];
+
+            if (!array_filter($priceMap, fn ($p) => $p !== null)) {
+                throw new PriceNotFoundException("Price not found for domain: {$domain}", 400);
             }
 
             if ($this->cache) {
-                $cacheKey = $domain . '_' . $periodYears;
-                $this->cache->save($cacheKey, [
-                    Registrar::REG_TYPE_NEW => ['price' => $purchasePrice ?? 0, 'premium' => $isPremium],
-                    Registrar::REG_TYPE_RENEWAL => ['price' => $renewalPrice ?? 0, 'premium' => $isPremium],
-                    Registrar::REG_TYPE_TRANSFER => ['price' => $transferPrice ?? 0, 'premium' => $isPremium],
-                ]);
+                $cacheData = array_map(
+                    fn ($price) => ['price' => (float) ($price ?? 0), 'premium' => $isPremium],
+                    $priceMap
+                );
+                $this->cache->save($cacheKey, $cacheData);
             }
 
-            switch ($regType) {
-                case Registrar::REG_TYPE_NEW:
-                    if ($purchasePrice === null) {
-                        throw new PriceNotFoundException('Purchase price not found for domain: ' . $domain, 400);
-                    }
-                    return new Price($purchasePrice, $isPremium);
-                case Registrar::REG_TYPE_RENEWAL:
-                    if ($renewalPrice === null) {
-                        throw new PriceNotFoundException('Renewal price not found for domain: ' . $domain, 400);
-                    }
-                    return new Price($renewalPrice, $isPremium);
-                case Registrar::REG_TYPE_TRANSFER:
-                    if ($transferPrice === null) {
-                        throw new PriceNotFoundException('Transfer price not found for domain: ' . $domain, 400);
-                    }
-                    return new Price($transferPrice, $isPremium);
-                default:
-                    throw new PriceNotFoundException('Price not found for domain: ' . $domain, 400);
+            $price = $priceMap[$regType] ?? null;
+            if ($price === null) {
+                throw new PriceNotFoundException("Price not found for domain: {$domain}", 400);
             }
 
+            return new Price((float) $price, $isPremium);
+
+        } catch (PriceNotFoundException | RateLimitException $e) {
+            throw $e;
         } catch (Exception $e) {
-            $message = 'Failed to get price for domain: ' . $domain . ' - ' . $e->getMessage();
+            $message = "Failed to get price for domain: {$domain} - " . $e->getMessage();
             $code = $e->getCode();
+            $error = $this->matchError($e);
 
-            switch (true) {
-                case $e instanceof PriceNotFoundException:
-                    throw $e;
-
-                case in_array($this->matchError($e), [self::ERROR_UNSUPPORTED_TLD, self::ERROR_TLD_NOT_SUPPORTED]):
+            switch ($error) {
+                case self::ERROR_UNSUPPORTED_TLD:
+                case self::ERROR_TLD_NOT_SUPPORTED:
                     throw new UnsupportedTldException($message, $code, $e);
 
-                case in_array($this->matchError($e), [self::ERROR_NOT_FOUND, self::ERROR_INVALID_DOMAIN]):
+                case self::ERROR_NOT_FOUND:
+                case self::ERROR_INVALID_DOMAIN:
                     throw new PriceNotFoundException($message, $code, $e);
 
                 default:
@@ -454,6 +455,8 @@ class NameCom extends Adapter
                 autoRenew: $autoRenew,
                 nameservers: $nameservers,
             );
+        } catch (RateLimitException $e) {
+            throw $e;
         } catch (Exception $e) {
             throw new DomainsException('Failed to get domain information: ' . $e->getMessage(), $e->getCode(), $e);
         }
@@ -478,27 +481,19 @@ class NameCom extends Adapter
      */
     public function updateDomain(string $domain, UpdateDetails $details): bool
     {
+        if ($details->autoRenew === null) {
+            throw new DomainsException('Details must include autoRenew', 400);
+        }
+
         try {
-            $data = [];
-            if ($details->autoRenew !== null) {
-                $data['autorenewEnabled'] = $details->autoRenew;
-            }
-
-            if (empty($data)) {
-                throw new DomainsException(
-                    'Details must include autoRenew',
-                    400
-                );
-            }
-
-            $this->send('PATCH', '/core/v1/domains/' . $domain, $data);
+            $this->send('PATCH', "/core/v1/domains/{$domain}", [
+                'autorenewEnabled' => $details->autoRenew,
+            ]);
             return true;
-
-        } catch (DomainsException $e) {
+        } catch (RateLimitException | DomainsException $e) {
             throw $e;
-
         } catch (Exception $e) {
-            throw new DomainsException('Failed to update domain: ' . $e->getMessage(), $e->getCode(), $e);
+            throw new DomainsException("Failed to update domain: " . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -527,6 +522,8 @@ class NameCom extends Adapter
                 orderId: $orderId,
                 expiresAt: $expiresAt,
             );
+        } catch (RateLimitException $e) {
+            throw $e;
         } catch (Exception $e) {
             throw new DomainsException('Failed to renew domain: ' . $e->getMessage(), $e->getCode(), $e);
         }
@@ -550,6 +547,8 @@ class NameCom extends Adapter
             }
 
             throw new DomainsException('Auth code not found in response', 404);
+        } catch (RateLimitException $e) {
+            throw $e;
         } catch (DomainsException $e) {
             throw $e;
         } catch (Exception $e) {
@@ -576,6 +575,8 @@ class NameCom extends Adapter
                 reason: $reason,
                 timestamp: isset($result['created']) ? new DateTime($result['created']) : null,
             );
+        } catch (RateLimitException $e) {
+            throw $e;
         } catch (Exception $e) {
             if ($e->getCode() === 404) {
                 throw new DomainNotFoundException('Domain not found: ' . $domain, $e->getCode(), $e);
@@ -665,6 +666,10 @@ class NameCom extends Adapter
 
             if ($details) {
                 $message .= '(' . $details . ')';
+            }
+
+            if ($httpCode === 429 || stripos($message, self::ERROR_RATE_LIMIT_EXCEEDED) !== false) {
+                throw new RateLimitException('Rate limit exceeded: ' . $message, 429);
             }
 
             throw new Exception($message, $httpCode);
