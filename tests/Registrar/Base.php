@@ -12,6 +12,7 @@ use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar\UpdateDetails;
+use Utopia\Domains\Registrar\Price;
 
 abstract class Base extends TestCase
 {
@@ -221,8 +222,10 @@ abstract class Base extends TestCase
         $result = $this->getRegistrar()->getPrice($domain, 1, Registrar::REG_TYPE_NEW);
 
         $this->assertNotNull($result);
-        $this->assertIsFloat($result);
-        $this->assertGreaterThan(0, $result);
+        $this->assertInstanceOf(Price::class, $result);
+        $this->assertIsFloat($result->price);
+        $this->assertGreaterThan(0, $result->price);
+        $this->assertIsBool($result->premium);
     }
 
     public function testGetPriceWithInvalidDomain(): void
@@ -238,7 +241,8 @@ abstract class Base extends TestCase
 
         $result1 = $registrar->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 3600);
         $this->assertNotNull($result1);
-        $this->assertIsFloat($result1);
+        $this->assertInstanceOf(Price::class, $result1);
+        $this->assertIsFloat($result1->price);
 
         $result2 = $registrar->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 3600);
         $this->assertEquals($result1, $result2);
@@ -249,8 +253,10 @@ abstract class Base extends TestCase
         $domain = $this->getPricingTestDomain();
         $result = $this->getRegistrarWithCache()->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 7200);
 
-        $this->assertIsFloat($result);
-        $this->assertGreaterThan(0, $result);
+        $this->assertInstanceOf(Price::class, $result);
+        $this->assertIsFloat($result->price);
+        $this->assertGreaterThan(0, $result->price);
+        $this->assertIsBool($result->premium);
     }
 
     public function testUpdateNameservers(): void

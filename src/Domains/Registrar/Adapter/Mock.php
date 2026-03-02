@@ -14,6 +14,7 @@ use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\Adapter;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar;
+use Utopia\Domains\Registrar\Price;
 use Utopia\Domains\Registrar\UpdateDetails;
 
 class Mock extends Adapter
@@ -254,24 +255,25 @@ class Mock extends Adapter
      * @param int $periodYears
      * @param string $regType
      * @param int $ttl Time to live for the cache (if set) in seconds
-     * @return float
+     * @return Price
      * @throws PriceNotFoundException
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): Price
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
-            if ($cached !== null && is_array($cached)) {
-                return $cached['price'];
+            if (is_array($cached) && isset($cached['price'])) {
+                return new Price($cached['price'], $cached['premium'] ?? false);
             }
         }
 
-        if (isset($this->premiumDomains[$domain])) {
-            $result = $this->premiumDomains[$domain] * $periodYears;
+        $isPremium = isset($this->premiumDomains[$domain]);
+
+        if ($isPremium) {
+            $price = $this->premiumDomains[$domain] * $periodYears;
+            $result = new Price($price, true);
             if ($this->cache) {
-                $this->cache->save($domain, [
-                    'price' => $result,
-                ]);
+                $this->cache->save($domain, ['price' => $result->price, 'premium' => $result->premium]);
             }
 
             return $result;
@@ -296,11 +298,10 @@ class Mock extends Adapter
             default => 1.0,
         };
 
-        $result = $basePrice * $periodYears * $multiplier;
+        $price = $basePrice * $periodYears * $multiplier;
+        $result = new Price($price, false);
         if ($this->cache) {
-            $this->cache->save($domain, [
-                'price' => $result,
-            ]);
+            $this->cache->save($domain, ['price' => $result->price, 'premium' => $result->premium]);
         }
 
         return $result;

@@ -18,6 +18,7 @@ use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar\UpdateDetails;
 use Utopia\Domains\Registrar;
+use Utopia\Domains\Registrar\Price;
 
 class OpenSRS extends Adapter
 {
@@ -444,16 +445,16 @@ class OpenSRS extends Adapter
      * @param int $periodYears Registration periodYears in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @param int $ttl Time to live for the cache (if set) in seconds (default 3600 seconds = 1 hour)
-     * @return float The price of the domain
+     * @return Price The price and premium status of the domain
      * @throws PriceNotFoundException When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): Price
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
-            if ($cached !== null && is_array($cached)) {
-                return $cached['price'];
+            if (is_array($cached) && isset($cached['price'])) {
+                return new Price($cached['price'], $cached['premium'] ?? false);
             }
         }
 
@@ -479,14 +480,12 @@ class OpenSRS extends Adapter
                 throw new PriceNotFoundException('Price not found for domain: ' . $domain, self::RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND);
             }
 
-            $result = $price;
+            $priceObj = new Price($price, false);
             if ($this->cache) {
-                $this->cache->save($domain, [
-                    'price' => $result,
-                ]);
+                $this->cache->save($domain, ['price' => $priceObj->price, 'premium' => $priceObj->premium]);
             }
 
-            return $result;
+            return $priceObj;
         } catch (Exception $e) {
             $message = 'Failed to get price for domain: ' . $e->getMessage();
 

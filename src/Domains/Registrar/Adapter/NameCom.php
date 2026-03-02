@@ -20,6 +20,7 @@ use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar\UpdateDetails;
 use Utopia\Domains\Registrar;
+use Utopia\Domains\Registrar\Price;
 
 class NameCom extends Adapter
 {
@@ -345,15 +346,15 @@ class NameCom extends Adapter
      * @param int $periodYears Registration period in years
      * @param string $regType Type of registration
      * @param int $ttl Time to live for the cache
-     * @return float The price of the domain
+     * @return Price The price and premium status of the domain
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): Price
     {
         if ($this->cache) {
             $cacheKey = $domain . '_' . $periodYears;
             $cached = $this->cache->load($cacheKey, $ttl);
-            if ($cached !== null && is_array($cached) && isset($cached[$regType])) {
-                return (float) $cached[$regType];
+            if (is_array($cached) && isset($cached[$regType]) && is_array($cached[$regType])) {
+                return new Price($cached[$regType]['price'], $cached[$regType]['premium']);
             }
         }
 
@@ -362,37 +363,37 @@ class NameCom extends Adapter
             $purchasePrice = (float) ($result['purchasePrice'] ?? 0);
             $renewalPrice = (float) ($result['renewalPrice'] ?? 0);
             $transferPrice = (float) ($result['transferPrice'] ?? 0);
+            $isPremium = isset($result['premium']) && $result['premium'] === true;
 
             if ($this->cache) {
                 $cacheKey = $domain . '_' . $periodYears;
                 $this->cache->save($cacheKey, [
-                    Registrar::REG_TYPE_NEW => $purchasePrice,
-                    Registrar::REG_TYPE_RENEWAL => $renewalPrice,
-                    Registrar::REG_TYPE_TRANSFER => $transferPrice,
+                    Registrar::REG_TYPE_NEW => ['price' => $purchasePrice, 'premium' => $isPremium],
+                    Registrar::REG_TYPE_RENEWAL => ['price' => $renewalPrice, 'premium' => $isPremium],
+                    Registrar::REG_TYPE_TRANSFER => ['price' => $transferPrice, 'premium' => $isPremium],
                 ]);
             }
 
             switch ($regType) {
                 case Registrar::REG_TYPE_NEW:
-                    return $purchasePrice;
+                    return new Price($purchasePrice, $isPremium);
                 case Registrar::REG_TYPE_RENEWAL:
-                    return $renewalPrice;
+                    return new Price($renewalPrice, $isPremium);
                 case Registrar::REG_TYPE_TRANSFER:
-                    return $transferPrice;
+                    return new Price($transferPrice, $isPremium);
+                default:
+                    throw new PriceNotFoundException('Price not found for domain: ' . $domain, 400);
             }
-
-            throw new PriceNotFoundException('Price not found for domain: ' . $domain, 400);
-
-        } catch (PriceNotFoundException $e) {
-            throw $e;
 
         } catch (Exception $e) {
             $message = 'Failed to get price for domain: ' . $domain . ' - ' . $e->getMessage();
             $code = $e->getCode();
 
-            switch ($this->matchError($e)) {
-                case self::ERROR_NOT_FOUND:
-                case self::ERROR_INVALID_DOMAIN:
+            switch (true) {
+                case $e instanceof PriceNotFoundException:
+                    throw $e;
+
+                case in_array($this->matchError($e), [self::ERROR_NOT_FOUND, self::ERROR_INVALID_DOMAIN]):
                     throw new PriceNotFoundException($message, $code, $e);
 
                 default:

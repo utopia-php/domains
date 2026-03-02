@@ -155,9 +155,9 @@ abstract class Adapter extends DomainsAdapter
      * @param  int  $periodYears
      * @param  string  $regType
      * @param  int  $ttl
-     * @return float
+     * @return Price
      */
-    abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float;
+    abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): Price;
 
     /**
      * Renew a domain
