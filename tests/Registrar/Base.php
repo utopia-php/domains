@@ -7,6 +7,7 @@ use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
+use Utopia\Domains\Registrar\Exception\InvalidAuthCodeException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\TransferStatusEnum;
@@ -301,7 +302,10 @@ abstract class Base extends TestCase
             $this->assertIsString($result);
             $this->assertNotEmpty($result);
         } catch (\Exception $e) {
-            $this->assertInstanceOf(DomainNotTransferableException::class, $e);
+            $this->assertTrue(
+                $e instanceof InvalidAuthCodeException || $e instanceof DomainNotTransferableException,
+                'Expected InvalidAuthCodeException or DomainNotTransferableException, got ' . get_class($e)
+            );
         }
     }
 

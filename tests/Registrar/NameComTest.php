@@ -115,7 +115,7 @@ class NameComTest extends Base
         $domain = $this->generateRandomString() . '.com';
 
         $this->expectException(AuthException::class);
-        $this->expectExceptionMessage("Failed to send request to Name.com: Unauthorized");
+        $this->expectExceptionMessage("Failed to purchase domain: Unauthorized");
 
         $registrar->purchase($domain, $this->getPurchaseContact(), 1);
     }

@@ -7,7 +7,7 @@ use Exception;
 use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
-use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
+use Utopia\Domains\Registrar\Exception\InvalidAuthCodeException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
@@ -24,16 +24,32 @@ use Utopia\Domains\Registrar;
 class NameCom extends Adapter
 {
     /**
-     * Name.com API Error Messages
+     * Name.com API Error Keys
      */
-    public const ERROR_MESSAGE_NOT_FOUND = 'Not Found';
-    public const ERROR_MESSAGE_DOMAIN_TAKEN = 'Domain is not available';
-    public const ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE = 'we were unable to get authoritative domain information from the registry. this usually means that the domain name or auth code provided was not correct.';
-    public const ERROR_MESSAGE_INVALID_CONTACT = 'invalid value for $country when calling';
-    public const ERROR_MESSAGE_INVALID_DOMAIN = 'Invalid Domain Name';
-    public const ERROR_MESSAGE_INVALID_DOMAINS = 'None of the submitted domains are valid';
-    public const ERROR_MESSAGE_UNSUPPORTED_TLD = 'unsupported tld';
-    public const ERROR_MESSAGE_UNSUPPORTED_TRANSFER = 'do not support transfers for';
+    public const ERROR_NOT_FOUND = 'Not Found';
+    public const ERROR_DOMAIN_TAKEN = 'Domain is not available';
+    public const ERROR_INVALID_AUTH_CODE = 'we were unable to get authoritative domain information from the registry. this usually means that the domain name or auth code provided was not correct.';
+    public const ERROR_INVALID_CONTACT = 'invalid value for';
+    public const ERROR_INVALID_DOMAIN = 'Invalid Domain Name';
+    public const ERROR_INVALID_DOMAINS = 'None of the submitted domains are valid';
+    public const ERROR_UNSUPPORTED_TLD = 'unsupported tld';
+    public const ERROR_UNSUPPORTED_TRANSFER = 'do not support transfers for';
+    public const ERROR_UNAUTHORIZED = 'Unauthorized';
+
+    /**
+     * Name.com API Error Map: [message => code]
+     */
+    public const ERROR_MAP = [
+        self::ERROR_NOT_FOUND => 404,
+        self::ERROR_DOMAIN_TAKEN => null,
+        self::ERROR_INVALID_AUTH_CODE => 500,
+        self::ERROR_INVALID_CONTACT => null,
+        self::ERROR_INVALID_DOMAIN => null,
+        self::ERROR_INVALID_DOMAINS => null,
+        self::ERROR_UNSUPPORTED_TLD => 422,
+        self::ERROR_UNSUPPORTED_TRANSFER => 400,
+        self::ERROR_UNAUTHORIZED => 401,
+    ];
 
     /**
      * Contact Types
@@ -98,12 +114,12 @@ class NameCom extends Adapter
                 'domainNames' => [$domain],
             ]);
         } catch (Exception $e) {
-            $errorLower = strtolower($e->getMessage());
-            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_DOMAINS))) {
-                return false;
+            switch ($this->matchError($e)) {
+                case self::ERROR_INVALID_DOMAINS:
+                    return false;
+                default:
+                    throw $e;
             }
-
-            throw $e;
         }
 
         return $result['results'][0]['purchasable'] ?? false;
@@ -164,26 +180,27 @@ class NameCom extends Adapter
             $result = $this->send('POST', '/core/v1/domains', $data);
             return (string) ($result['order'] ?? '');
 
-        } catch (AuthException $e) {
-            throw $e;
-
         } catch (Exception $e) {
             $message = 'Failed to purchase domain: ' . $e->getMessage();
             $code = $e->getCode();
-            $errorLower = strtolower($e->getMessage());
 
-            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_TAKEN))) {
-                throw new DomainTakenException($message, $e->getCode(), $e);
+            switch ($this->matchError($e)) {
+                case self::ERROR_UNAUTHORIZED:
+                    throw new AuthException($message, $code, $e);
+
+                case self::ERROR_DOMAIN_TAKEN:
+                    throw new DomainTakenException($message, $code, $e);
+
+                case self::ERROR_INVALID_CONTACT:
+                    throw new InvalidContactException($message, $code, $e);
+
+                case self::ERROR_UNSUPPORTED_TLD:
+                case self::ERROR_UNSUPPORTED_TRANSFER:
+                    throw new UnsupportedTldException($message, $code, $e);
+
+                default:
+                    throw new DomainsException($message, $code, $e);
             }
-            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT))) {
-                throw new InvalidContactException($message, $e->getCode(), $e);
-            }
-            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TLD)) ||
-                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TRANSFER))
-            ) {
-                throw new UnsupportedTldException($message, $e->getCode(), $e);
-            }
-            throw new DomainsException($message, $code, $e);
         }
     }
 
@@ -219,33 +236,30 @@ class NameCom extends Adapter
             $result = $this->send('POST', '/core/v1/transfers', $data);
             return (string) ($result['order'] ?? '');
 
-        } catch (AuthException $e) {
-            throw $e;
-
         } catch (Exception $e) {
             $message = 'Failed to transfer domain: ' . $e->getMessage();
             $code = $e->getCode();
-            $errorLower = strtolower($e->getMessage());
 
-            if ($code === 422 &&
-                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT))
-            ) {
-                throw new InvalidContactException($message, $e->getCode(), $e);
+            switch ($this->matchError($e)) {
+                case self::ERROR_UNAUTHORIZED:
+                    throw new AuthException($message, $code, $e);
+
+                case self::ERROR_INVALID_CONTACT:
+                    throw new InvalidContactException($message, $code, $e);
+
+                case self::ERROR_UNSUPPORTED_TLD:
+                case self::ERROR_UNSUPPORTED_TRANSFER:
+                    throw new UnsupportedTldException($message, $code, $e);
+
+                case self::ERROR_INVALID_AUTH_CODE:
+                    throw new InvalidAuthCodeException($message, $code, $e);
+
+                case self::ERROR_DOMAIN_TAKEN:
+                    throw new DomainTakenException($message, $code, $e);
+
+                default:
+                    throw new DomainsException($message, $code, $e);
             }
-            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TLD)) ||
-                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TRANSFER))
-            ) {
-                throw new UnsupportedTldException($message, $e->getCode(), $e);
-            }
-            if ($code === 409 &&
-                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE))
-            ) {
-                throw new DomainNotTransferableException($message, $code, $e);
-            }
-            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_TAKEN))) {
-                throw new DomainTakenException($message, $e->getCode(), $e);
-            }
-            throw new DomainsException($message, $code, $e);
         }
     }
 
@@ -386,16 +400,16 @@ class NameCom extends Adapter
 
         } catch (Exception $e) {
             $message = 'Failed to get price for domain: ' . $domain . ' - ' . $e->getMessage();
-            $errorLower = strtolower($e->getMessage());
+            $code = $e->getCode();
 
-            if (
-                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_NOT_FOUND)) ||
-                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_DOMAIN))
-            ) {
-                throw new PriceNotFoundException($message, $e->getCode(), $e);
+            switch ($this->matchError($e)) {
+                case self::ERROR_NOT_FOUND:
+                case self::ERROR_INVALID_DOMAIN:
+                    throw new PriceNotFoundException($message, $code, $e);
+
+                default:
+                    throw new DomainsException($message, $code, $e);
             }
-
-            throw new DomainsException($message, $e->getCode(), $e);
         }
     }
 
@@ -646,14 +660,35 @@ class NameCom extends Adapter
                 $message .= '(' . $details . ')';
             }
 
-            if ($httpCode === 401 && $message === 'Unauthorized') {
-                throw new AuthException('Failed to send request to Name.com: ' . $message, $httpCode);
-            }
-
             throw new Exception($message, $httpCode);
         }
 
         return $response ?? [];
+    }
+
+    /**
+     * Match an exception against the error map.
+     * Returns the matched error key, or null if no match is found.
+     *
+     * @param Exception $e The exception to check
+     * @return string|null The matched error key from ERROR_MAP, or null
+     */
+    private function matchError(Exception $e): ?string
+    {
+        $errorLower = strtolower($e->getMessage());
+        $code = $e->getCode();
+
+        foreach (self::ERROR_MAP as $message => $expectedCode) {
+            if ($expectedCode !== null && $code !== $expectedCode) {
+                continue;
+            }
+
+            if (str_contains($errorLower, strtolower($message))) {
+                return $message;
+            }
+        }
+
+        return null;
     }
 
     /**
