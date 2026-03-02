@@ -34,6 +34,7 @@ class NameCom extends Adapter
     public const ERROR_INVALID_DOMAIN = 'Invalid Domain Name';
     public const ERROR_INVALID_DOMAINS = 'None of the submitted domains are valid';
     public const ERROR_UNSUPPORTED_TLD = 'unsupported tld';
+    public const ERROR_TLD_NOT_SUPPORTED = 'TLD not supported';
     public const ERROR_UNSUPPORTED_TRANSFER = 'do not support transfers for';
     public const ERROR_UNAUTHORIZED = 'Unauthorized';
 
@@ -48,6 +49,7 @@ class NameCom extends Adapter
         self::ERROR_INVALID_DOMAIN => null,
         self::ERROR_INVALID_DOMAINS => null,
         self::ERROR_UNSUPPORTED_TLD => 422,
+        self::ERROR_TLD_NOT_SUPPORTED => null,
         self::ERROR_UNSUPPORTED_TRANSFER => 400,
         self::ERROR_UNAUTHORIZED => 401,
     ];
@@ -393,7 +395,7 @@ class NameCom extends Adapter
                 case $e instanceof PriceNotFoundException:
                     throw $e;
 
-                case $this->matchError($e) === self::ERROR_UNSUPPORTED_TLD:
+                case in_array($this->matchError($e), [self::ERROR_UNSUPPORTED_TLD, self::ERROR_TLD_NOT_SUPPORTED]):
                     throw new UnsupportedTldException($message, $code, $e);
 
                 case in_array($this->matchError($e), [self::ERROR_NOT_FOUND, self::ERROR_INVALID_DOMAIN]):
