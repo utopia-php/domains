@@ -178,13 +178,12 @@ class Registrar
      *
      * @param string $domain
      * @param string $authCode
-     * @param array|Contact $contacts
-     * @param array $nameservers
+     * @param float|null $purchasePrice Required if domain is premium
      * @return string Order ID
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
+    public function transfer(string $domain, string $authCode, ?float $purchasePrice = null): string
     {
-        return $this->adapter->transfer($domain, $authCode, $contacts, $periodYears, $nameservers);
+        return $this->adapter->transfer($domain, $authCode, $purchasePrice);
     }
 
     /**

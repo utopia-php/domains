@@ -297,7 +297,7 @@ abstract class Base extends TestCase
         $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
 
         try {
-            $result = $this->getRegistrar()->transfer($domain, 'test-auth-code', $this->getPurchaseContact());
+            $result = $this->getRegistrar()->transfer($domain, 'test-auth-code');
 
             $this->assertIsString($result);
             $this->assertNotEmpty($result);

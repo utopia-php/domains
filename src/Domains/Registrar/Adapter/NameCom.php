@@ -209,28 +209,19 @@ class NameCom extends Adapter
      *
      * @param string $domain The domain name to transfer
      * @param string $authCode Authorization code for the transfer
-     * @param array|Contact $contacts Contact information
-     * @param int $periodYears Transfer period in years
-     * @param array $nameservers Nameservers to use
+     * @param float|null $purchasePrice Required if domain is premium
      * @return string Order ID
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
+    public function transfer(string $domain, string $authCode, ?float $purchasePrice = null): string
     {
         try {
-            $contacts = is_array($contacts) ? $contacts : [$contacts];
-            $nameservers = empty($nameservers) ? $this->defaultNameservers : $nameservers;
-
-            $contactData = $this->sanitizeContacts($contacts);
-
             $data = [
                 'domainName' => $domain,
                 'authCode' => $authCode,
-                'years' => $periodYears,
-                'contacts' => $contactData,
             ];
 
-            if (!empty($nameservers)) {
-                $data['nameservers'] = $nameservers;
+            if ($purchasePrice !== null) {
+                $data['purchasePrice'] = $purchasePrice;
             }
 
             $result = $this->send('POST', '/core/v1/transfers', $data);
@@ -243,9 +234,6 @@ class NameCom extends Adapter
             switch ($this->matchError($e)) {
                 case self::ERROR_UNAUTHORIZED:
                     throw new AuthException($message, $code, $e);
-
-                case self::ERROR_INVALID_CONTACT:
-                    throw new InvalidContactException($message, $code, $e);
 
                 case self::ERROR_UNSUPPORTED_TLD:
                 case self::ERROR_UNSUPPORTED_TRANSFER:

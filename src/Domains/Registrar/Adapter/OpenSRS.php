@@ -136,7 +136,7 @@ class OpenSRS extends Adapter
         ];
     }
 
-    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], int $periodYears = 1, ?string $authCode = null): string
+    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], int $periodYears = 1, ?string $authCode = null, ?float $purchasePrice = null): string
     {
         $hasNameservers = empty($nameservers) ? 0 : 1;
 
@@ -164,6 +164,10 @@ class OpenSRS extends Adapter
 
         if ($hasNameservers) {
             $message['attributes']['nameserver_list'] = $nameservers;
+        }
+
+        if ($purchasePrice !== null) {
+            $message['attributes']['premium_price_to_display'] = $purchasePrice;
         }
 
         $result = $this->send($message);
@@ -205,21 +209,12 @@ class OpenSRS extends Adapter
         }
     }
 
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
+    public function transfer(string $domain, string $authCode, ?float $purchasePrice = null): string
     {
-        $contacts = is_array($contacts) ? $contacts : [$contacts];
-
-        $nameservers =
-          empty($nameservers)
-          ? $this->defaultNameservers
-          : $nameservers;
-
-        $contacts = $this->sanitizeContacts($contacts);
-
         $regType = Registrar::REG_TYPE_TRANSFER;
 
         try {
-            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, $authCode);
+            $result = $this->register($domain, $regType, $this->user, [], [], 1, $authCode, $purchasePrice);
             $result = $this->response($result);
             return $result['id'];
 
@@ -229,9 +224,6 @@ class OpenSRS extends Adapter
                 $parts = explode("\n", $e->getMessage());
                 $reason = $parts[1] ?? $parts[0];
                 throw new DomainNotTransferableException('Domain is not transferable: ' . $reason, $e->getCode(), $e);
-            }
-            if ($code === self::RESPONSE_CODE_INVALID_CONTACT) {
-                throw new InvalidContactException('Failed to transfer domain: ' . $e->getMessage(), $code, $e);
             }
             if ($code === self::RESPONSE_CODE_DOMAIN_TAKEN) {
                 throw new DomainTakenException('Domain is already in this account', $code, $e);

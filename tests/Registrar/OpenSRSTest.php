@@ -174,7 +174,7 @@ class OpenSRSTest extends Base
         $domain = $this->generateRandomString() . '.net';
 
         try {
-            $result = $this->registrar->transfer($domain, 'test-auth-code', $this->getPurchaseContact());
+            $result = $this->registrar->transfer($domain, 'test-auth-code');
             $this->assertIsString($result);
             $this->assertNotEmpty($result);
         } catch (DomainNotTransferableException $e) {
@@ -186,7 +186,7 @@ class OpenSRSTest extends Base
     public function testTransferAlreadyExists(): void
     {
         try {
-            $result = $this->registrar->transfer($this->testDomain, 'test-auth-code', $this->getPurchaseContact());
+            $result = $this->registrar->transfer($this->testDomain, 'test-auth-code');
             $this->assertIsString($result);
             $this->assertNotEmpty($result);
         } catch (DomainNotTransferableException $e) {

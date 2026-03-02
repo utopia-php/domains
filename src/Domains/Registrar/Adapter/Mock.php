@@ -356,20 +356,15 @@ class Mock extends Adapter
      *
      * @param string $domain
      * @param string $authCode
-     * @param array|Contact $contacts
-     * @param int $periodYears
-     * @param array $nameservers
+     * @param float|null $purchasePrice Required if domain is premium
      * @return string Order ID
      * @throws DomainTakenException
-     * @throws InvalidContactException
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
+    public function transfer(string $domain, string $authCode, ?float $purchasePrice = null): string
     {
         if (in_array($domain, $this->purchasedDomains)) {
             throw new DomainTakenException("Domain {$domain} is already in this account", self::RESPONSE_CODE_DOMAIN_TAKEN);
         }
-
-        $this->validateContacts($contacts);
 
         $this->transferredDomains[] = $domain;
         $this->purchasedDomains[] = $domain;

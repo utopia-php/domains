@@ -6,9 +6,7 @@ use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar;
-use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
-use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Adapter\Mock;
 use Utopia\Domains\Registrar\UpdateDetails;
 
@@ -83,19 +81,6 @@ class MockTest extends Base
         $this->assertNotEmpty($result);
     }
 
-    public function testTransferWithNameservers(): void
-    {
-        $domain = 'transferdomain.com';
-        $contact = $this->getPurchaseContact();
-        $authCode = 'test-auth-code-12345';
-        $nameservers = ['ns1.example.com', 'ns2.example.com'];
-
-        $result = $this->registrar->transfer($domain, $authCode, $contact, 1, $nameservers);
-
-        $this->assertIsString($result);
-        $this->assertNotEmpty($result);
-    }
-
     public function testTransferAlreadyExists(): void
     {
         $domain = 'alreadyexists.com';
@@ -106,30 +91,7 @@ class MockTest extends Base
 
         $this->expectException(DomainTakenException::class);
         $this->expectExceptionMessage('Domain ' . $domain . ' is already in this account');
-        $this->registrar->transfer($domain, $authCode, $contact);
-    }
-
-    public function testTransferWithInvalidContact(): void
-    {
-        $this->expectException(InvalidContactException::class);
-        $this->expectExceptionMessage('missing required field');
-
-        $invalidContact = new Contact(
-            'John',
-            'Doe',
-            '+1.5551234567',
-            'john.doe@example.com',
-            '123 Main St',
-            'Suite 100',
-            '',
-            '', // Empty city
-            'CA',
-            'US',
-            '94105',
-            'Test Inc'
-        );
-
-        $this->registrar->transfer('transfer.com', 'auth-code', [$invalidContact]);
+        $this->registrar->transfer($domain, $authCode);
     }
 
     public function testCheckTransferStatusWithRequestAddress(): void
