@@ -44,7 +44,7 @@ class NameCom extends Adapter
     public const ERROR_MAP = [
         self::ERROR_NOT_FOUND => 404,
         self::ERROR_DOMAIN_TAKEN => null,
-        self::ERROR_INVALID_AUTH_CODE => 500,
+        self::ERROR_INVALID_AUTH_CODE => null,
         self::ERROR_INVALID_CONTACT => null,
         self::ERROR_INVALID_DOMAIN => null,
         self::ERROR_INVALID_DOMAINS => null,
