@@ -362,26 +362,39 @@ class NameCom extends Adapter
 
         try {
             $result = $this->send('GET', '/core/v1/domains/' . $domain . ':getPricing' . '?years=' . $periodYears);
-            $purchasePrice = (float) ($result['purchasePrice'] ?? 0);
-            $renewalPrice = (float) ($result['renewalPrice'] ?? 0);
-            $transferPrice = (float) ($result['transferPrice'] ?? 0);
+            $purchasePrice = isset($result['purchasePrice']) ? (float) $result['purchasePrice'] : null;
+            $renewalPrice = isset($result['renewalPrice']) ? (float) $result['renewalPrice'] : null;
+            $transferPrice = isset($result['transferPrice']) ? (float) $result['transferPrice'] : null;
             $isPremium = isset($result['premium']) && $result['premium'] === true;
+
+            if ($purchasePrice === null && $renewalPrice === null && $transferPrice === null) {
+                throw new PriceNotFoundException('Price not found for domain: ' . $domain, 400);
+            }
 
             if ($this->cache) {
                 $cacheKey = $domain . '_' . $periodYears;
                 $this->cache->save($cacheKey, [
-                    Registrar::REG_TYPE_NEW => ['price' => $purchasePrice, 'premium' => $isPremium],
-                    Registrar::REG_TYPE_RENEWAL => ['price' => $renewalPrice, 'premium' => $isPremium],
-                    Registrar::REG_TYPE_TRANSFER => ['price' => $transferPrice, 'premium' => $isPremium],
+                    Registrar::REG_TYPE_NEW => ['price' => $purchasePrice ?? 0, 'premium' => $isPremium],
+                    Registrar::REG_TYPE_RENEWAL => ['price' => $renewalPrice ?? 0, 'premium' => $isPremium],
+                    Registrar::REG_TYPE_TRANSFER => ['price' => $transferPrice ?? 0, 'premium' => $isPremium],
                 ]);
             }
 
             switch ($regType) {
                 case Registrar::REG_TYPE_NEW:
+                    if ($purchasePrice === null) {
+                        throw new PriceNotFoundException('Purchase price not found for domain: ' . $domain, 400);
+                    }
                     return new Price($purchasePrice, $isPremium);
                 case Registrar::REG_TYPE_RENEWAL:
+                    if ($renewalPrice === null) {
+                        throw new PriceNotFoundException('Renewal price not found for domain: ' . $domain, 400);
+                    }
                     return new Price($renewalPrice, $isPremium);
                 case Registrar::REG_TYPE_TRANSFER:
+                    if ($transferPrice === null) {
+                        throw new PriceNotFoundException('Transfer price not found for domain: ' . $domain, 400);
+                    }
                     return new Price($transferPrice, $isPremium);
                 default:
                     throw new PriceNotFoundException('Price not found for domain: ' . $domain, 400);
