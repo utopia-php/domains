@@ -12,6 +12,7 @@ use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\Exception\DomainNotFoundException;
+use Utopia\Domains\Registrar\Exception\UnsupportedTldException;
 use Utopia\Domains\Registrar\Adapter;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
@@ -30,6 +31,8 @@ class NameCom extends Adapter
     public const ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE = 'we were unable to get authoritative domain information from the registry. this usually means that the domain name or auth code provided was not correct.';
     public const ERROR_MESSAGE_INVALID_CONTACT = 'invalid value for $country when calling';
     public const ERROR_MESSAGE_INVALID_DOMAIN = 'Invalid Domain Name';
+    public const ERROR_MESSAGE_INVALID_DOMAINS = 'None of the submitted domains are valid';
+    public const ERROR_MESSAGE_UNSUPPORTED_TLD = 'unsupported tld';
 
     /**
      * Contact Types
@@ -89,9 +92,18 @@ class NameCom extends Adapter
      */
     public function available(string $domain): bool
     {
-        $result = $this->send('POST', '/core/v1/domains:checkAvailability', [
-            'domainNames' => [$domain],
-        ]);
+        try {
+            $result = $this->send('POST', '/core/v1/domains:checkAvailability', [
+                'domainNames' => [$domain],
+            ]);
+        } catch (Exception $e) {
+            $errorLower = strtolower($e->getMessage());
+            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_DOMAINS))) {
+                return false;
+            }
+
+            throw $e;
+        }
 
         return $result['results'][0]['purchasable'] ?? false;
     }
@@ -165,6 +177,9 @@ class NameCom extends Adapter
             if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT))) {
                 throw new InvalidContactException($message, $e->getCode(), $e);
             }
+            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TLD))) {
+                throw new UnsupportedTldException($message, $e->getCode(), $e);
+            }
             throw new DomainsException($message, $code, $e);
         }
     }
@@ -209,12 +224,17 @@ class NameCom extends Adapter
             $code = $e->getCode();
             $errorLower = strtolower($e->getMessage());
 
-            if ($code === 422 ||
-            str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT))
+            if ($code === 422 &&
+                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT))
             ) {
                 throw new InvalidContactException($message, $e->getCode(), $e);
             }
-            if ($code === 409 ||
+            if ($code === 422 &&
+                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TLD))
+            ) {
+                throw new UnsupportedTldException($message, $e->getCode(), $e);
+            }
+            if ($code === 409 &&
                 str_contains($errorLower, strtolower(self::ERROR_MESSAGE_DOMAIN_NOT_TRANSFERABLE))
             ) {
                 throw new DomainNotTransferableException($message, $code, $e);
