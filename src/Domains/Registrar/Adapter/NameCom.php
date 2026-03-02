@@ -33,6 +33,7 @@ class NameCom extends Adapter
     public const ERROR_MESSAGE_INVALID_DOMAIN = 'Invalid Domain Name';
     public const ERROR_MESSAGE_INVALID_DOMAINS = 'None of the submitted domains are valid';
     public const ERROR_MESSAGE_UNSUPPORTED_TLD = 'unsupported tld';
+    public const ERROR_MESSAGE_UNSUPPORTED_TRANSFER = 'do not support transfers for';
 
     /**
      * Contact Types
@@ -177,7 +178,9 @@ class NameCom extends Adapter
             if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_INVALID_CONTACT))) {
                 throw new InvalidContactException($message, $e->getCode(), $e);
             }
-            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TLD))) {
+            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TLD)) ||
+                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TRANSFER))
+            ) {
                 throw new UnsupportedTldException($message, $e->getCode(), $e);
             }
             throw new DomainsException($message, $code, $e);
@@ -229,8 +232,8 @@ class NameCom extends Adapter
             ) {
                 throw new InvalidContactException($message, $e->getCode(), $e);
             }
-            if ($code === 422 &&
-                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TLD))
+            if (str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TLD)) ||
+                str_contains($errorLower, strtolower(self::ERROR_MESSAGE_UNSUPPORTED_TRANSFER))
             ) {
                 throw new UnsupportedTldException($message, $e->getCode(), $e);
             }

@@ -158,9 +158,17 @@ class NameComTest extends Base
         }
     }
 
-    public function testTransferUnsupportedTld(): void
+    public function testTransferUnsupportedTldDotIn(): void
     {
         $domain = $this->generateRandomString() . '.in';
+
+        $this->expectException(UnsupportedTldException::class);
+        $this->registrar->transfer($domain, 'test-auth-code', $this->getPurchaseContact());
+    }
+
+    public function testTransferUnsupportedTldDotXYZ(): void
+    {
+        $domain = $this->generateRandomString() . '.xyz';
 
         $this->expectException(UnsupportedTldException::class);
         $this->registrar->transfer($domain, 'test-auth-code', $this->getPurchaseContact());
