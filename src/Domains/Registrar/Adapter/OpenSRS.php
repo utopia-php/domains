@@ -18,6 +18,7 @@ use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar\UpdateDetails;
 use Utopia\Domains\Registrar;
+use Utopia\Domains\Registrar\Price;
 
 class OpenSRS extends Adapter
 {
@@ -136,7 +137,7 @@ class OpenSRS extends Adapter
         ];
     }
 
-    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], int $periodYears = 1, ?string $authCode = null): string
+    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], int $periodYears = 1, ?string $authCode = null, ?float $purchasePrice = null): string
     {
         $hasNameservers = empty($nameservers) ? 0 : 1;
 
@@ -164,6 +165,10 @@ class OpenSRS extends Adapter
 
         if ($hasNameservers) {
             $message['attributes']['nameserver_list'] = $nameservers;
+        }
+
+        if ($purchasePrice !== null) {
+            $message['attributes']['premium_price_to_display'] = $purchasePrice;
         }
 
         $result = $this->send($message);
@@ -205,21 +210,12 @@ class OpenSRS extends Adapter
         }
     }
 
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
+    public function transfer(string $domain, string $authCode, ?float $purchasePrice = null): string
     {
-        $contacts = is_array($contacts) ? $contacts : [$contacts];
-
-        $nameservers =
-          empty($nameservers)
-          ? $this->defaultNameservers
-          : $nameservers;
-
-        $contacts = $this->sanitizeContacts($contacts);
-
         $regType = Registrar::REG_TYPE_TRANSFER;
 
         try {
-            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, $authCode);
+            $result = $this->register($domain, $regType, $this->user, [], [], 1, $authCode, $purchasePrice);
             $result = $this->response($result);
             return $result['id'];
 
@@ -229,9 +225,6 @@ class OpenSRS extends Adapter
                 $parts = explode("\n", $e->getMessage());
                 $reason = $parts[1] ?? $parts[0];
                 throw new DomainNotTransferableException('Domain is not transferable: ' . $reason, $e->getCode(), $e);
-            }
-            if ($code === self::RESPONSE_CODE_INVALID_CONTACT) {
-                throw new InvalidContactException('Failed to transfer domain: ' . $e->getMessage(), $code, $e);
             }
             if ($code === self::RESPONSE_CODE_DOMAIN_TAKEN) {
                 throw new DomainTakenException('Domain is already in this account', $code, $e);
@@ -452,16 +445,16 @@ class OpenSRS extends Adapter
      * @param int $periodYears Registration periodYears in years (default 1)
      * @param string $regType Type of registration: 'new', 'renewal', 'transfer', or 'trade'
      * @param int $ttl Time to live for the cache (if set) in seconds (default 3600 seconds = 1 hour)
-     * @return float The price of the domain
+     * @return Price The price and premium status of the domain
      * @throws PriceNotFoundException When pricing information is not found or unavailable for the domain
      * @throws DomainsException When other errors occur during price retrieval
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): Price
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
-            if ($cached !== null && is_array($cached)) {
-                return $cached['price'];
+            if (is_array($cached) && isset($cached['price'])) {
+                return new Price($cached['price'], $cached['premium'] ?? false);
             }
         }
 
@@ -487,14 +480,12 @@ class OpenSRS extends Adapter
                 throw new PriceNotFoundException('Price not found for domain: ' . $domain, self::RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND);
             }
 
-            $result = $price;
+            $priceObj = new Price($price, false);
             if ($this->cache) {
-                $this->cache->save($domain, [
-                    'price' => $result,
-                ]);
+                $this->cache->save($domain, ['price' => $priceObj->price, 'premium' => $priceObj->premium]);
             }
 
-            return $result;
+            return $priceObj;
         } catch (Exception $e) {
             $message = 'Failed to get price for domain: ' . $e->getMessage();
 

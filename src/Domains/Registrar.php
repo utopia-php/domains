@@ -6,6 +6,7 @@ use Utopia\Domains\Registrar\Adapter as RegistrarAdapter;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\Contact;
+use Utopia\Domains\Registrar\Price;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\UpdateDetails;
 
@@ -154,9 +155,9 @@ class Registrar
      * @param int $periodYears
      * @param string $regType
      * @param int $ttl
-     * @return float
+     * @return Price
      */
-    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): float
+    public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): Price
     {
         return $this->adapter->getPrice($domain, $periodYears, $regType, $ttl);
     }
@@ -178,13 +179,12 @@ class Registrar
      *
      * @param string $domain
      * @param string $authCode
-     * @param array|Contact $contacts
-     * @param array $nameservers
+     * @param float|null $purchasePrice Required if domain is premium
      * @return string Order ID
      */
-    public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
+    public function transfer(string $domain, string $authCode, ?float $purchasePrice = null): string
     {
-        return $this->adapter->transfer($domain, $authCode, $contacts, $periodYears, $nameservers);
+        return $this->adapter->transfer($domain, $authCode, $purchasePrice);
     }
 
     /**

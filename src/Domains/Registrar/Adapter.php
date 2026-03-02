@@ -155,9 +155,9 @@ abstract class Adapter extends DomainsAdapter
      * @param  int  $periodYears
      * @param  string  $regType
      * @param  int  $ttl
-     * @return float
+     * @return Price
      */
-    abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): float;
+    abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): Price;
 
     /**
      * Renew a domain
@@ -173,12 +173,10 @@ abstract class Adapter extends DomainsAdapter
      *
      * @param  string  $domain
      * @param  string  $authCode
-     * @param  array|Contact  $contacts
-     * @param  int  $periodYears
-     * @param  array  $nameservers
+     * @param  float|null  $purchasePrice Required if domain is premium
      * @return string Order ID
      */
-    abstract public function transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string;
+    abstract public function transfer(string $domain, string $authCode, ?float $purchasePrice = null): string;
 
     /**
      * Get the authorization code for an EPP domain

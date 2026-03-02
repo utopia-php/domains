@@ -7,6 +7,7 @@ use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Exception\AuthException;
+use Utopia\Domains\Registrar\Exception\UnsupportedTldException;
 use Utopia\Domains\Registrar\Adapter\NameCom;
 use Utopia\Domains\Registrar\UpdateDetails;
 
@@ -114,7 +115,7 @@ class NameComTest extends Base
         $domain = $this->generateRandomString() . '.com';
 
         $this->expectException(AuthException::class);
-        $this->expectExceptionMessage("Failed to send request to Name.com: Unauthorized");
+        $this->expectExceptionMessage("Failed to purchase domain: Unauthorized");
 
         $registrar->purchase($domain, $this->getPurchaseContact(), 1);
     }
@@ -155,6 +156,22 @@ class NameComTest extends Base
         foreach ($result as $domain => $data) {
             $this->assertEquals('suggestion', $data['type']);
         }
+    }
+
+    public function testTransferUnsupportedTldDotIn(): void
+    {
+        $domain = $this->generateRandomString() . '.in';
+
+        $this->expectException(UnsupportedTldException::class);
+        $this->registrar->transfer($domain, 'test-auth-code');
+    }
+
+    public function testTransferUnsupportedTldDotXYZ(): void
+    {
+        $domain = $this->generateRandomString() . '.xyz';
+
+        $this->expectException(UnsupportedTldException::class);
+        $this->registrar->transfer($domain, 'test-auth-code');
     }
 
     public function testCheckTransferStatus(): void
