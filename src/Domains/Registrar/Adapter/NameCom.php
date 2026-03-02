@@ -393,6 +393,9 @@ class NameCom extends Adapter
                 case $e instanceof PriceNotFoundException:
                     throw $e;
 
+                case $this->matchError($e) === self::ERROR_UNSUPPORTED_TLD:
+                    throw new UnsupportedTldException($message, $code, $e);
+
                 case in_array($this->matchError($e), [self::ERROR_NOT_FOUND, self::ERROR_INVALID_DOMAIN]):
                     throw new PriceNotFoundException($message, $code, $e);
 

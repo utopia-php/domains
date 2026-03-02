@@ -8,6 +8,7 @@ use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
+use Utopia\Domains\Registrar\Exception\UnsupportedTldException;
 use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
@@ -287,7 +288,7 @@ class Mock extends Adapter
         $tld = end($parts);
 
         if (!in_array($tld, $this->supportedTlds)) {
-            throw new PriceNotFoundException("TLD .{$tld} is not supported", self::RESPONSE_CODE_BAD_REQUEST);
+            throw new UnsupportedTldException("TLD .{$tld} is not supported", self::RESPONSE_CODE_BAD_REQUEST);
         }
 
         $basePrice = $this->defaultPrice;

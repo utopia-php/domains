@@ -9,7 +9,7 @@ use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Exception\InvalidAuthCodeException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
-use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
+use Utopia\Domains\Registrar\Exception\UnsupportedTldException;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar\UpdateDetails;
 use Utopia\Domains\Registrar\Price;
@@ -230,7 +230,7 @@ abstract class Base extends TestCase
 
     public function testGetPriceWithInvalidDomain(): void
     {
-        $this->expectException(PriceNotFoundException::class);
+        $this->expectException(UnsupportedTldException::class);
         $this->getRegistrar()->getPrice("invalid.invalidtld", 1, Registrar::REG_TYPE_NEW);
     }
 
