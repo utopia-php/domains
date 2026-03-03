@@ -7,6 +7,7 @@ use Utopia\Cache\Adapter\None as NoneAdapter;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Exception\AuthException;
+use Utopia\Domains\Registrar\Exception\InvalidPeriodException;
 use Utopia\Domains\Registrar\Exception\UnsupportedTldException;
 use Utopia\Domains\Registrar\Adapter\NameCom;
 use Utopia\Domains\Registrar\UpdateDetails;
@@ -177,5 +178,15 @@ class NameComTest extends Base
     public function testCheckTransferStatus(): void
     {
         $this->markTestSkipped('Name.com for some reason always returning 404 (Not Found) for transfer status check. Investigate later.');
+    }
+
+    public function testGetPriceWithInvalidPeriod(): void
+    {
+        $domain = $this->generateRandomString() . '.ai';
+
+        $this->expectException(InvalidPeriodException::class);
+        $this->expectExceptionMessage('Failed to get price for domain: ' . $domain . ' - Invalid value for years for this domain');
+
+        $this->registrar->getPrice($domain, 1);
     }
 }

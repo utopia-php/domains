@@ -10,6 +10,7 @@ use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidAuthCodeException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
+use Utopia\Domains\Registrar\Exception\InvalidPeriodException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\Exception\DomainNotFoundException;
 use Utopia\Domains\Registrar\Exception\RateLimitException;
@@ -34,6 +35,7 @@ class NameCom extends Adapter
     public const ERROR_INVALID_CONTACT = 'invalid value for';
     public const ERROR_INVALID_DOMAIN = 'Invalid Domain Name';
     public const ERROR_INVALID_DOMAINS = 'None of the submitted domains are valid';
+    public const ERROR_INVALID_YEARS = 'Invalid value for years';
     public const ERROR_UNSUPPORTED_TLD = 'unsupported tld';
     public const ERROR_TLD_NOT_SUPPORTED = 'TLD not supported';
     public const ERROR_UNSUPPORTED_TRANSFER = 'do not support transfers for';
@@ -47,6 +49,7 @@ class NameCom extends Adapter
         self::ERROR_NOT_FOUND => 404,
         self::ERROR_DOMAIN_TAKEN => null,
         self::ERROR_INVALID_AUTH_CODE => null,
+        self::ERROR_INVALID_YEARS => 400,
         self::ERROR_INVALID_CONTACT => null,
         self::ERROR_INVALID_DOMAIN => null,
         self::ERROR_INVALID_DOMAINS => null,
@@ -414,6 +417,9 @@ class NameCom extends Adapter
                 case self::ERROR_NOT_FOUND:
                 case self::ERROR_INVALID_DOMAIN:
                     throw new PriceNotFoundException($message, $code, $e);
+
+                case self::ERROR_INVALID_YEARS:
+                    throw new InvalidPeriodException($message, $code, $e);
 
                 default:
                     throw new DomainsException($message, $code, $e);
