@@ -273,13 +273,25 @@ abstract class Base extends TestCase
     public function testUpdateDomain(): void
     {
         $testDomain = $this->getTestDomain();
+        $originalAutoRenew = $this->getRegistrar()->getDomain($testDomain)->autoRenew;
+        $updated = false;
 
-        $result = $this->getRegistrar()->updateDomain(
-            $testDomain,
-            $this->getUpdateDetails(true)
-        );
+        try {
+            $result = $this->getRegistrar()->updateDomain(
+                $testDomain,
+                $this->getUpdateDetails(!$originalAutoRenew)
+            );
 
-        $this->assertTrue($result);
+            $this->assertTrue($result);
+            $updated = true;
+        } finally {
+            if ($updated) {
+                $this->getRegistrar()->updateDomain(
+                    $testDomain,
+                    $this->getUpdateDetails($originalAutoRenew)
+                );
+            }
+        }
     }
 
     public function testRenewDomain(): void

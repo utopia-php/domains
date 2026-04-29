@@ -6,6 +6,7 @@ jobs:
     name: Tests ${{ matrix.php-versions }}
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1
       matrix:
         php-versions: ['8.2', '8.3', '8.4', 'nightly']
 
