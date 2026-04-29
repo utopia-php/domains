@@ -643,7 +643,6 @@ class NameCom extends Adapter
             $jsonData = json_encode($data);
             if ($jsonData === false) {
                 $jsonError = json_last_error_msg();
-                curl_close($ch);
                 throw new Exception('Failed to encode request data to JSON: ' . $jsonError);
             }
 
@@ -655,11 +654,8 @@ class NameCom extends Adapter
 
         if ($result === false) {
             $error = curl_error($ch);
-            curl_close($ch);
             throw new Exception('Failed to send request to Name.com: ' . $error);
         }
-
-        curl_close($ch);
 
         $response = json_decode($result, true);
         if ($response === null && $result !== 'null' && $result !== '') {

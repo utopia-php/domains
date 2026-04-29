@@ -26,6 +26,7 @@ class OpenSRS extends Adapter
      * OpenSRS API Response Codes - https://domains.opensrs.guide/docs/codes
      */
     public const RESPONSE_CODE_DOMAIN_AVAILABLE = 210;
+    public const RESPONSE_CODE_NOTHING_TO_DO = 220;
     public const RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND = 400;
     public const RESPONSE_CODE_INVALID_CONTACT = 465;
     public const RESPONSE_CODE_DOMAIN_TAKEN = 485;
@@ -616,6 +617,12 @@ class OpenSRS extends Adapter
 
         $result = $this->send($message);
         $result = $this->sanitizeResponse($result);
+
+        $responseCode = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
+        if (!empty($responseCode) && (int) $responseCode[0] === self::RESPONSE_CODE_NOTHING_TO_DO) {
+            return true;
+        }
+
         $elements = $result->xpath($xpath);
         if (empty($elements)) {
             $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="is_success"]');
@@ -816,11 +823,8 @@ class OpenSRS extends Adapter
 
         if ($result === false) {
             $error = curl_error($ch);
-            curl_close($ch);
             throw new Exception('Failed to send request to OpenSRS: ' . $error);
         }
-
-        curl_close($ch);
 
         return $result;
     }
