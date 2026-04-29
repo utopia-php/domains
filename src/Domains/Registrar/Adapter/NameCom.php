@@ -657,7 +657,6 @@ class NameCom extends Adapter
             throw new Exception('Failed to send request to Name.com: ' . $error);
         }
 
-
         $response = json_decode($result, true);
         if ($response === null && $result !== 'null' && $result !== '') {
             throw new Exception('Failed to parse response from Name.com: Invalid JSON');

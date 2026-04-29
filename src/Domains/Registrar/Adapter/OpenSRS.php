@@ -819,7 +819,6 @@ class OpenSRS extends Adapter
             throw new Exception('Failed to send request to OpenSRS: ' . $error);
         }
 
-
         return $result;
     }
 
