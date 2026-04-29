@@ -136,7 +136,6 @@ abstract class Adapter
             throw new \Exception(curl_error($ch));
         }
 
-        curl_close($ch);
 
         if ($responseStatus >= 400) {
             if (is_array($responseBody)) {

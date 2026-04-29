@@ -816,11 +816,9 @@ class OpenSRS extends Adapter
 
         if ($result === false) {
             $error = curl_error($ch);
-            curl_close($ch);
             throw new Exception('Failed to send request to OpenSRS: ' . $error);
         }
 
-        curl_close($ch);
 
         return $result;
     }
