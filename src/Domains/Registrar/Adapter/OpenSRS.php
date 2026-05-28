@@ -138,7 +138,7 @@ class OpenSRS extends Adapter
         ];
     }
 
-    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], int $periodYears = 1, ?string $authCode = null, ?float $purchasePrice = null): string
+    private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], int $periodYears = 1, ?string $authCode = null, ?float $purchasePrice = null, bool $autorenewEnabled = false): string
     {
         $hasNameservers = empty($nameservers) ? 0 : 1;
 
@@ -156,7 +156,7 @@ class OpenSRS extends Adapter
                 'reg_type' => $regType,
                 'handle' => 'process',
                 'f_whois_privacy' => 1,
-                'auto_renew' => 0,
+                'auto_renew' => $autorenewEnabled ? 1 : 0,
             ],
         ];
 
@@ -177,10 +177,10 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false): string
     {
         try {
-            $contacts = is_array($contacts) ? $contacts : [$contacts];
+            $contacts = \is_array($contacts) ? $contacts : [$contacts];
 
             $nameservers =
             empty($nameservers)
@@ -191,7 +191,7 @@ class OpenSRS extends Adapter
 
             $regType = Registrar::REG_TYPE_NEW;
 
-            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears);
+            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, null, null, $autorenewEnabled);
             $result = $this->response($result);
             return $result['id'];
 
@@ -285,7 +285,7 @@ class OpenSRS extends Adapter
             throw new Exception("Invalid price range: priceMin ($priceMin) and priceMax ($priceMax) cannot be set when filterType is 'suggestion'.");
         }
 
-        $query = is_array($query) ? $query : [$query];
+        $query = \is_array($query) ? $query : [$query];
         $message = [
             'object' => 'DOMAIN',
             'action' => 'NAME_SUGGEST',
@@ -454,7 +454,7 @@ class OpenSRS extends Adapter
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
-            if (is_array($cached) && isset($cached['price'])) {
+            if (\is_array($cached) && isset($cached['price'])) {
                 return new Price($cached['price'], $cached['premium'] ?? false);
             }
         }
@@ -893,7 +893,7 @@ class OpenSRS extends Adapter
         ];
 
         foreach ($assoc as $itemKey => $itemValue) {
-            if (is_array($itemValue)) {
+            if (\is_array($itemValue)) {
                 if (array_keys($itemValue) === range(0, count($itemValue) - 1)) {
                     $result[] = $this->createArray($itemKey, $itemValue);
                 } else {
@@ -929,7 +929,7 @@ class OpenSRS extends Adapter
 
     private function createEnvelopItem(string $key, string|int|array $value): string
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             return $this->createArray($key, $value);
         }
 
@@ -1099,7 +1099,7 @@ class OpenSRS extends Adapter
                     break;
                 default:
                     $result[] =
-                      is_array($value)
+                      \is_array($value)
                       ? $this->createArray($key, $value)
                       : $this->createEnvelopItem($key, $value);
             }

@@ -129,11 +129,12 @@ class Mock extends Adapter
      * @param array|Contact $contacts
      * @param int $periodYears
      * @param array $nameservers
+     * @param bool $autorenewEnabled
      * @return string Order ID
      * @throws DomainTakenException
      * @throws InvalidContactException
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false): string
     {
         if (!$this->available($domain)) {
             throw new DomainTakenException("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);
@@ -165,7 +166,7 @@ class Mock extends Adapter
         int|null $priceMax = null,
         int|null $priceMin = null
     ): array {
-        $query = is_array($query) ? implode('-', $query) : $query;
+        $query = \is_array($query) ? implode('-', $query) : $query;
         $tlds = !empty($tlds) ? $tlds : $this->supportedTlds;
         $limit = $limit ?? 10;
 
@@ -262,7 +263,7 @@ class Mock extends Adapter
     {
         if ($this->cache) {
             $cached = $this->cache->load($domain, $ttl);
-            if (is_array($cached) && isset($cached['price'])) {
+            if (\is_array($cached) && isset($cached['price'])) {
                 return new Price($cached['price'], $cached['premium'] ?? false);
             }
         }
@@ -508,7 +509,7 @@ class Mock extends Adapter
      */
     private function validateContacts(array|Contact $contacts): void
     {
-        $contactsArray = is_array($contacts) ? $contacts : [$contacts];
+        $contactsArray = \is_array($contacts) ? $contacts : [$contacts];
 
         foreach ($contactsArray as $contact) {
             if (!($contact instanceof Contact)) {
