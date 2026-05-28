@@ -137,7 +137,7 @@ abstract class Adapter
         }
 
         if ($responseStatus >= 400) {
-            if (is_array($responseBody)) {
+            if (\is_array($responseBody)) {
                 throw new \Exception(json_encode($responseBody));
             } else {
                 throw new \Exception($responseStatus.': '.$responseBody);
@@ -160,7 +160,7 @@ abstract class Adapter
         foreach ($data as $key => $value) {
             $finalKey = $prefix ? "{$prefix}[{$key}]" : $key;
 
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 $output += $this->flatten($value, $finalKey); // @todo: handle name collision here if needed
             } else {
                 $output[$finalKey] = $value;

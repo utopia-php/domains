@@ -94,9 +94,10 @@ abstract class Adapter extends DomainsAdapter
      * @param  array|Contact  $contacts
      * @param  int  $periodYears
      * @param  array  $nameservers
+     * @param  bool  $autorenewEnabled
      * @return string Order ID
      */
-    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string;
+    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false): string;
 
     /**
      * Suggest domain names

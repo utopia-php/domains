@@ -80,11 +80,12 @@ class Registrar
      * @param int $periodYears
      * @param array|Contact $contacts
      * @param array $nameservers
+     * @param bool $autorenewEnabled
      * @return string Order ID
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false): string
     {
-        return $this->adapter->purchase($domain, $contacts, $periodYears, $nameservers);
+        return $this->adapter->purchase($domain, $contacts, $periodYears, $nameservers, $autorenewEnabled);
     }
 
     /**

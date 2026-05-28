@@ -29,23 +29,23 @@ class NameCom extends Adapter
     /**
      * Name.com API Error Keys
      */
-    public const ERROR_NOT_FOUND = 'Not Found';
-    public const ERROR_DOMAIN_TAKEN = 'Domain is not available';
-    public const ERROR_INVALID_AUTH_CODE = 'we were unable to get authoritative domain information from the registry. this usually means that the domain name or auth code provided was not correct.';
-    public const ERROR_INVALID_CONTACT = 'invalid value for';
-    public const ERROR_INVALID_DOMAIN = 'Invalid Domain Name';
-    public const ERROR_INVALID_DOMAINS = 'None of the submitted domains are valid';
-    public const ERROR_INVALID_YEARS = 'Invalid value for years';
-    public const ERROR_UNSUPPORTED_TLD = 'unsupported tld';
-    public const ERROR_TLD_NOT_SUPPORTED = 'TLD not supported';
-    public const ERROR_UNSUPPORTED_TRANSFER = 'do not support transfers for';
-    public const ERROR_UNAUTHORIZED = 'Unauthorized';
-    public const ERROR_RATE_LIMIT_EXCEEDED = 'Rate Limit Exceeded';
+    public const string ERROR_NOT_FOUND = 'Not Found';
+    public const string ERROR_DOMAIN_TAKEN = 'Domain is not available';
+    public const string ERROR_INVALID_AUTH_CODE = 'we were unable to get authoritative domain information from the registry. this usually means that the domain name or auth code provided was not correct.';
+    public const string ERROR_INVALID_CONTACT = 'invalid value for';
+    public const string ERROR_INVALID_DOMAIN = 'Invalid Domain Name';
+    public const string ERROR_INVALID_DOMAINS = 'None of the submitted domains are valid';
+    public const string ERROR_INVALID_YEARS = 'Invalid value for years';
+    public const string ERROR_UNSUPPORTED_TLD = 'unsupported tld';
+    public const string ERROR_TLD_NOT_SUPPORTED = 'TLD not supported';
+    public const string ERROR_UNSUPPORTED_TRANSFER = 'do not support transfers for';
+    public const string ERROR_UNAUTHORIZED = 'Unauthorized';
+    public const string ERROR_RATE_LIMIT_EXCEEDED = 'Rate Limit Exceeded';
 
     /**
      * Name.com API Error Map: [message => code]
      */
-    public const ERROR_MAP = [
+    public const array ERROR_MAP = [
         self::ERROR_NOT_FOUND => 404,
         self::ERROR_DOMAIN_TAKEN => null,
         self::ERROR_INVALID_AUTH_CODE => null,
@@ -63,11 +63,11 @@ class NameCom extends Adapter
     /**
      * Contact Types
      */
-    public const CONTACT_TYPE_REGISTRANT = 'registrant';
-    public const CONTACT_TYPE_ADMIN = 'admin';
-    public const CONTACT_TYPE_TECH = 'tech';
-    public const CONTACT_TYPE_BILLING = 'billing';
-    public const CONTACT_TYPE_OWNER = 'owner';
+    public const string CONTACT_TYPE_REGISTRANT = 'registrant';
+    public const string CONTACT_TYPE_ADMIN = 'admin';
+    public const string CONTACT_TYPE_TECH = 'tech';
+    public const string CONTACT_TYPE_BILLING = 'billing';
+    public const string CONTACT_TYPE_OWNER = 'owner';
 
     protected string $username;
     protected string $token;
@@ -92,7 +92,7 @@ class NameCom extends Adapter
         if (str_starts_with($endpoint, 'http://')) {
             $this->endpoint = 'https://' . substr($endpoint, 7);
         } elseif (!str_starts_with($endpoint, 'https://')) {
-            $this->endpoint = 'https://' . $endpoint;
+            $this->endpoint = "https://{$endpoint}";
         }
 
         $this->headers = [
@@ -144,7 +144,7 @@ class NameCom extends Adapter
     public function updateNameservers(string $domain, array $nameservers): array
     {
         try {
-            $result = $this->send('POST', '/core/v1/domains/' . $domain . ':setNameservers', [
+            $result = $this->send('POST', "/core/v1/domains/{$domain}:setNameservers", [
                 'nameservers' => $nameservers,
             ]);
 
@@ -169,12 +169,13 @@ class NameCom extends Adapter
      * @param array|Contact $contacts Contact information
      * @param int $periodYears Registration period in years
      * @param array $nameservers Nameservers to use
+     * @param bool $autorenewEnabled Whether autorenew should be enabled
      * @return string Order ID
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): string
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false): string
     {
         try {
-            $contacts = is_array($contacts) ? $contacts : [$contacts];
+            $contacts = \is_array($contacts) ? $contacts : [$contacts];
             $nameservers = empty($nameservers) ? $this->defaultNameservers : $nameservers;
 
             $contactData = $this->sanitizeContacts($contacts);
@@ -184,6 +185,7 @@ class NameCom extends Adapter
                     'domainName' => $domain,
                     'nameservers' => $nameservers,
                     'contacts' => $contactData,
+                    'autorenewEnabled' => $autorenewEnabled,
                 ],
                 'years' => $periodYears,
             ];
@@ -291,7 +293,7 @@ class NameCom extends Adapter
      */
     public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array
     {
-        $query = is_array($query) ? implode(' ', $query) : $query;
+        $query = \is_array($query) ? implode(' ', $query) : $query;
 
         $data = [
             'keyword' => $query,
@@ -309,7 +311,7 @@ class NameCom extends Adapter
 
         $items = [];
 
-        if (isset($result['results']) && is_array($result['results'])) {
+        if (isset($result['results']) && \is_array($result['results'])) {
             foreach ($result['results'] as $domainResult) {
                 $domain = $domainResult['domainName'] ?? null;
                 if (!$domain) {
@@ -364,11 +366,11 @@ class NameCom extends Adapter
      */
     public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): Price
     {
-        $cacheKey = $domain . '_' . $periodYears;
+        $cacheKey = "{$domain}_{$periodYears}";
 
         if ($this->cache) {
             $cached = $this->cache->load($cacheKey, $ttl);
-            if (is_array($cached[$regType] ?? null)) {
+            if (\is_array($cached[$regType] ?? null)) {
                 return new Price($cached[$regType]['price'], $cached[$regType]['premium']);
             }
         }
@@ -447,7 +449,7 @@ class NameCom extends Adapter
     public function getDomain(string $domain): Domain
     {
         try {
-            $result = $this->send('GET', '/core/v1/domains/' . $domain);
+            $result = $this->send('GET', "/core/v1/domains/{$domain}");
 
             $createdAt = isset($result['createDate']) ? new DateTime($result['createDate']) : null;
             $expiresAt = isset($result['expireDate']) ? new DateTime($result['expireDate']) : null;
@@ -519,7 +521,7 @@ class NameCom extends Adapter
                 'years' => $periodYears,
             ];
 
-            $result = $this->send('POST', '/core/v1/domains/' . $domain . ':renew', $data);
+            $result = $this->send('POST', "/core/v1/domains/{$domain}:renew", $data);
 
             $orderId = (string) ($result['order'] ?? '');
             $expiresAt = isset($result['domain']['expireDate']) ? new DateTime($result['domain']['expireDate']) : null;
@@ -546,7 +548,7 @@ class NameCom extends Adapter
     public function getAuthCode(string $domain): string
     {
         try {
-            $result = $this->send('GET', '/core/v1/domains/' . $domain . ':getAuthCode');
+            $result = $this->send('GET', "/core/v1/domains/{$domain}:getAuthCode");
 
             if (isset($result['authCode'])) {
                 return $result['authCode'];
@@ -571,10 +573,10 @@ class NameCom extends Adapter
     public function checkTransferStatus(string $domain): TransferStatus
     {
         try {
-            $result = $this->send('GET', '/core/v1/transfers/' . $domain);
+            $result = $this->send('GET', "/core/v1/transfers/{$domain}");
 
             $status = $this->mapTransferStatus($result['status'] ?? 'unknown');
-            $reason = isset($result['statusDetails']) ? $result['statusDetails'] : null;
+            $reason = $result['statusDetails'] ?? null;
 
             return new TransferStatus(
                 status: $status,
@@ -585,7 +587,7 @@ class NameCom extends Adapter
             throw $e;
         } catch (Exception $e) {
             if ($e->getCode() === 404) {
-                throw new DomainNotFoundException('Domain not found: ' . $domain, $e->getCode(), $e);
+                throw new DomainNotFoundException("Domain not found: {$domain}", $e->getCode(), $e);
             }
 
             throw new DomainsException('Failed to check transfer status: ' . $e->getMessage(), $e->getCode(), $e);
@@ -627,12 +629,12 @@ class NameCom extends Adapter
      */
     private function send(string $method, string $path, ?array $data = null): array
     {
-        $url = $this->endpoint . $path;
+        $url = "{$this->endpoint}{$path}";
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
-        curl_setopt($ch, CURLOPT_USERPWD, $this->username . ':' . $this->token);
+        curl_setopt($ch, CURLOPT_USERPWD, "{$this->username}:{$this->token}");
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
@@ -643,7 +645,7 @@ class NameCom extends Adapter
             $jsonData = json_encode($data);
             if ($jsonData === false) {
                 $jsonError = json_last_error_msg();
-                throw new Exception('Failed to encode request data to JSON: ' . $jsonError);
+                throw new Exception("Failed to encode request data to JSON: {$jsonError}");
             }
 
             curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
@@ -654,7 +656,7 @@ class NameCom extends Adapter
 
         if ($result === false) {
             $error = curl_error($ch);
-            throw new Exception('Failed to send request to Name.com: ' . $error);
+            throw new Exception("Failed to send request to Name.com: {$error}");
         }
 
         $response = json_decode($result, true);
@@ -667,11 +669,11 @@ class NameCom extends Adapter
             $details = $response['details'] ?? null;
 
             if ($details) {
-                $message .= '(' . $details . ')';
+                $message .= "({$details})";
             }
 
             if ($httpCode === 429 || stripos($message, self::ERROR_RATE_LIMIT_EXCEEDED) !== false) {
-                throw new RateLimitException('Rate limit exceeded: ' . $message, 429);
+                throw new RateLimitException("Rate limit exceeded: {$message}", 429);
             }
 
             throw new Exception($message, $httpCode);
