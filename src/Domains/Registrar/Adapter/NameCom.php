@@ -404,10 +404,22 @@ class NameCom extends Adapter
             // getPricing only covers standard registry registrations. Premium
             // aftermarket listings are priced by the availability endpoint, so
             // without this merge a premium domain is quoted at the base TLD price.
-            $availabilityResult = $this->send('POST', '/core/v1/domains:checkAvailability', [
-                'domainNames' => [$domain],
-            ]);
-            $availability = $availabilityResult['results'][0] ?? null;
+            $availability = null;
+            $availabilityFailed = false;
+            try {
+                $availabilityResult = $this->send('POST', '/core/v1/domains:checkAvailability', [
+                    'domainNames' => [$domain],
+                ]);
+                $availability = $availabilityResult['results'][0] ?? null;
+            } catch (RateLimitException $e) {
+                throw $e;
+            } catch (Exception $e) {
+                // Registry pricing is still usable for standard domains; skip
+                // the premium override and skip caching so the merge is
+                // retried on the next request
+                $availabilityFailed = true;
+            }
+
             $purchaseType = $availability['purchaseType'] ?? 'registration';
             if (
                 !empty($availability['purchasable'])
@@ -417,6 +429,8 @@ class NameCom extends Adapter
                 if (isset($availability['purchasePrice'])) {
                     $priceMap[Registrar::REG_TYPE_NEW] = (float) $availability['purchasePrice'];
                 }
+                // A renewal price of 0 means name.com has no renewal data for
+                // the listing, so keep the registry renewal price in that case
                 if (!empty($availability['renewalPrice'])) {
                     $priceMap[Registrar::REG_TYPE_RENEWAL] = (float) $availability['renewalPrice'];
                 }
@@ -426,7 +440,7 @@ class NameCom extends Adapter
                 throw new PriceNotFoundException("Price not found for domain: {$domain}", 400);
             }
 
-            if ($this->cache) {
+            if ($this->cache && !$availabilityFailed) {
                 $cacheData = array_map(
                     fn ($price) => ['price' => $price !== null ? (float) $price : null, 'premium' => $isPremium],
                     $priceMap
