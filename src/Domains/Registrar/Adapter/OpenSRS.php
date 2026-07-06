@@ -177,7 +177,7 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false): string
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false, ?float $purchasePrice = null): string
     {
         try {
             $contacts = \is_array($contacts) ? $contacts : [$contacts];
@@ -191,7 +191,7 @@ class OpenSRS extends Adapter
 
             $regType = Registrar::REG_TYPE_NEW;
 
-            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, null, null, $autorenewEnabled);
+            $result = $this->register($domain, $regType, $this->user, $contacts, $nameservers, $periodYears, null, $purchasePrice, $autorenewEnabled);
             $result = $this->response($result);
             return $result['id'];
 
