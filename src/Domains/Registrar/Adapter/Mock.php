@@ -130,11 +130,12 @@ class Mock extends Adapter
      * @param int $periodYears
      * @param array $nameservers
      * @param bool $autorenewEnabled
+     * @param float|null $purchasePrice Required if domain is premium
      * @return string Order ID
      * @throws DomainTakenException
      * @throws InvalidContactException
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false): string
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false, ?float $purchasePrice = null): string
     {
         if (!$this->available($domain)) {
             throw new DomainTakenException("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);

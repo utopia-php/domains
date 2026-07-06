@@ -95,9 +95,10 @@ abstract class Adapter extends DomainsAdapter
      * @param  int  $periodYears
      * @param  array  $nameservers
      * @param  bool  $autorenewEnabled
+     * @param  float|null  $purchasePrice Required if domain is premium
      * @return string Order ID
      */
-    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false): string;
+    abstract public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false, ?float $purchasePrice = null): string;
 
     /**
      * Suggest domain names

@@ -170,9 +170,10 @@ class NameCom extends Adapter
      * @param int $periodYears Registration period in years
      * @param array $nameservers Nameservers to use
      * @param bool $autorenewEnabled Whether autorenew should be enabled
+     * @param float|null $purchasePrice Required if domain is premium
      * @return string Order ID
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false): string
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false, ?float $purchasePrice = null): string
     {
         try {
             $contacts = \is_array($contacts) ? $contacts : [$contacts];
@@ -189,6 +190,10 @@ class NameCom extends Adapter
                 ],
                 'years' => $periodYears,
             ];
+
+            if ($purchasePrice !== null) {
+                $data['purchasePrice'] = $purchasePrice;
+            }
 
             $result = $this->send('POST', '/core/v1/domains', $data);
             return (string) ($result['order'] ?? '');
@@ -320,7 +325,13 @@ class NameCom extends Adapter
 
                 $purchasable = $domainResult['purchasable'] ?? false;
                 $price = isset($domainResult['purchasePrice']) ? (float) $domainResult['purchasePrice'] : null;
-                $isPremium = isset($domainResult['premium']) && $domainResult['premium'] === true;
+                $renewalPrice = isset($domainResult['renewalPrice']) ? (float) $domainResult['renewalPrice'] : null;
+                $purchaseType = $domainResult['purchaseType'] ?? 'registration';
+
+                // Aftermarket listings (purchaseType other than 'registration')
+                // are premium even when the premium flag is not set
+                $isPremium = (isset($domainResult['premium']) && $domainResult['premium'] === true)
+                    || ($purchaseType !== '' && $purchaseType !== 'registration');
 
                 // Apply price filters
                 if ($price !== null) {
@@ -343,6 +354,8 @@ class NameCom extends Adapter
                 $items[$domain] = [
                     'available' => $purchasable,
                     'price' => $price,
+                    'renewalPrice' => $renewalPrice,
+                    'purchaseType' => $purchaseType,
                     'type' => $isPremium ? 'premium' : 'suggestion',
                 ];
 
@@ -371,6 +384,9 @@ class NameCom extends Adapter
         if ($this->cache) {
             $cached = $this->cache->load($cacheKey, $ttl);
             if (\is_array($cached[$regType] ?? null)) {
+                if (($cached[$regType]['price'] ?? null) === null) {
+                    throw new PriceNotFoundException("Price not found for domain: {$domain}", 400);
+                }
                 return new Price($cached[$regType]['price'], $cached[$regType]['premium']);
             }
         }
@@ -385,13 +401,48 @@ class NameCom extends Adapter
                 Registrar::REG_TYPE_TRANSFER  => $result['transferPrice'] ?? null,
             ];
 
+            // getPricing only covers standard registry registrations. Premium
+            // aftermarket listings are priced by the availability endpoint, so
+            // without this merge a premium domain is quoted at the base TLD price.
+            $availability = null;
+            $availabilityFailed = false;
+            try {
+                $availabilityResult = $this->send('POST', '/core/v1/domains:checkAvailability', [
+                    'domainNames' => [$domain],
+                ]);
+                $availability = $availabilityResult['results'][0] ?? null;
+            } catch (RateLimitException $e) {
+                throw $e;
+            } catch (Exception $e) {
+                // Registry pricing is still usable for standard domains; skip
+                // the premium override and skip caching so the merge is
+                // retried on the next request
+                $availabilityFailed = true;
+            }
+
+            $purchaseType = $availability['purchaseType'] ?? 'registration';
+            if (
+                !empty($availability['purchasable'])
+                && (($availability['premium'] ?? false) === true || ($purchaseType !== '' && $purchaseType !== 'registration'))
+            ) {
+                $isPremium = true;
+                if (isset($availability['purchasePrice'])) {
+                    $priceMap[Registrar::REG_TYPE_NEW] = (float) $availability['purchasePrice'];
+                }
+                // A renewal price of 0 means name.com has no renewal data for
+                // the listing, so keep the registry renewal price in that case
+                if (!empty($availability['renewalPrice'])) {
+                    $priceMap[Registrar::REG_TYPE_RENEWAL] = (float) $availability['renewalPrice'];
+                }
+            }
+
             if (!array_filter($priceMap, fn ($p) => $p !== null)) {
                 throw new PriceNotFoundException("Price not found for domain: {$domain}", 400);
             }
 
-            if ($this->cache) {
+            if ($this->cache && !$availabilityFailed) {
                 $cacheData = array_map(
-                    fn ($price) => ['price' => (float) ($price ?? 0), 'premium' => $isPremium],
+                    fn ($price) => ['price' => $price !== null ? (float) $price : null, 'premium' => $isPremium],
                     $priceMap
                 );
                 $this->cache->save($cacheKey, $cacheData);

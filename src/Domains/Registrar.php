@@ -81,11 +81,12 @@ class Registrar
      * @param array|Contact $contacts
      * @param array $nameservers
      * @param bool $autorenewEnabled
+     * @param float|null $purchasePrice Required if domain is premium
      * @return string Order ID
      */
-    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false): string
+    public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false, ?float $purchasePrice = null): string
     {
-        return $this->adapter->purchase($domain, $contacts, $periodYears, $nameservers, $autorenewEnabled);
+        return $this->adapter->purchase($domain, $contacts, $periodYears, $nameservers, $autorenewEnabled, $purchasePrice);
     }
 
     /**
