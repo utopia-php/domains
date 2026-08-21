@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "75b79fa576a92fe2ad09f695457ce24e",
+    "content-hash": "afff9a2b1c99385e346f1cbff63bca12",
     "packages": [
         {
             "name": "brick/math",
@@ -1877,33 +1877,32 @@
         },
         {
             "name": "utopia-php/cache",
-            "version": "4.0.0",
+            "version": "5.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/utopia-php/cache.git",
-                "reference": "2ab50440114a7699b8a017ee2ecd8bcd9d54ac5e"
+                "reference": "0d0752785fc81b5afd6571f4291763166a6532bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/utopia-php/cache/zipball/2ab50440114a7699b8a017ee2ecd8bcd9d54ac5e",
-                "reference": "2ab50440114a7699b8a017ee2ecd8bcd9d54ac5e",
+                "url": "https://api.github.com/repos/utopia-php/cache/zipball/0d0752785fc81b5afd6571f4291763166a6532bc",
+                "reference": "0d0752785fc81b5afd6571f4291763166a6532bc",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "ext-memcached": "*",
-                "ext-redis": "*",
-                "php": ">=8.3",
-                "utopia-php/circuit-breaker": "0.3.*",
-                "utopia-php/pools": "2.*",
-                "utopia-php/telemetry": "*"
+                "php": ">=8.4",
+                "utopia-php/circuit-breaker": "^0.4",
+                "utopia-php/pools": "^2.0",
+                "utopia-php/telemetry": "^0.4"
             },
             "require-dev": {
-                "laravel/pint": "1.2.*",
-                "phpstan/phpstan": "^1.12",
-                "phpunit/phpunit": "^9.3",
-                "swoole/ide-helper": "^6.0",
-                "vimeo/psalm": "4.13.1"
+                "swoole/ide-helper": "^6.0"
+            },
+            "suggest": {
+                "ext-memcached": "Required for the Memcached and Hazelcast adapters.",
+                "ext-redis": "Required for the Redis, RedisCluster and Sharding adapters.",
+                "ext-swoole": "Required for the multiplexing Redis adapter (>=6.0)."
             },
             "type": "library",
             "autoload": {
@@ -1915,6 +1914,12 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "Team Appwrite",
+                    "email": "team@appwrite.io"
+                }
+            ],
             "description": "A simple cache library to manage application cache storing, loading and purging",
             "keywords": [
                 "cache",
@@ -1925,32 +1930,29 @@
             ],
             "support": {
                 "issues": "https://github.com/utopia-php/cache/issues",
-                "source": "https://github.com/utopia-php/cache/tree/4.0.0"
+                "source": "https://github.com/utopia-php/cache/tree/5.0.0"
             },
-            "time": "2026-07-31T13:04:45+00:00"
+            "time": "2026-08-21T11:04:48+00:00"
         },
         {
             "name": "utopia-php/circuit-breaker",
-            "version": "0.3.0",
+            "version": "0.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/utopia-php/circuit-breaker.git",
-                "reference": "064243c1667778c00abf027ff53a735a228776de"
+                "reference": "c6d93c7ba9d895cf906360e000f74ff762d83e17"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/utopia-php/circuit-breaker/zipball/064243c1667778c00abf027ff53a735a228776de",
-                "reference": "064243c1667778c00abf027ff53a735a228776de",
+                "url": "https://api.github.com/repos/utopia-php/circuit-breaker/zipball/c6d93c7ba9d895cf906360e000f74ff762d83e17",
+                "reference": "c6d93c7ba9d895cf906360e000f74ff762d83e17",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.2"
             },
             "require-dev": {
-                "laravel/pint": "^1.29",
-                "phpstan/phpstan": "^2.1",
-                "phpunit/phpunit": "^10.0",
-                "utopia-php/telemetry": "0.2.*"
+                "utopia-php/telemetry": "^0.4.6"
             },
             "suggest": {
                 "ext-opentelemetry": "Required by utopia-php/telemetry when using OpenTelemetry metrics.",
@@ -1962,7 +1964,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Utopia\\CircuitBreaker\\": "src/CircuitBreaker"
+                    "Utopia\\CircuitBreaker\\": "src/CircuitBreaker/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1987,9 +1989,9 @@
             ],
             "support": {
                 "issues": "https://github.com/utopia-php/circuit-breaker/issues",
-                "source": "https://github.com/utopia-php/circuit-breaker/tree/0.3.0"
+                "source": "https://github.com/utopia-php/circuit-breaker/tree/0.4.0"
             },
-            "time": "2026-05-12T04:27:08+00:00"
+            "time": "2026-08-21T10:20:24+00:00"
         },
         {
             "name": "utopia-php/pools",
