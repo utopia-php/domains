@@ -1,0 +1,192 @@
+name: Dependabot auto-merge
+
+on:
+  workflow_run:
+    workflows:
+      - CodeQL
+      - Linter
+      - Tests
+    types:
+      - completed
+  check_run:
+    types:
+      - completed
+
+permissions:
+  checks: read
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.workflow_run.head_sha || github.event.check_run.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  auto-merge:
+    name: Gate and request auto-merge
+    if: >-
+      github.event.workflow_run.event == 'pull_request' ||
+      (github.event.check_run.name == 'Greptile Review' &&
+       github.event.check_run.app.slug == 'greptile-apps')
+    runs-on: ubuntu-latest
+    env:
+      ALLOWED_BASES: '["main"]'
+      EXPECTED_CHECKS: >-
+        [{"name":"CodeQL","app":"github-actions","count":1},{"name":"Greptile Review","app":"greptile-apps","count":1},{"name":"Linter","app":"github-actions","count":1},{"name":"Tests 8.4","app":"github-actions","count":1},{"name":"Tests 8.5","app":"github-actions","count":1}]
+      EXPECTED_STATUSES: '[]'
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - name: Validate, approve, and request auto-merge
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          api() {
+            local method="$1"
+            local url="$2"
+            local data="${3:-}"
+            local arguments=(
+              --fail-with-body
+              --silent
+              --show-error
+              --request "$method"
+              --header 'Accept: application/vnd.github+json'
+              --header "Authorization: Bearer $GITHUB_TOKEN"
+              --header 'X-GitHub-Api-Version: 2026-03-10'
+            )
+            if [[ -n "$data" ]]; then
+              arguments+=(--header 'Content-Type: application/json' --data "$data")
+            fi
+            curl "${arguments[@]}" "$url"
+          }
+
+          target=$(jq --raw-output '.workflow_run.head_sha // .check_run.head_sha // empty' "$GITHUB_EVENT_PATH")
+          if [[ ! "$target" =~ ^[0-9a-f]{40}$ ]]; then
+            echo 'The triggering workflow did not provide a full commit SHA.' >&2
+            exit 1
+          fi
+
+          candidates=$(api GET "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/commits/$target/pulls?per_page=100")
+          matches=$(jq \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg target "$target" \
+            --argjson bases "$ALLOWED_BASES" \
+            '[.[] | select(
+              .state == "open" and
+              .draft == false and
+              .user.login == "dependabot[bot]" and
+              .user.type == "Bot" and
+              .head.repo.full_name == $repository and
+              .base.repo.full_name == $repository and
+              (.head.ref | startswith("dependabot/")) and
+              .head.sha == $target and
+              (.base.ref as $base | $bases | index($base) != null)
+            )]' <<<"$candidates")
+          if [[ $(jq 'length' <<<"$matches") -ne 1 ]]; then
+            echo 'Expected exactly one open, same-repository Dependabot pull request for the triggering SHA.' >&2
+            exit 1
+          fi
+
+          number=$(jq --raw-output '.[0].number' <<<"$matches")
+          pull=$(api GET "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls/$number")
+          if ! jq --exit-status \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --arg target "$target" \
+            --argjson bases "$ALLOWED_BASES" \
+            '.state == "open" and
+             .draft == false and
+             .user.login == "dependabot[bot]" and
+             .user.type == "Bot" and
+             .head.repo.full_name == $repository and
+             .base.repo.full_name == $repository and
+             (.head.ref | startswith("dependabot/")) and
+             .head.sha == $target and
+             (.base.ref as $base | $bases | index($base) != null)' \
+            <<<"$pull" >/dev/null; then
+            echo 'The pull request no longer matches the trusted Dependabot identity and exact head.' >&2
+            exit 1
+          fi
+
+          checks=$(api GET "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/commits/$target/check-runs?filter=latest&per_page=100")
+          if ! jq --exit-status \
+            --arg target "$target" \
+            --argjson expected "$EXPECTED_CHECKS" \
+            '(.total_count == (.check_runs | length)) and
+             (.total_count <= 100) and
+             (.check_runs as $runs |
+               ($expected | all(. as $wanted |
+                 [$runs[] | select(.name == $wanted.name)] as $named |
+                 ($named | length) == $wanted.count and
+                 ($named | all(
+                   .app.slug == $wanted.app and
+                   .head_sha == $target and
+                   .status == "completed" and
+                   .conclusion == "success"
+                 ))
+               )) and
+               ($runs | all(. as $run |
+                 $expected | any(
+                   .name == $run.name and
+                   .app == $run.app.slug
+                 )
+               ))
+             )' <<<"$checks" >/dev/null; then
+            echo 'Expected checks are missing, duplicated, unexpected, from the wrong app or SHA, or not successful.' >&2
+            jq '.check_runs | map({name, app: .app.slug, head_sha, status, conclusion})' <<<"$checks" >&2
+            exit 1
+          fi
+
+          statuses=$(api GET "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/commits/$target/status")
+          if ! jq --exit-status \
+            --argjson expected "$EXPECTED_STATUSES" \
+            '(.statuses | length) == ($expected | length) and
+             (.statuses as $statuses |
+               ($expected | all(. as $wanted |
+                 [$statuses[] | select(.context == $wanted.context)] as $named |
+                 ($named | length) == 1 and
+                 ($named[0].state == "success")
+               )) and
+               ($statuses | all(. as $status |
+                 $expected | any(.context == $status.context)
+               ))
+             )' <<<"$statuses" >/dev/null; then
+            echo 'Commit statuses are missing, unexpected, duplicated, or not successful.' >&2
+            jq '.statuses | map({context, state, creator: .creator.login})' <<<"$statuses" >&2
+            exit 1
+          fi
+
+          current=$(api GET "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls/$number")
+          if [[ $(jq --raw-output '.state' <<<"$current") != 'open' ]] ||
+             [[ $(jq --raw-output '.head.sha' <<<"$current") != "$target" ]]; then
+            echo 'The pull request head changed before approval.' >&2
+            exit 1
+          fi
+
+          review=$(jq --null-input --arg commit "$target" '{commit_id: $commit, event: "APPROVE"}')
+          api POST "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls/$number/reviews" "$review" >/dev/null
+
+          current=$(api GET "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/pulls/$number")
+          if [[ $(jq --raw-output '.state' <<<"$current") != 'open' ]] ||
+             [[ $(jq --raw-output '.head.sha' <<<"$current") != "$target" ]]; then
+            echo 'The pull request head changed before auto-merge was requested.' >&2
+            exit 1
+          fi
+
+          identifier=$(jq --raw-output '.node_id' <<<"$current")
+          graphql=$(jq --null-input \
+            --arg query 'mutation($pullRequestId: ID!, $expectedHeadOid: GitObjectID!) { enablePullRequestAutoMerge(input: {pullRequestId: $pullRequestId, expectedHeadOid: $expectedHeadOid, mergeMethod: SQUASH}) { pullRequest { headRefOid number state autoMergeRequest { enabledAt } } } }' \
+            --arg identifier "$identifier" \
+            --arg target "$target" \
+            '{query: $query, variables: {pullRequestId: $identifier, expectedHeadOid: $target}}')
+          result=$(api POST "$GITHUB_GRAPHQL_URL" "$graphql")
+          if ! jq --exit-status \
+            --arg target "$target" \
+            '(.errors // [] | length) == 0 and
+             .data.enablePullRequestAutoMerge.pullRequest.headRefOid == $target and
+             (.data.enablePullRequestAutoMerge.pullRequest.state == "MERGED" or
+              .data.enablePullRequestAutoMerge.pullRequest.autoMergeRequest != null)' \
+            <<<"$result" >/dev/null; then
+            echo 'GitHub did not accept exact-head native auto-merge.' >&2
+            jq . <<<"$result" >&2
+            exit 1
+          fi
