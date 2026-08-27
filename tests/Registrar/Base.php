@@ -322,7 +322,7 @@ abstract class Base extends TestCase
         } catch (\Exception $e) {
             $this->assertTrue(
                 $e instanceof InvalidAuthCodeException || $e instanceof DomainNotTransferableException,
-                'Expected InvalidAuthCodeException or DomainNotTransferableException, got ' . get_class($e)
+                'Expected InvalidAuthCodeException or DomainNotTransferableException, got ' . get_class($e) . ': ' . $e->getMessage() . ' (code ' . $e->getCode() . ')'
             );
         }
     }

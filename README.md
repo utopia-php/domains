@@ -182,7 +182,7 @@ $reg->updateDomain($domain, $details);
 
 ## System Requirements
 
-Utopia Framework requires PHP 8.2 or later. We recommend using the latest PHP version whenever possible.
+Utopia Domains requires PHP 8.5 or later. We recommend using the latest PHP version whenever possible.
 
 ## Authors
 
