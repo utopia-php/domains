@@ -7,6 +7,7 @@ use Exception;
 use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar\Exception\DomainTakenException;
+use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
 use Utopia\Domains\Registrar\Exception\InvalidAuthCodeException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\AuthException;
@@ -31,6 +32,7 @@ class NameCom extends Adapter
      */
     public const string ERROR_NOT_FOUND = 'Not Found';
     public const string ERROR_DOMAIN_TAKEN = 'Domain is not available';
+    public const string ERROR_DOMAIN_DOES_NOT_EXIST = 'The requested domain does not exist.';
     public const string ERROR_INVALID_AUTH_CODE = 'we were unable to get authoritative domain information from the registry. this usually means that the domain name or auth code provided was not correct.';
     public const string ERROR_INVALID_CONTACT = 'invalid value for';
     public const string ERROR_INVALID_DOMAIN = 'Invalid Domain Name';
@@ -48,6 +50,7 @@ class NameCom extends Adapter
     public const array ERROR_MAP = [
         self::ERROR_NOT_FOUND => 404,
         self::ERROR_DOMAIN_TAKEN => null,
+        self::ERROR_DOMAIN_DOES_NOT_EXIST => 404,
         self::ERROR_INVALID_AUTH_CODE => null,
         self::ERROR_INVALID_YEARS => 400,
         self::ERROR_INVALID_CONTACT => null,
@@ -263,6 +266,9 @@ class NameCom extends Adapter
 
                 case self::ERROR_INVALID_AUTH_CODE:
                     throw new InvalidAuthCodeException($message, $code, $e);
+
+                case self::ERROR_DOMAIN_DOES_NOT_EXIST:
+                    throw new DomainNotTransferableException($message, $code, $e);
 
                 case self::ERROR_DOMAIN_TAKEN:
                     throw new DomainTakenException($message, $code, $e);
