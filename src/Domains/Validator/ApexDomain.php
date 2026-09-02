@@ -13,6 +13,7 @@ class ApexDomain extends PublicDomain
     /**
      * Returns error message when validation fails
      */
+    #[\Override]
     public function getDescription(): string
     {
         return 'Value must be a public apex domain';
@@ -22,12 +23,12 @@ class ApexDomain extends PublicDomain
      * Validate that the domain is a public apex domain
      *
      * @param  mixed $value
-     * @return bool
      */
+    #[\Override]
     public function isValid($value): bool
     {
         if (filter_var($value, FILTER_VALIDATE_URL)) {
-            $value = parse_url($value, PHP_URL_HOST);
+            $value = parse_url((string) $value, PHP_URL_HOST);
         }
 
         if (!parent::isValid($value)) {

@@ -13,10 +13,8 @@ class Domain
 
     /**
      * Domain
-     *
-     * @var string
      */
-    protected $domain = '';
+    protected string $domain;
 
     /**
      * TLD
@@ -58,22 +56,22 @@ class Domain
      *
      * @var string[]
      */
-    protected $parts = [];
+    protected array $parts;
 
     /**
      * Domain constructor.
      */
     public function __construct(string $domain)
     {
-        if ((strpos($domain, 'http://') === 0) || (strpos($domain, 'https://') === 0)) {
+        if ((str_starts_with($domain, 'http://')) || (str_starts_with($domain, 'https://'))) {
             throw new Exception("'{$domain}' must be a valid domain or hostname");
         }
 
-        $this->domain = \mb_strtolower($domain);
-        $this->parts = \explode('.', $this->domain);
+        $this->domain = mb_strtolower($domain);
+        $this->parts = explode('.', $this->domain);
 
         if (empty(self::$list)) {
-            self::$list = include __DIR__.'/../../data/data.php';
+            self::$list = include __DIR__ . '/../../data/data.php';
         }
     }
 
@@ -102,11 +100,11 @@ class Domain
             return $this->TLD;
         }
 
-        if (empty($this->parts)) {
+        if ($this->parts === []) {
             return '';
         }
 
-        $this->TLD = \end($this->parts);
+        $this->TLD = end($this->parts);
 
         return $this->TLD;
     }
@@ -119,12 +117,13 @@ class Domain
         if ($this->suffix) {
             return $this->suffix;
         }
+        $counter = \count($this->parts);
 
-        for ($i = 0; $i < count($this->parts); $i++) {
-            $joined = \implode('.', \array_slice($this->parts, $i));
-            $next = \implode('.', \array_slice($this->parts, $i + 1));
-            $exception = '!'.$joined;
-            $wildcard = '*.'.$next;
+        for ($i = 0; $i < $counter; $i++) {
+            $joined = implode('.', \array_slice($this->parts, $i));
+            $next = implode('.', \array_slice($this->parts, $i + 1));
+            $exception = '!' . $joined;
+            $wildcard = '*.' . $next;
 
             if (\array_key_exists($exception, self::$list)) {
                 $this->suffix = $next;
@@ -168,9 +167,7 @@ class Domain
             return '';
         }
 
-        $registerable = $this->getName().'.'.$this->getSuffix();
-
-        return $registerable;
+        return $this->getName() . '.' . $this->getSuffix();
     }
 
     /**
@@ -183,11 +180,11 @@ class Domain
         }
 
         $suffix = $this->getSuffix();
-        $suffix = (! empty($suffix)) ? '.'.$suffix : '.'.$this->getTLD();
+        $suffix = ($suffix === '' || $suffix === '0') ? '.' . $this->getTLD() : '.' . $suffix;
 
-        $name = \explode('.', \mb_substr($this->domain, 0, \mb_strlen($suffix) * -1));
+        $name = explode('.', mb_substr($this->domain, 0, mb_strlen($suffix) * -1));
 
-        $this->name = \end($name);
+        $this->name = end($name);
 
         return $this->name;
     }
@@ -198,16 +195,16 @@ class Domain
     public function getSub(): string
     {
         $name = $this->getName();
-        $name = (! empty($name)) ? '.'.$name : '';
+        $name = ($name === '' || $name === '0') ? '' : '.' . $name;
 
         $suffix = $this->getSuffix();
-        $suffix = (! empty($suffix)) ? '.'.$suffix : '.'.$this->getTLD();
+        $suffix = ($suffix === '' || $suffix === '0') ? '.' . $this->getTLD() : '.' . $suffix;
 
-        $domain = $name.$suffix;
+        $domain = $name . $suffix;
 
-        $sub = \explode('.', \mb_substr($this->domain, 0, \mb_strlen($domain) * -1));
+        $sub = explode('.', mb_substr($this->domain, 0, mb_strlen($domain) * -1));
 
-        $this->sub = \implode('.', $sub);
+        $this->sub = implode('.', $sub);
 
         return $this->sub;
     }
@@ -217,11 +214,7 @@ class Domain
      */
     public function isKnown(): bool
     {
-        if (\array_key_exists($this->getRule(), self::$list)) {
-            return true;
-        }
-
-        return false;
+        return \array_key_exists($this->getRule(), self::$list);
     }
 
     /**
@@ -229,11 +222,7 @@ class Domain
      */
     public function isICANN(): bool
     {
-        if (isset(self::$list[$this->getRule()]) && self::$list[$this->getRule()]['type'] === 'ICANN') {
-            return true;
-        }
-
-        return false;
+        return isset(self::$list[$this->getRule()]) && self::$list[$this->getRule()]['type'] === 'ICANN';
     }
 
     /**
@@ -241,11 +230,7 @@ class Domain
      */
     public function isPrivate(): bool
     {
-        if (isset(self::$list[$this->getRule()]) && self::$list[$this->getRule()]['type'] === 'PRIVATE') {
-            return true;
-        }
-
-        return false;
+        return isset(self::$list[$this->getRule()]) && self::$list[$this->getRule()]['type'] === 'PRIVATE';
     }
 
     /**
@@ -253,10 +238,6 @@ class Domain
      */
     public function isTest(): bool
     {
-        if (\in_array($this->getTLD(), ['test', 'localhost'])) {
-            return true;
-        }
-
-        return false;
+        return \in_array($this->getTLD(), ['test', 'localhost']);
     }
 }

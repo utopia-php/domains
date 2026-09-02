@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Domains\Registrar;
 
 final class UpdateDetails
@@ -9,6 +11,5 @@ final class UpdateDetails
      */
     public function __construct(
         public ?bool $autoRenew = null,
-    ) {
-    }
+    ) {}
 }

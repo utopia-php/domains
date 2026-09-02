@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Domains\Registrar;
 
 use Utopia\Domains\Adapter as DomainsAdapter;
@@ -30,9 +32,6 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Set default nameservers
-     *
-     * @param array $nameservers
-     * @return void
      */
     public function setDefaultNameservers(array $nameservers): void
     {
@@ -41,9 +40,6 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Set cache instance
-     *
-     * @param Cache|null $cache
-     * @return void
      */
     public function setCache(?Cache $cache): void
     {
@@ -52,9 +48,6 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Set connection timeout
-     *
-     * @param int $connectTimeout
-     * @return void
      */
     public function setConnectTimeout(int $connectTimeout): void
     {
@@ -63,9 +56,6 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Set request timeout
-     *
-     * @param int $timeout
-     * @return void
      */
     public function setTimeout(int $timeout): void
     {
@@ -74,27 +64,17 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Get the name of the adapter
-     *
-     * @return string
      */
     abstract public function getName(): string;
 
     /**
      * Check if a domain is available
-     *
-     * @param  string  $domain
-     * @return bool
      */
     abstract public function available(string $domain): bool;
 
     /**
      * Purchase a domain
      *
-     * @param  string  $domain
-     * @param  array|Contact  $contacts
-     * @param  int  $periodYears
-     * @param  array  $nameservers
-     * @param  bool  $autorenewEnabled
      * @param  float|null  $purchasePrice Required if domain is premium
      * @return string Order ID
      */
@@ -104,45 +84,28 @@ abstract class Adapter extends DomainsAdapter
      * Suggest domain names
      *
      * @param  array  $query
-     * @param  array  $tlds
-     * @param  int|null $limit
      * @param  string|null $filterType Filter results by type: 'premium', 'suggestion', or null for both
-     * @param  int|null $priceMax
-     * @param  int|null $priceMin
-     * @return array
      */
-    abstract public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array;
+    abstract public function suggest(array|string $query, array $tlds = [], ?int $limit = null, ?string $filterType = null, ?int $priceMax = null, ?int $priceMin = null): array;
 
     /**
      * Get the TLDs supported by the adapter
-     *
-     * @return array
      */
     abstract public function tlds(): array;
 
     /**
      * Get the domain information
-     *
-     * @param  string  $domain
-     * @return Domain
      */
     abstract public function getDomain(string $domain): Domain;
 
     /**
      * Update the domain information
-     *
-     * @param  string  $domain
-     * @param  UpdateDetails $details
-     * @return bool
      */
     abstract public function updateDomain(string $domain, UpdateDetails $details): bool;
 
     /**
      * Update the nameservers for a domain
      *
-     * @param string $domain
-     * @param array $nameservers
-     * @return array
      * @throws \Exception
      */
     public function updateNameservers(string $domain, array $nameservers): array
@@ -152,29 +115,17 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Get the price of a domain
-     *
-     * @param  string  $domain
-     * @param  int  $periodYears
-     * @param  string  $regType
-     * @param  int  $ttl
-     * @return Price
      */
     abstract public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): Price;
 
     /**
      * Renew a domain
-     *
-     * @param  string  $domain
-     * @param  int  $periodYears
-     * @return Renewal
      */
     abstract public function renew(string $domain, int $periodYears): Renewal;
 
     /**
      * Transfer a domain
      *
-     * @param  string  $domain
-     * @param  string  $authCode
      * @param  float|null  $purchasePrice Required if domain is premium
      * @return string Order ID
      */
@@ -182,24 +133,16 @@ abstract class Adapter extends DomainsAdapter
 
     /**
      * Get the authorization code for an EPP domain
-     *
-     * @param  string  $domain
-     * @return string
      */
     abstract public function getAuthCode(string $domain): string;
 
     /**
      * Check transfer status for a domain
-     *
-     * @param  string  $domain
-     * @return TransferStatus
      */
     abstract public function checkTransferStatus(string $domain): TransferStatus;
 
     /**
      * Cancel pending purchase orders
-     *
-     * @return bool
      */
     abstract public function cancelPurchase(): bool;
 }

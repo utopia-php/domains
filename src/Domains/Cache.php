@@ -6,12 +6,7 @@ use Utopia\Cache\Cache as UtopiaCache;
 
 class Cache
 {
-    public UtopiaCache $cache;
-
-    public function __construct(UtopiaCache $cache)
-    {
-        $this->cache = $cache;
-    }
+    public function __construct(public UtopiaCache $cache) {}
 
     private function getKey(string $domain): string
     {

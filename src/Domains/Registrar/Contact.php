@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Domains\Registrar;
 
 class Contact
@@ -18,8 +20,7 @@ class Contact
         public string $postalcode,
         public string $org,
         public ?string $owner = null,
-    ) {
-    }
+    ) {}
 
     public function toArray(): array
     {

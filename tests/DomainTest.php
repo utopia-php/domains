@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Utopia PHP Framework
  *
@@ -19,7 +21,7 @@ use Exception;
 use PHPUnit\Framework\TestCase;
 use Utopia\Domains\Domain;
 
-class DomainTest extends TestCase
+final class DomainTest extends TestCase
 {
     public function testEdgecaseDomains(): void
     {
@@ -31,14 +33,14 @@ class DomainTest extends TestCase
     {
         $this->expectException('Exception');
         $this->expectExceptionMessage("'http://httpmydomain.com' must be a valid domain or hostname");
-        $domain = new Domain('http://httpmydomain.com');
+        new Domain('http://httpmydomain.com');
     }
 
     public function testEdgecaseDomainsError2(): void
     {
         $this->expectException('Exception');
         $this->expectExceptionMessage("'https://httpmydomain.com' must be a valid domain or hostname");
-        $domain = new Domain('https://httpmydomain.com');
+        new Domain('https://httpmydomain.com');
     }
 
     public function testExampleCoUk(): void
@@ -52,10 +54,10 @@ class DomainTest extends TestCase
         $this->assertSame('example.co.uk', $domain->getRegisterable());
         $this->assertSame('example', $domain->getName());
         $this->assertSame('demo', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(true, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testSubSubExampleCoUk(): void
@@ -69,10 +71,10 @@ class DomainTest extends TestCase
         $this->assertSame('example.co.uk', $domain->getRegisterable());
         $this->assertSame('example', $domain->getName());
         $this->assertSame('subsub.demo', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(true, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testLocalhost(): void
@@ -85,10 +87,10 @@ class DomainTest extends TestCase
         $this->assertSame('', $domain->getRegisterable());
         $this->assertSame('', $domain->getName());
         $this->assertSame('', $domain->getSub());
-        $this->assertSame(false, $domain->isKnown());
-        $this->assertSame(false, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(true, $domain->isTest());
+        $this->assertFalse($domain->isKnown());
+        $this->assertFalse($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertTrue($domain->isTest());
     }
 
     public function testDemoLocalhost(): void
@@ -101,10 +103,10 @@ class DomainTest extends TestCase
         $this->assertSame('', $domain->getRegisterable());
         $this->assertSame('demo', $domain->getName());
         $this->assertSame('', $domain->getSub());
-        $this->assertSame(false, $domain->isKnown());
-        $this->assertSame(false, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(true, $domain->isTest());
+        $this->assertFalse($domain->isKnown());
+        $this->assertFalse($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertTrue($domain->isTest());
     }
 
     public function testSubSubDemoLocalhost(): void
@@ -117,10 +119,10 @@ class DomainTest extends TestCase
         $this->assertSame('', $domain->getRegisterable());
         $this->assertSame('demo', $domain->getName());
         $this->assertSame('sub.sub', $domain->getSub());
-        $this->assertSame(false, $domain->isKnown());
-        $this->assertSame(false, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(true, $domain->isTest());
+        $this->assertFalse($domain->isKnown());
+        $this->assertFalse($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertTrue($domain->isTest());
     }
 
     public function testSubDemoLocalhost(): void
@@ -133,10 +135,10 @@ class DomainTest extends TestCase
         $this->assertSame('', $domain->getRegisterable());
         $this->assertSame('demo', $domain->getName());
         $this->assertSame('sub', $domain->getSub());
-        $this->assertSame(false, $domain->isKnown());
-        $this->assertSame(false, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(true, $domain->isTest());
+        $this->assertFalse($domain->isKnown());
+        $this->assertFalse($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertTrue($domain->isTest());
     }
 
     public function testUTF(): void
@@ -149,10 +151,10 @@ class DomainTest extends TestCase
         $this->assertSame('אשקלון.קום', $domain->getRegisterable());
         $this->assertSame('אשקלון', $domain->getName());
         $this->assertSame('', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(true, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testUTFSubdomain(): void
@@ -165,10 +167,10 @@ class DomainTest extends TestCase
         $this->assertSame('אשקלון.קום', $domain->getRegisterable());
         $this->assertSame('אשקלון', $domain->getName());
         $this->assertSame('חדשות', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(true, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testPrivateTLD(): void
@@ -182,10 +184,10 @@ class DomainTest extends TestCase
         $this->assertSame('blog.potager.org', $domain->getRegisterable());
         $this->assertSame('blog', $domain->getName());
         $this->assertSame('', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(false, $domain->isICANN());
-        $this->assertSame(true, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertFalse($domain->isICANN());
+        $this->assertTrue($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testHTTPException1(): void
@@ -227,10 +229,10 @@ class DomainTest extends TestCase
         $this->assertSame('example.example.ck', $domain->getRegisterable());
         $this->assertSame('example', $domain->getName());
         $this->assertSame('', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(true, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testSubSubExampleExampleCk(): void
@@ -244,10 +246,10 @@ class DomainTest extends TestCase
         $this->assertSame('example.example.ck', $domain->getRegisterable());
         $this->assertSame('example', $domain->getName());
         $this->assertSame('subsub.demo', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(true, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testWwwCk(): void
@@ -261,10 +263,10 @@ class DomainTest extends TestCase
         $this->assertSame('www.ck', $domain->getRegisterable());
         $this->assertSame('www', $domain->getName());
         $this->assertSame('', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(true, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testSubSubWwwCk(): void
@@ -278,10 +280,10 @@ class DomainTest extends TestCase
         $this->assertSame('www.ck', $domain->getRegisterable());
         $this->assertSame('www', $domain->getName());
         $this->assertSame('subsub.demo', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(true, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testWildcardNomBr(): void
@@ -295,10 +297,10 @@ class DomainTest extends TestCase
         $this->assertSame('example.com.nom.br', $domain->getRegisterable());
         $this->assertSame('example', $domain->getName());
         $this->assertSame('sub', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(true, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testWildcardKawasakiJp(): void
@@ -312,10 +314,10 @@ class DomainTest extends TestCase
         $this->assertSame('example.com.kawasaki.jp', $domain->getRegisterable());
         $this->assertSame('example', $domain->getName());
         $this->assertSame('sub', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(true, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testExceptionKawasakiJp(): void
@@ -328,10 +330,10 @@ class DomainTest extends TestCase
         $this->assertSame('city.kawasaki.jp', $domain->getRegisterable());
         $this->assertSame('city', $domain->getName());
         $this->assertSame('sub', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(true, $domain->isICANN());
-        $this->assertSame(false, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertTrue($domain->isICANN());
+        $this->assertFalse($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testWildcardPrivateDomain(): void
@@ -344,10 +346,10 @@ class DomainTest extends TestCase
         $this->assertSame('example.com.dev.adobeaemcloud.com', $domain->getRegisterable());
         $this->assertSame('example', $domain->getName());
         $this->assertSame('sub', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(false, $domain->isICANN());
-        $this->assertSame(true, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertFalse($domain->isICANN());
+        $this->assertTrue($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 
     public function testPrivateDomain(): void
@@ -360,9 +362,9 @@ class DomainTest extends TestCase
         $this->assertSame('example.adobeaemcloud.net', $domain->getRegisterable());
         $this->assertSame('example', $domain->getName());
         $this->assertSame('sub', $domain->getSub());
-        $this->assertSame(true, $domain->isKnown());
-        $this->assertSame(false, $domain->isICANN());
-        $this->assertSame(true, $domain->isPrivate());
-        $this->assertSame(false, $domain->isTest());
+        $this->assertTrue($domain->isKnown());
+        $this->assertFalse($domain->isICANN());
+        $this->assertTrue($domain->isPrivate());
+        $this->assertFalse($domain->isTest());
     }
 }

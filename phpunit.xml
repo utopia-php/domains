@@ -1,16 +1,23 @@
-<phpunit backupGlobals="false"
-         backupStaticAttributes="false"
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/autoload.php"
          colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false"
-        >
+         cacheDirectory=".phpunit.cache">
     <testsuites>
-        <testsuite name="Application Test Suite">
-            <directory>./tests/</directory>
+        <testsuite name="unit">
+            <directory>tests</directory>
+            <exclude>tests/Registrar/NameComTest.php</exclude>
+            <exclude>tests/Registrar/OpenSRSTest.php</exclude>
+        </testsuite>
+        <testsuite name="integration">
+            <file>tests/Registrar/NameComTest.php</file>
+            <file>tests/Registrar/OpenSRSTest.php</file>
         </testsuite>
     </testsuites>
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
 </phpunit>

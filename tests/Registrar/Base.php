@@ -1,18 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Tests\Registrar;
 
 use PHPUnit\Framework\TestCase;
 use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Contact;
-use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
+use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidAuthCodeException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar\UpdateDetails;
-use Utopia\Domains\Registrar\Price;
 
 abstract class Base extends TestCase
 {
@@ -41,7 +42,6 @@ abstract class Base extends TestCase
      * Get an UpdateDetails instance for testing
      *
      * @param bool|null $autoRenew Enable or disable automatic renewal
-     * @return UpdateDetails
      */
     abstract protected function getUpdateDetails(?bool $autoRenew = null): UpdateDetails;
 
@@ -79,7 +79,7 @@ abstract class Base extends TestCase
     protected function generateRandomString(int $length = 10): string
     {
         $characters = 'abcdefghijklmnopqrstuvwxyz';
-        $charactersLength = strlen($characters);
+        $charactersLength = \strlen($characters);
         $randomString = '';
 
         for ($i = 0; $i < $length; $i++) {
@@ -109,7 +109,7 @@ abstract class Base extends TestCase
     public function testGetName(): void
     {
         $name = $this->getRegistrar()->getName();
-        $this->assertEquals($this->getExpectedAdapterName(), $name);
+        $this->assertSame($this->getExpectedAdapterName(), $name);
     }
 
     public function testAvailable(): void
@@ -133,7 +133,6 @@ abstract class Base extends TestCase
         $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
         $result = $this->getRegistrar()->purchase($domain, $this->getPurchaseContact(), 1);
 
-        $this->assertIsString($result);
         $this->assertNotEmpty($result);
     }
 
@@ -164,7 +163,7 @@ abstract class Base extends TestCase
                 'InvalidCountry',
                 '94105',
                 'Test Inc',
-            )
+            ),
         ]);
     }
 
@@ -173,7 +172,7 @@ abstract class Base extends TestCase
         $testDomain = $this->getTestDomain();
         $result = $this->getRegistrar()->getDomain($testDomain);
 
-        $this->assertEquals($testDomain, $result->domain);
+        $this->assertSame($testDomain, $result->domain);
         $this->assertInstanceOf(\DateTime::class, $result->createdAt);
         $this->assertInstanceOf(\DateTime::class, $result->expiresAt);
         $this->assertIsBool($result->autoRenew);
@@ -189,7 +188,7 @@ abstract class Base extends TestCase
     public function testTlds(): void
     {
         $tlds = $this->getRegistrar()->tlds();
-        $this->assertIsArray($tlds);
+        $this->assertNotEmpty($tlds);
     }
 
     public function testSuggest(): void
@@ -197,11 +196,10 @@ abstract class Base extends TestCase
         $result = $this->getRegistrar()->suggest(
             'example',
             ['com', 'net', 'org'],
-            5
+            5,
         );
 
-        $this->assertIsArray($result);
-        $this->assertLessThanOrEqual(5, count($result));
+        $this->assertLessThanOrEqual(5, \count($result));
 
         foreach ($result as $domain => $data) {
             $this->assertIsString($domain);
@@ -221,17 +219,13 @@ abstract class Base extends TestCase
         $domain = $this->getPricingTestDomain();
         $result = $this->getRegistrar()->getPrice($domain, 1, Registrar::REG_TYPE_NEW);
 
-        $this->assertNotNull($result);
-        $this->assertInstanceOf(Price::class, $result);
-        $this->assertIsFloat($result->price);
         $this->assertGreaterThan(0, $result->price);
-        $this->assertIsBool($result->premium);
     }
 
     public function testGetPriceWithInvalidDomain(): void
     {
         $this->expectException(PriceNotFoundException::class);
-        $this->getRegistrar()->getPrice("invalid.invalidtld", 1, Registrar::REG_TYPE_NEW);
+        $this->getRegistrar()->getPrice('invalid.invalidtld', 1, Registrar::REG_TYPE_NEW);
     }
 
     public function testGetPriceWithCache(): void
@@ -240,10 +234,6 @@ abstract class Base extends TestCase
         $registrar = $this->getRegistrarWithCache();
 
         $result1 = $registrar->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 3600);
-        $this->assertNotNull($result1);
-        $this->assertInstanceOf(Price::class, $result1);
-        $this->assertIsFloat($result1->price);
-
         $result2 = $registrar->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 3600);
         $this->assertEquals($result1, $result2);
     }
@@ -253,10 +243,7 @@ abstract class Base extends TestCase
         $domain = $this->getPricingTestDomain();
         $result = $this->getRegistrarWithCache()->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 7200);
 
-        $this->assertInstanceOf(Price::class, $result);
-        $this->assertIsFloat($result->price);
         $this->assertGreaterThan(0, $result->price);
-        $this->assertIsBool($result->premium);
     }
 
     public function testUpdateNameservers(): void
@@ -279,7 +266,7 @@ abstract class Base extends TestCase
         try {
             $result = $this->getRegistrar()->updateDomain(
                 $testDomain,
-                $this->getUpdateDetails(!$originalAutoRenew)
+                $this->getUpdateDetails(!$originalAutoRenew),
             );
 
             $this->assertTrue($result);
@@ -288,7 +275,7 @@ abstract class Base extends TestCase
             if ($updated) {
                 $this->getRegistrar()->updateDomain(
                     $testDomain,
-                    $this->getUpdateDetails($originalAutoRenew)
+                    $this->getUpdateDetails($originalAutoRenew),
                 );
             }
         }
@@ -303,7 +290,7 @@ abstract class Base extends TestCase
             $this->assertIsString($result->orderId);
             $this->assertNotEmpty($result->orderId);
             $this->assertInstanceOf(\DateTime::class, $result->expiresAt);
-            $this->assertNotEmpty($result->expiresAt);
+            $this->assertInstanceOf(\DateTime::class, $result->expiresAt);
         } catch (\Exception $e) {
             // Renewal may fail for various reasons depending on the registrar
             $this->assertNotEmpty($e->getMessage());
@@ -317,12 +304,11 @@ abstract class Base extends TestCase
         try {
             $result = $this->getRegistrar()->transfer($domain, 'test-auth-code');
 
-            $this->assertIsString($result);
             $this->assertNotEmpty($result);
         } catch (\Exception $e) {
             $this->assertTrue(
                 $e instanceof InvalidAuthCodeException || $e instanceof DomainNotTransferableException,
-                'Expected InvalidAuthCodeException or DomainNotTransferableException, got ' . get_class($e) . ': ' . $e->getMessage() . ' (code ' . $e->getCode() . ')'
+                'Expected InvalidAuthCodeException or DomainNotTransferableException, got ' . $e::class . ': ' . $e->getMessage() . ' (code ' . $e->getCode() . ')',
             );
         }
     }
@@ -333,7 +319,6 @@ abstract class Base extends TestCase
 
         try {
             $authCode = $this->getRegistrar()->getAuthCode($testDomain);
-            $this->assertIsString($authCode);
             $this->assertNotEmpty($authCode);
         } catch (\Exception $e) {
             // Some domains may not support auth codes
@@ -348,10 +333,8 @@ abstract class Base extends TestCase
 
         $this->assertInstanceOf(TransferStatusEnum::class, $result->status);
 
-        if ($result->status !== TransferStatusEnum::Transferrable) {
-            if ($result->reason !== null) {
-                $this->assertIsString($result->reason);
-            }
+        if ($result->status !== TransferStatusEnum::Transferrable && $result->reason !== null) {
+            $this->assertIsString($result->reason);
         }
 
         $this->assertContains($result->status, [

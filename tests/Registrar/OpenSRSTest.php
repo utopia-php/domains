@@ -1,21 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Tests\Registrar;
 
-use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
+use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar;
+use Utopia\Domains\Registrar\Adapter\OpenSRS;
 use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
-use Utopia\Domains\Registrar\Adapter\OpenSRS;
 use Utopia\Domains\Registrar\UpdateDetails;
 
-class OpenSRSTest extends Base
+final class OpenSRSTest extends Base
 {
     private Registrar $registrar;
     private Registrar $registrarWithCache;
-    private OpenSRS $adapter;
     private string $testDomain = 'kffsfudlvc.net';
 
     protected function setUp(): void
@@ -28,27 +29,27 @@ class OpenSRSTest extends Base
         $this->assertNotEmpty($key);
         $this->assertNotEmpty($username);
 
-        $this->adapter = new OpenSRS(
+        $adapter = new OpenSRS(
             $key,
             $username,
-            $this->generateRandomString()
+            $this->generateRandomString(),
         );
 
         $this->registrar = new Registrar(
-            $this->adapter,
-            [
-                'ns1.systemdns.com',
-                'ns2.systemdns.com',
-            ]
-        );
-
-        $this->registrarWithCache = new Registrar(
-            $this->adapter,
+            $adapter,
             [
                 'ns1.systemdns.com',
                 'ns2.systemdns.com',
             ],
-            $cache
+        );
+
+        $this->registrarWithCache = new Registrar(
+            $adapter,
+            [
+                'ns1.systemdns.com',
+                'ns2.systemdns.com',
+            ],
+            $cache,
         );
     }
 
@@ -72,11 +73,13 @@ class OpenSRSTest extends Base
         return 'opensrs';
     }
 
+    #[\Override]
     protected function getDefaultTld(): string
     {
         return 'net';
     }
 
+    #[\Override]
     protected function getDefaultNameservers(): array
     {
         return [
@@ -97,7 +100,7 @@ class OpenSRSTest extends Base
         $adapter = new OpenSRS(
             getenv('OPENSRS_KEY'),
             getenv('OPENSRS_USERNAME'),
-            'password'
+            'password',
         );
 
         $registrar = new Registrar(
@@ -105,12 +108,12 @@ class OpenSRSTest extends Base
             [
                 'ns1.systemdns.com',
                 'ns2.systemdns.com',
-            ]
+            ],
         );
 
         $domain = $this->generateRandomString() . '.net';
         $this->expectException(AuthException::class);
-        $this->expectExceptionMessage("Failed to purchase domain: Invalid password");
+        $this->expectExceptionMessage('Failed to purchase domain: Invalid password');
         $registrar->purchase($domain, $this->getPurchaseContact(), 1);
     }
 
@@ -128,11 +131,10 @@ class OpenSRSTest extends Base
                 'org',
             ],
             5,
-            'suggestion'
+            'suggestion',
         );
 
-        $this->assertIsArray($result);
-        foreach ($result as $domain => $data) {
+        foreach ($result as $data) {
             $this->assertSame('suggestion', $data['type']);
             if ($data['available'] && $data['price'] !== null) {
                 $this->assertIsFloat($data['price']);
@@ -153,13 +155,12 @@ class OpenSRSTest extends Base
             5,
             'premium',
             10000,
-            100
+            100,
         );
 
-        $this->assertIsArray($result);
-        $this->assertLessThanOrEqual(5, count($result));
+        $this->assertLessThanOrEqual(5, \count($result));
 
-        foreach ($result as $domain => $data) {
+        foreach ($result as $data) {
             $this->assertSame('premium', $data['type']);
             if ($data['price'] !== null) {
                 $this->assertIsFloat($data['price']);
@@ -175,7 +176,6 @@ class OpenSRSTest extends Base
 
         try {
             $result = $this->registrar->transfer($domain, 'test-auth-code');
-            $this->assertIsString($result);
             $this->assertNotEmpty($result);
         } catch (DomainNotTransferableException $e) {
             $this->assertSame(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());
@@ -187,7 +187,6 @@ class OpenSRSTest extends Base
     {
         try {
             $result = $this->registrar->transfer($this->testDomain, 'test-auth-code');
-            $this->assertIsString($result);
             $this->assertNotEmpty($result);
         } catch (DomainNotTransferableException $e) {
             $this->assertSame(OpenSRS::RESPONSE_CODE_DOMAIN_NOT_TRANSFERABLE, $e->getCode());

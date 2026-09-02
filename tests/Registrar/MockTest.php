@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Tests\Registrar;
 
-use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Cache\Adapter\None as NoneAdapter;
+use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar;
-use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Adapter\Mock;
+use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\UpdateDetails;
 
-class MockTest extends Base
+final class MockTest extends Base
 {
     private Registrar $registrar;
     private Registrar $registrarWithCache;
@@ -54,6 +56,7 @@ class MockTest extends Base
         return 'mock';
     }
 
+    #[\Override]
     protected function getDefaultNameservers(): array
     {
         return [
@@ -77,7 +80,6 @@ class MockTest extends Base
 
         $result = $this->registrar->purchase($domain, $contact, 1, $nameservers);
 
-        $this->assertIsString($result);
         $this->assertNotEmpty($result);
     }
 

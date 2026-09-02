@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Domains;
 
 use Utopia\Domains\Registrar\Adapter as RegistrarAdapter;
-use Utopia\Domains\Registrar\Domain;
-use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\Contact;
+use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\Price;
+use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\UpdateDetails;
 
@@ -20,8 +22,6 @@ class Registrar
     public const REG_TYPE_RENEWAL = 'renewal';
     public const REG_TYPE_TRADE = 'trade';
 
-    protected RegistrarAdapter $adapter;
-
     /**
      * Constructor
      *
@@ -32,19 +32,17 @@ class Registrar
      * @param int $timeout Request timeout in seconds
      */
     public function __construct(
-        RegistrarAdapter $adapter,
+        protected RegistrarAdapter $adapter,
         array $defaultNameservers = [],
         ?Cache $cache = null,
         int $connectTimeout = 5,
-        int $timeout = 10
+        int $timeout = 10,
     ) {
-        $this->adapter = $adapter;
-
-        if (!empty($defaultNameservers)) {
+        if ($defaultNameservers !== []) {
             $this->adapter->setDefaultNameservers($defaultNameservers);
         }
 
-        if ($cache !== null) {
+        if ($cache instanceof \Utopia\Domains\Cache) {
             $this->adapter->setCache($cache);
         }
 
@@ -54,8 +52,6 @@ class Registrar
 
     /**
      * Get the name of the adapter
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -64,9 +60,6 @@ class Registrar
 
     /**
      * Check if a domain is available
-     *
-     * @param string $domain
-     * @return bool
      */
     public function available(string $domain): bool
     {
@@ -76,11 +69,6 @@ class Registrar
     /**
      * Purchase a domain
      *
-     * @param string $domain
-     * @param int $periodYears
-     * @param array|Contact $contacts
-     * @param array $nameservers
-     * @param bool $autorenewEnabled
      * @param float|null $purchasePrice Required if domain is premium
      * @return string Order ID
      */
@@ -91,24 +79,14 @@ class Registrar
 
     /**
      * Suggest domain names
-     *
-     * @param array|string $query
-     * @param array $tlds
-     * @param int|null $limit
-     * @param string|null $filterType
-     * @param int|null $priceMax
-     * @param int|null $priceMin
-     * @return array
      */
-    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array
+    public function suggest(array|string $query, array $tlds = [], ?int $limit = null, ?string $filterType = null, ?int $priceMax = null, ?int $priceMin = null): array
     {
         return $this->adapter->suggest($query, $tlds, $limit, $filterType, $priceMax, $priceMin);
     }
 
     /**
      * Get the list of top-level domains
-     *
-     * @return array
      */
     public function tlds(): array
     {
@@ -117,9 +95,6 @@ class Registrar
 
     /**
      * Get the details of a domain
-     *
-     * @param string $domain
-     * @return Domain
      */
     public function getDomain(string $domain): Domain
     {
@@ -128,10 +103,6 @@ class Registrar
 
     /**
      * Update the details of a domain
-     *
-     * @param string $domain
-     * @param UpdateDetails $details
-     * @return bool
      */
     public function updateDomain(string $domain, UpdateDetails $details): bool
     {
@@ -140,10 +111,6 @@ class Registrar
 
     /**
      * Update nameservers of a domain
-     *
-     * @param string $domain
-     * @param array $nameservers
-     * @return array
      */
     public function updateNameservers(string $domain, array $nameservers): array
     {
@@ -152,12 +119,6 @@ class Registrar
 
     /**
      * Get the price of a domain
-     *
-     * @param string $domain
-     * @param int $periodYears
-     * @param string $regType
-     * @param int $ttl
-     * @return Price
      */
     public function getPrice(string $domain, int $periodYears = 1, string $regType = self::REG_TYPE_NEW, int $ttl = 3600): Price
     {
@@ -166,10 +127,6 @@ class Registrar
 
     /**
      * Renewal a domain
-     *
-     * @param string $domain
-     * @param int $periodYears
-     * @return Renewal
      */
     public function renew(string $domain, int $periodYears): Renewal
     {
@@ -179,8 +136,6 @@ class Registrar
     /**
      * Transfer a domain
      *
-     * @param string $domain
-     * @param string $authCode
      * @param float|null $purchasePrice Required if domain is premium
      * @return string Order ID
      */
@@ -191,9 +146,6 @@ class Registrar
 
     /**
      * Get the auth code of a domain
-     *
-     * @param string $domain
-     * @return string
      */
     public function getAuthCode(string $domain): string
     {
@@ -202,8 +154,6 @@ class Registrar
 
     /**
      * Cancel pending purchase orders
-     *
-     * @return bool
      */
     public function cancelPurchase(): bool
     {
@@ -212,9 +162,6 @@ class Registrar
 
     /**
      * Check transfer status for a domain
-     *
-     * @param string $domain
-     * @return TransferStatus
      */
     public function checkTransferStatus(string $domain): TransferStatus
     {

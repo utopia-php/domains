@@ -4,26 +4,26 @@ namespace Utopia\Domains\Registrar\Adapter;
 
 use DateTime;
 use Exception;
-use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Exception as DomainsException;
-use Utopia\Domains\Registrar\Exception\DomainTakenException;
+use Utopia\Domains\Registrar;
+use Utopia\Domains\Registrar\Adapter;
+use Utopia\Domains\Registrar\Contact;
+use Utopia\Domains\Registrar\Domain;
+use Utopia\Domains\Registrar\Exception\AuthException;
+use Utopia\Domains\Registrar\Exception\DomainNotFoundException;
 use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
+use Utopia\Domains\Registrar\Exception\DomainTakenException;
 use Utopia\Domains\Registrar\Exception\InvalidAuthCodeException;
 use Utopia\Domains\Registrar\Exception\InvalidContactException;
-use Utopia\Domains\Registrar\Exception\AuthException;
 use Utopia\Domains\Registrar\Exception\InvalidPeriodException;
 use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
-use Utopia\Domains\Registrar\Exception\DomainNotFoundException;
 use Utopia\Domains\Registrar\Exception\RateLimitException;
 use Utopia\Domains\Registrar\Exception\UnsupportedTldException;
-use Utopia\Domains\Registrar\Adapter;
+use Utopia\Domains\Registrar\Price;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
-use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar\UpdateDetails;
-use Utopia\Domains\Registrar;
-use Utopia\Domains\Registrar\Price;
 
 class NameCom extends Adapter
 {
@@ -72,9 +72,6 @@ class NameCom extends Adapter
     public const string CONTACT_TYPE_BILLING = 'billing';
     public const string CONTACT_TYPE_OWNER = 'owner';
 
-    protected string $username;
-    protected string $token;
-
     /**
      * __construct
      * Instantiate a new adapter.
@@ -82,16 +79,12 @@ class NameCom extends Adapter
      * @param  string  $username  Name.com API username
      * @param  string  $token  Name.com API token
      * @param  string  $endpoint  The endpoint to use for the API (use https://api.name.com for production)
-     * @return void
      */
     public function __construct(
-        string $username,
-        string $token,
-        protected string $endpoint = 'https://api.name.com'
+        protected string $username,
+        protected string $token,
+        protected string $endpoint = 'https://api.name.com',
     ) {
-        $this->username = $username;
-        $this->token = $token;
-
         if (str_starts_with($endpoint, 'http://')) {
             $this->endpoint = 'https://' . substr($endpoint, 7);
         } elseif (!str_starts_with($endpoint, 'https://')) {
@@ -105,8 +98,6 @@ class NameCom extends Adapter
 
     /**
      * Get the name of this adapter
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -126,12 +117,10 @@ class NameCom extends Adapter
                 'domainNames' => [$domain],
             ]);
         } catch (Exception $e) {
-            switch ($this->matchError($e)) {
-                case self::ERROR_INVALID_DOMAINS:
-                    return false;
-                default:
-                    throw $e;
-            }
+            return match ($this->matchError($e)) {
+                self::ERROR_INVALID_DOMAINS => false,
+                default => throw $e,
+            };
         }
 
         return $result['results'][0]['purchasable'] ?? false;
@@ -180,7 +169,7 @@ class NameCom extends Adapter
     {
         try {
             $contacts = \is_array($contacts) ? $contacts : [$contacts];
-            $nameservers = empty($nameservers) ? $this->defaultNameservers : $nameservers;
+            $nameservers = $nameservers === [] ? $this->defaultNameservers : $nameservers;
 
             $contactData = $this->sanitizeContacts($contacts);
 
@@ -302,7 +291,7 @@ class NameCom extends Adapter
      * @param int|null $priceMin Minimum price for premium domains
      * @return array Domains with metadata
      */
-    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array
+    public function suggest(array|string $query, array $tlds = [], ?int $limit = null, ?string $filterType = null, ?int $priceMax = null, ?int $priceMin = null): array
     {
         $query = \is_array($query) ? implode(' ', $query) : $query;
 
@@ -310,8 +299,8 @@ class NameCom extends Adapter
             'keyword' => $query,
         ];
 
-        if (!empty($tlds)) {
-            $data['tldFilter'] = array_map(fn ($tld) => ltrim($tld, '.'), $tlds);
+        if ($tlds !== []) {
+            $data['tldFilter'] = array_map(fn($tld): string => ltrim((string) $tld, '.'), $tlds);
         }
 
         if ($limit) {
@@ -365,7 +354,7 @@ class NameCom extends Adapter
                     'type' => $isPremium ? 'premium' : 'suggestion',
                 ];
 
-                if ($limit && count($items) >= $limit) {
+                if ($limit && \count($items) >= $limit) {
                     break;
                 }
             }
@@ -387,7 +376,7 @@ class NameCom extends Adapter
     {
         $cacheKey = "{$domain}_{$periodYears}";
 
-        if ($this->cache) {
+        if ($this->cache instanceof \Utopia\Domains\Cache) {
             $cached = $this->cache->load($cacheKey, $ttl);
             if (\is_array($cached[$regType] ?? null)) {
                 if (($cached[$regType]['price'] ?? null) === null) {
@@ -442,14 +431,14 @@ class NameCom extends Adapter
                 }
             }
 
-            if (!array_filter($priceMap, fn ($p) => $p !== null)) {
+            if (!array_filter($priceMap, fn($p): bool => $p !== null)) {
                 throw new PriceNotFoundException("Price not found for domain: {$domain}", 400);
             }
 
             if ($this->cache && !$availabilityFailed) {
                 $cacheData = array_map(
-                    fn ($price) => ['price' => $price !== null ? (float) $price : null, 'premium' => $isPremium],
-                    $priceMap
+                    fn($price): array => ['price' => $price !== null ? (float) $price : null, 'premium' => $isPremium],
+                    $priceMap,
                 );
                 $this->cache->save($cacheKey, $cacheData);
             }
@@ -461,7 +450,7 @@ class NameCom extends Adapter
 
             return new Price((float) $price, $isPremium);
 
-        } catch (PriceNotFoundException | RateLimitException $e) {
+        } catch (PriceNotFoundException|RateLimitException $e) {
             throw $e;
         } catch (Exception $e) {
             $message = "Failed to get price for domain: {$domain} - " . $e->getMessage();
@@ -510,7 +499,7 @@ class NameCom extends Adapter
 
             $createdAt = isset($result['createDate']) ? new DateTime($result['createDate']) : null;
             $expiresAt = isset($result['expireDate']) ? new DateTime($result['expireDate']) : null;
-            $autoRenew = isset($result['autorenewEnabled']) ? (bool) $result['autorenewEnabled'] : false;
+            $autoRenew = isset($result['autorenewEnabled']) && (bool) $result['autorenewEnabled'];
             $nameservers = $result['nameservers'] ?? [];
 
             return new Domain(
@@ -555,10 +544,10 @@ class NameCom extends Adapter
                 'autorenewEnabled' => $details->autoRenew,
             ]);
             return true;
-        } catch (RateLimitException | DomainsException $e) {
+        } catch (RateLimitException|DomainsException $e) {
             throw $e;
         } catch (Exception $e) {
-            throw new DomainsException("Failed to update domain: " . $e->getMessage(), $e->getCode(), $e);
+            throw new DomainsException('Failed to update domain: ' . $e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -612,9 +601,7 @@ class NameCom extends Adapter
             }
 
             throw new DomainsException('Auth code not found in response', 404);
-        } catch (RateLimitException $e) {
-            throw $e;
-        } catch (DomainsException $e) {
+        } catch (RateLimitException|DomainsException $e) {
             throw $e;
         } catch (Exception $e) {
             throw new DomainsException('Failed to get auth code: ' . $e->getMessage(), $e->getCode(), $e);
@@ -661,7 +648,6 @@ class NameCom extends Adapter
      * @see https://docs.name.com/docs/api-reference/transfers/get-transfer#get-transfer
      *
      * @param string $status Name.com status string
-     * @return TransferStatusEnum
      */
     private function mapTransferStatus(string $status): TransferStatusEnum
     {
@@ -698,7 +684,7 @@ class NameCom extends Adapter
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 
-        if ($data !== null && in_array($method, ['POST', 'PUT', 'PATCH'])) {
+        if ($data !== null && \in_array($method, ['POST', 'PUT', 'PATCH'])) {
             $jsonData = json_encode($data);
             if ($jsonData === false) {
                 $jsonError = json_last_error_msg();
@@ -729,7 +715,7 @@ class NameCom extends Adapter
                 $message .= "({$details})";
             }
 
-            if ($httpCode === 429 || stripos($message, self::ERROR_RATE_LIMIT_EXCEEDED) !== false) {
+            if ($httpCode === 429 || stripos((string) $message, self::ERROR_RATE_LIMIT_EXCEEDED) !== false) {
                 throw new RateLimitException("Rate limit exceeded: {$message}", 429);
             }
 
@@ -767,19 +753,19 @@ class NameCom extends Adapter
     /**
      * Sanitize contacts array to Name.com format
      *
-     * @param Contact[] $contacts Array of Contact objects
+     * @param array<mixed> $contacts Contact objects keyed by role or position
      * @return array Sanitized contacts in Name.com format
      */
     private function sanitizeContacts(array $contacts): array
     {
-        if (empty($contacts)) {
+        if ($contacts === []) {
             throw new InvalidContactException('Contacts must be a non-empty array', 400);
         }
 
         // Validate all items are Contact instances
         foreach ($contacts as $key => $contact) {
             if (!$contact instanceof Contact) {
-                $keyInfo = is_int($key) ? "index $key" : "key '$key'";
+                $keyInfo = \is_int($key) ? "index $key" : "key '$key'";
                 throw new InvalidContactException("Contact at $keyInfo must be an instance of Contact", 400);
             }
         }

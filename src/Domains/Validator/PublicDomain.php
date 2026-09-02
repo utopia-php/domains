@@ -20,8 +20,6 @@ class PublicDomain extends Validator
      * Get Description
      *
      * Returns validator description
-     *
-     * @return string
      */
     public function getDescription(): string
     {
@@ -34,26 +32,25 @@ class PublicDomain extends Validator
      * Validation will pass when $value is either a known domain or in the list of allowed domains
      *
      * @param  mixed $value
-     * @return bool
      */
     public function isValid($value): bool
     {
         // Extract domain from URL if provided
         if (filter_var($value, FILTER_VALIDATE_URL)) {
-            $value = parse_url($value, PHP_URL_HOST);
+            $value = parse_url((string) $value, PHP_URL_HOST);
         }
 
         $domain = new Domain($value);
-
-        return $domain->isKnown() || in_array($domain->get(), self::$allowedDomains);
+        if ($domain->isKnown()) {
+            return true;
+        }
+        return \in_array($domain->get(), self::$allowedDomains);
     }
 
     /**
      * Is array
      *
      * Function will return true if object is array.
-     *
-     * @return bool
      */
     public function isArray(): bool
     {
@@ -64,8 +61,6 @@ class PublicDomain extends Validator
      * Get Type
      *
      * Returns validator type.
-     *
-     * @return string
      */
     public function getType(): string
     {
@@ -76,8 +71,6 @@ class PublicDomain extends Validator
      * Allow domains
      *
      * Add domains to the allowed domains array
-     *
-     * @param array $domains
      */
     public static function allow(array $domains): void
     {

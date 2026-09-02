@@ -6,33 +6,17 @@ abstract class Adapter
 {
     protected string $userAgent = 'Utopia PHP Framework';
 
-    protected string $endpoint;
-
-    protected string $apiKey;
-
-    protected string $apiSecret;
-
     /** @var array<mixed> */
-    protected $headers = [
-        'Content-Type' => 'application/json',
-    ];
+    protected array $headers;
 
     /**
      * __construct
      * Instantiate a new adapter.
-     *
-     * @param  string  $endpoint
-     * @param string $apiKey
-     * @param string $apiSecret
      */
-    public function __construct(string $endpoint, string $apiKey, string $apiSecret)
+    public function __construct(protected string $endpoint, protected string $apiKey, protected string $apiSecret)
     {
-        $this->endpoint = $endpoint;
-        $this->apiKey = $apiKey;
-        $this->apiSecret = $apiSecret;
-
         $this->headers = [
-            'Authorization' => 'sso-key '.$this->apiKey.':'.$this->apiSecret,
+            'Authorization' => 'sso-key ' . $this->apiKey . ':' . $this->apiSecret,
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ];
@@ -43,10 +27,6 @@ abstract class Adapter
      *
      * Make an API call
      *
-     * @param  string  $method
-     * @param string $path
-     * @param array|string $params
-     * @param array $headers
      * @retury array|string
      *
      * @throws \Exception
@@ -58,12 +38,12 @@ abstract class Adapter
             (
                 str_contains($path, 'http')
                 ? $path
-                : $this->endpoint.$path.(
-                    ($method == 'GET' && ! empty($params) && $headers['Content-Type'] != 'text/xml')
-                    ? '?'.http_build_query($params)
+                : $this->endpoint . $path . (
+                    ($method === 'GET' && !\in_array($params, ['', '0', []], true) && $headers['Content-Type'] != 'text/xml')
+                    ? '?' . http_build_query($params)
                     : ''
                 )
-            )
+            ),
         );
 
         $responseHeaders = [];
@@ -73,42 +53,31 @@ abstract class Adapter
 
         $query = null;
 
-        if (! empty($params)) {
-            switch ($headers['Content-Type']) {
-                case 'application/json':
-                    $query = json_encode($params, JSON_UNESCAPED_SLASHES);
-                    break;
-
-                case 'multipart/form-data':
-                    $query = $this->flatten($params);
-                    break;
-
-                case 'text/xml':
-                    $query = $params;
-                    break;
-
-                default:
-                    $query = http_build_query($params);
-                    break;
-            }
+        if (!\in_array($params, ['', '0', []], true)) {
+            $query = match ($headers['Content-Type']) {
+                'application/json' => json_encode($params, JSON_UNESCAPED_SLASHES),
+                'multipart/form-data' => $this->flatten($params),
+                'text/xml' => $params,
+                default => http_build_query($params),
+            };
         }
 
         foreach ($headers as $i => $header) {
-            $headers[] = $i.':'.$header;
+            $headers[] = $i . ':' . $header;
 
             unset($headers[$i]);
         }
 
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_USERAGENT, php_uname('s').'-'.php_uname('r').':php-'.phpversion());
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_USERAGENT, php_uname('s') . '-' . php_uname('r') . ':php-' . phpversion());
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($curl, $header) use (&$responseHeaders) {
-            $len = strlen($header);
+        curl_setopt($ch, CURLOPT_HEADERFUNCTION, function ($curl, string $header) use (&$responseHeaders): int {
+            $len = \strlen($header);
             $header = explode(':', strtolower($header), 2);
 
-            if (count($header) < 2) { // ignore invalid headers
+            if (\count($header) < 2) { // ignore invalid headers
                 return $len;
             }
 
@@ -117,7 +86,7 @@ abstract class Adapter
             return $len;
         });
 
-        if ($method != 'GET') {
+        if ($method !== 'GET') {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $query);
         }
 
@@ -126,22 +95,20 @@ abstract class Adapter
         $responseType = $responseHeaders['content-type'] ?? '';
         $responseStatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        switch (substr($responseType, 0, strpos($responseType, ';'))) {
-            case 'application/json':
-                $responseBody = json_decode($responseBody, true);
-                break;
+        if (substr($responseType, 0, strpos($responseType, ';')) === 'application/json') {
+            $responseBody = json_decode($responseBody, true);
         }
 
-        if (curl_errno($ch)) {
+        if (curl_errno($ch) !== 0) {
             throw new \Exception(curl_error($ch));
         }
 
         if ($responseStatus >= 400) {
             if (\is_array($responseBody)) {
                 throw new \Exception(json_encode($responseBody));
-            } else {
-                throw new \Exception($responseStatus.': '.$responseBody);
             }
+            throw new \Exception($responseStatus . ': ' . $responseBody);
+
         }
 
         return $responseBody;
@@ -149,16 +116,13 @@ abstract class Adapter
 
     /**
      * Flatten params array to PHP multiple format
-     * @param array $data
-     * @param string $prefix
-     * @return array
      */
     protected function flatten(array $data, string $prefix = ''): array
     {
         $output = [];
 
         foreach ($data as $key => $value) {
-            $finalKey = $prefix ? "{$prefix}[{$key}]" : $key;
+            $finalKey = $prefix !== '' && $prefix !== '0' ? "{$prefix}[{$key}]" : $key;
 
             if (\is_array($value)) {
                 $output += $this->flatten($value, $finalKey); // @todo: handle name collision here if needed

@@ -9,23 +9,23 @@ $list = explode("\n", $data);
 
 function arrayToCode(array $data, $level = 0): string
 {
-    $output = '['."\n";
+    $output = '[' . "\n";
 
     $level++;
 
     $tabs = str_repeat("\t", $level);
 
     foreach ($data as $key => $node) {
-        $key = is_int($key) ? '' : var_export($key, true).' => ';
+        $key = is_int($key) ? '' : var_export($key, true) . ' => ';
         $value = is_array($node) ? arrayToCode($node, $level) : var_export($node, true);
-        $output .= $tabs.$key.$value.",\n";
+        $output .= $tabs . $key . $value . ",\n";
     }
 
     $level--;
 
     $tabs = str_repeat("\t", $level);
 
-    $output .= $tabs.']';
+    $output .= $tabs . ']';
 
     return $output;
 }
@@ -84,4 +84,4 @@ if (! isset($domains['com'])) {
     throw new RuntimeException('.com is missing from public suffix list; it must be corrupted');
 }
 
-file_put_contents(__DIR__.'/data.php', "<?php\n\nreturn ".arrayToCode($domains).';');
+file_put_contents(__DIR__ . '/data.php', "<?php\n\nreturn " . arrayToCode($domains) . ';');

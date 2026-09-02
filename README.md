@@ -1,196 +1,149 @@
 # Utopia Domains
 
-[![Build Status](https://travis-ci.org/utopia-php/domains.svg?branch=master)](https://travis-ci.com/utopia-php/domains)
-![Total Downloads](https://img.shields.io/packagist/dt/utopia-php/domains.svg)
+> [!IMPORTANT]
+> This repository is a read-only mirror of the [utopia-php monorepo](https://github.com/utopia-php/monorepo). Development happens in [`packages/domains`](https://github.com/utopia-php/monorepo/tree/main/packages/domains) — please open issues and pull requests there.
+
+![Total downloads](https://img.shields.io/packagist/dt/utopia-php/domains.svg)
 [![Discord](https://img.shields.io/discord/564160730845151244)](https://appwrite.io/discord)
 
-Utopia Domains library is a simple and lite library for parsing domain names structure. This library is aiming to be as simple and easy to learn and use.  This library is maintained by the [Appwrite team](https://appwrite.io).
+Utopia Domains parses domain names using the [Public Suffix List](https://publicsuffix.org/). It can identify a domain's suffix, registerable name, and subdomain. Registrar adapters provide domain registration operations through OpenSRS and Name.com.
 
-Although this library is part of the [Utopia Framework](https://github.com/utopia-php/framework) project, it is completely **dependency-free** and can be used as standalone with any other PHP project or framework.
+## Installation
 
-## Getting Started
+Install the package with Composer:
 
-Install using composer:
 ```bash
 composer require utopia-php/domains
 ```
 
+Utopia Domains requires PHP 8.5 or later with the cURL, mbstring, and SimpleXML extensions.
+
+## Domain parsing
+
 ```php
 <?php
 
-require_once '../vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 use Utopia\Domains\Domain;
 
-// demo.example.co.uk
-
 $domain = new Domain('demo.example.co.uk');
 
-$domain->get(); // demo.example.co.uk
-$domain->getTLD(); // uk
-$domain->getSuffix(); // co.uk
+$domain->get();             // demo.example.co.uk
+$domain->getTLD();          // uk
+$domain->getSuffix();       // co.uk
 $domain->getRegisterable(); // example.co.uk
-$domain->getName(); // example
-$domain->getSub(); // demo
-$domain->isKnown(); // true
-$domain->isICANN(); // true
-$domain->isPrivate(); // false
-$domain->isTest(); // false
-
-// demo.localhost
-
-$domain = new Domain('demo.localhost');
-
-$domain->get(); // demo.localhost
-$domain->getTLD(); // localhost
-$domain->getSuffix(); // ''
-$domain->getRegisterable(); // ''
-$domain->getName(); // demo
-$domain->getSub(); // ''
-$domain->isKnown(); // false
-$domain->isICANN(); // false
-$domain->isPrivate(); // false
-$domain->isTest(); // true
-
+$domain->getName();         // example
+$domain->getSub();          // demo
+$domain->isKnown();         // true
+$domain->isICANN();         // true
+$domain->isPrivate();       // false
+$domain->isTest();          // false
 ```
 
-Utopia Domains parser uses a public suffix PHP dataset auto-generated from the [publicsuffix.org](https://publicsuffix.org/). The dataset get periodically updates from us, but you can also manually update it by cloning this library and running the import script with the import command:
+For a URL, extract its host before creating the domain:
+
+```php
+$host = parse_url('https://www.example.com/path', PHP_URL_HOST);
+$domain = new Domain($host);
+```
+
+The parser exposes these methods:
+
+- `get()` returns the complete domain name.
+- `getTLD()` returns the top-level domain.
+- `getSuffix()` returns the matching public suffix.
+- `getRegisterable()` returns the public suffix plus its preceding label.
+- `getName()` returns the registerable domain name without its suffix.
+- `getSub()` returns the subdomain.
+- `isKnown()` reports whether the suffix exists in the dataset.
+- `isICANN()` reports whether the suffix belongs to the ICANN section.
+- `isPrivate()` reports whether the suffix belongs to the private section.
+- `isTest()` reports whether the top-level domain is `localhost` or `test`.
+
+The generated dataset lives in `data/data.php`. Maintainers can refresh it with:
 
 ```bash
-php ./data/import.php
+php data/import.php
 ```
 
-## Library API
+## Registrar adapters
 
-* **get()** - Return you full domain name.
-* **getTLD()** - Return only the top-level-domain.
-* **getSuffix()** - Return only the public suffix of your domain, for example: co.uk, ac.be, org.il, com, org.
-* **getRegisterable()** - Return the registered or registrable domain, which is the public suffix plus one additional label.
-* **getName()** - Returns only the registerable domain name. For example, blog.example.com will return 'example', and demo.co.uk will return 'demo'.
-* **getSub()** - Returns the full sub domain path for you domain. For example, blog.example.com will return 'blog', and subdomain.demo.co.uk will return 'subdomain.demo'.
-* **isKnown()** - Returns true if public suffix is know and false otherwise.
-* **isICANN()** - Returns true if the public suffix is found in the ICANN DOMAINS section of the public suffix list.
-* **isPrivate()** - Returns true if the public suffix is found in the PRIVATE DOMAINS section of the public suffix list.
-* **isTest()** - Returns true if the domain TLD is 'locahost' or 'test' and false otherwise.
+Create an adapter for the registrar and pass it to `Registrar`. Default nameservers belong to `Registrar`, not the adapter.
 
-> If you want to parse ordinary web urls then use `$host = parse_url($return, PHP_URL_HOST); $domain = new Utopia\Domains\Domain($host);` to get the domain object. 
+### OpenSRS adapter
 
-
-## Using the Registrar API
-
-The library supports multiple domain registrar adapters:
-- **OpenSRS** - OpenSRS domain registrar
-- **NameCom** - Name.com domain registrar
-
-### Using OpenSRS Adapter
 ```php
-<?php
-
 use Utopia\Domains\Registrar;
-use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Adapter\OpenSRS;
 
-$opensrs = new OpenSRS(
-  'apikey',
-  'username',
-  'password',
-  [
+$adapter = new OpenSRS(
+    'api-key',
+    'username',
+    'password',
+    'https://horizon.opensrs.net:55443',
+);
+
+$registrar = new Registrar($adapter, [
     'ns1.nameserver.com',
     'ns2.nameserver.com',
-  ],
-  'https://horizon.opensrs.net:55443' // or 'https://rr-n1-tor.opensrs.net:55443' for production
-);
-
-$reg = new Registrar($opensrs);
+]);
 ```
 
-### Using NameCom Adapter
-```php
-<?php
+Use `https://rr-n1-tor.opensrs.net:55443` as the OpenSRS production endpoint.
 
+### Name.com
+
+```php
 use Utopia\Domains\Registrar;
-use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\Adapter\NameCom;
 
-$namecom = new NameCom(
-  'username',
-  'api-token',
-  [
+$adapter = new NameCom(
+    'username',
+    'api-token',
+    'https://api.name.com',
+);
+
+$registrar = new Registrar($adapter, [
     'ns1.name.com',
     'ns2.name.com',
-  ],
-  'https://api.name.com' // or 'https://api.dev.name.com' for testing
-);
-
-$reg = new Registrar($namecom);
+]);
 ```
 
-### Using the Registrar
-Once you have initialized an adapter, you can use the Registrar API:
+Name.com's sandbox endpoint is `https://api.dev.name.com`.
+
+### Registrar operations
 
 ```php
-$reg = new Registrar($adapter); // $adapter can be OpenSRS or NameCom
-
-$contact = new Contact(
-  'firstname',
-  'lastname',
-  'phone',
-  'email',
-  'address1',
-  'address2',
-  'address3',
-  'city',
-  'state',
-  'country',
-  'postalcode',
-  'org',
-  'owner',
-);
-
-$domain = 'yourname.com';
-
-$available = $reg->available($domain);
-$purchase = $reg->purchase($domain, [$contact]);
-$purchase = $reg->purchase($domain, [$contact], 1);
-$suggest = $reg->suggest(['yourname', 'yourname1.com'], ['com', 'net', 'org'], 10, 10000, 100);
-$domainDetails = $reg->getDomain($domain);
-$renew = $reg->renew($domain, 1);
-$transfer = $reg->transfer($domain, [$contact]);
-$transfer = $reg->transfer($domain, 'authcode', [$contact]);
-
-```
-
-### Update Auto-Renew
-```php
+use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Registrar\UpdateDetails;
 
-$details = new UpdateDetails(autoRenew: true);
-$reg->updateDomain($domain, $details);
+$contact = new Contact(
+    'First',
+    'Last',
+    '+1.5555555555',
+    'person@example.com',
+    '123 Example Street',
+    '',
+    '',
+    'Example City',
+    'CA',
+    'US',
+    '12345',
+    'Example Inc.',
+);
+
+$available = $registrar->available('example.com');
+$orderId = $registrar->purchase('example.com', $contact, 1);
+$suggestions = $registrar->suggest(['example'], ['com', 'net'], 10);
+$details = $registrar->getDomain('example.com');
+$renewal = $registrar->renew('example.com', 1);
+$transferOrderId = $registrar->transfer('example.com', 'auth-code');
+$registrar->updateDomain('example.com', new UpdateDetails(autoRenew: true));
 ```
 
-## Library Registrar API
-* **available(string $domain): bool** - Checks to see if a domain is available for registration.
-* **purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration** - Purchase a domain name and returns a Registration object.
-* **suggest(array $query, array $tlds = [], int|null $limit = null, int|null $priceMax = null, int|null $priceMin = null): array** - Suggest or search for domain names.
-* **getDomain(string $domain): Domain** - Get domain details and returns a Domain object.
-* **updateDomain(string $domain, UpdateDetails $details): bool** - Update domain details such as auto-renew.
-* **renew(string $domain, int $periodYears): Renewal** - Renewal a domain name and returns a Renewal object.
-* **transfer(string $domain, string $authCode, array|Contact $contacts, int $periodYears = 1, array $nameservers = []): Registration** - Transfer a domain name and returns a Registration object.
-* **getAuthCode(string $domain): string** - Retrieve the authorization code for a domain.
-* **checkTransferStatus(string $domain, bool $checkStatus = true, bool $getRequestAddress = false): TransferStatus** - Check the transfer status of a domain.
+The registrar API also provides `tlds()`, `updateNameservers()`, `getPrice()`, `getAuthCode()`, `cancelPurchase()`, and `checkTransferStatus()`.
 
+## License
 
-## System Requirements
-
-Utopia Domains requires PHP 8.5 or later. We recommend using the latest PHP version whenever possible.
-
-## Authors
-
-**Eldad Fux**
-
-+ [https://twitter.com/eldadfux](https://twitter.com/eldadfux)
-+ [https://github.com/eldadfux](https://github.com/eldadfux)
-
-## Copyright and license
-
-The MIT License (MIT) [http://www.opensource.org/licenses/mit-license.php](http://www.opensource.org/licenses/mit-license.php)
+Utopia Domains is available under the [MIT License](LICENSE.md).

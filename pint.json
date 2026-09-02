@@ -1,6 +1,0 @@
-{
-    "preset": "psr12",
-    "notPath": [
-        "data/data.php"
-    ]
-}

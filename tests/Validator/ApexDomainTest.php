@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Utopia\Domains\Validator;
 
 use PHPUnit\Framework\TestCase;
 
-class ApexDomainTest extends TestCase
+final class ApexDomainTest extends TestCase
 {
     protected ?ApexDomain $domain;
 
@@ -21,7 +23,7 @@ class ApexDomainTest extends TestCase
     public function testIsValid(): void
     {
         // Description
-        $this->assertEquals('Value must be a public apex domain', $this->domain->getDescription());
+        $this->assertSame('Value must be a public apex domain', $this->domain->getDescription());
 
         // Valid apex domains
         $this->assertTrue($this->domain->isValid('example.com'));

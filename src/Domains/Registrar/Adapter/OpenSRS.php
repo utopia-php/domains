@@ -4,21 +4,21 @@ namespace Utopia\Domains\Registrar\Adapter;
 
 use DateTime;
 use Exception;
-use Utopia\Domains\Registrar\Contact;
 use Utopia\Domains\Exception as DomainsException;
-use Utopia\Domains\Registrar\Exception\DomainTakenException;
-use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
-use Utopia\Domains\Registrar\Exception\InvalidContactException;
-use Utopia\Domains\Registrar\Exception\AuthException;
-use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
+use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Adapter;
+use Utopia\Domains\Registrar\Contact;
+use Utopia\Domains\Registrar\Domain;
+use Utopia\Domains\Registrar\Exception\AuthException;
+use Utopia\Domains\Registrar\Exception\DomainNotTransferableException;
+use Utopia\Domains\Registrar\Exception\DomainTakenException;
+use Utopia\Domains\Registrar\Exception\InvalidContactException;
+use Utopia\Domains\Registrar\Exception\PriceNotFoundException;
+use Utopia\Domains\Registrar\Price;
 use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
-use Utopia\Domains\Registrar\Domain;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar\UpdateDetails;
-use Utopia\Domains\Registrar;
-use Utopia\Domains\Registrar\Price;
 
 class OpenSRS extends Adapter
 {
@@ -42,9 +42,6 @@ class OpenSRS extends Adapter
 
     protected array $user;
 
-    /**
-     * @return string
-     */
     public function getName(): string
     {
         return 'opensrs';
@@ -54,17 +51,13 @@ class OpenSRS extends Adapter
      * __construct
      * Instantiate a new adapter.
      *
-     * @param  string  $apiKey
-     * @param  string  $username
-     * @param  string  $password
      * @param  string  $endpoint - The endpoint to use for the API (use rr-n1-tor.opensrs.net:55443 for production)
-     * @return void
      */
     public function __construct(
         protected string $apiKey,
         string $username,
         string $password,
-        protected string $endpoint = 'https://horizon.opensrs.net:55443'
+        protected string $endpoint = 'https://horizon.opensrs.net:55443',
     ) {
         if (str_starts_with($endpoint, 'http://')) {
             $this->endpoint = 'https://' . substr($endpoint, 7);
@@ -122,7 +115,7 @@ class OpenSRS extends Adapter
         $result = $this->sanitizeResponse($result);
 
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="is_success"]');
-        $successful = "{$elements[0]}" === '1' ? true : false;
+        $successful = "{$elements[0]}" === '1';
 
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_text"]');
         $text = "{$elements[0]}";
@@ -140,7 +133,7 @@ class OpenSRS extends Adapter
 
     private function register(string $domain, string $regType, array $user, array $contacts, array $nameservers = [], int $periodYears = 1, ?string $authCode = null, ?float $purchasePrice = null, bool $autorenewEnabled = false): string
     {
-        $hasNameservers = empty($nameservers) ? 0 : 1;
+        $hasNameservers = $nameservers === [] ? 0 : 1;
 
         $message = [
             'object' => 'DOMAIN',
@@ -164,7 +157,7 @@ class OpenSRS extends Adapter
             $message['attributes']['auth_info'] = $authCode;
         }
 
-        if ($hasNameservers) {
+        if ($hasNameservers !== 0) {
             $message['attributes']['nameserver_list'] = $nameservers;
         }
 
@@ -172,9 +165,7 @@ class OpenSRS extends Adapter
             $message['attributes']['premium_price_to_display'] = $purchasePrice;
         }
 
-        $result = $this->send($message);
-
-        return $result;
+        return $this->send($message);
     }
 
     public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false, ?float $purchasePrice = null): string
@@ -182,8 +173,8 @@ class OpenSRS extends Adapter
         try {
             $contacts = \is_array($contacts) ? $contacts : [$contacts];
 
-            $nameservers =
-            empty($nameservers)
+            $nameservers
+            = $nameservers === []
             ? $this->defaultNameservers
             : $nameservers;
 
@@ -255,9 +246,8 @@ class OpenSRS extends Adapter
         $result = $this->sanitizeResponse($result);
 
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="is_success"]');
-        $successful = "{$elements[0]}" === '1' ? true : false;
 
-        return $successful;
+        return "{$elements[0]}" === '1';
     }
 
     /**
@@ -271,13 +261,13 @@ class OpenSRS extends Adapter
      * @param int|null $priceMin Minimum price for premium domains
      * @return array Domains with metadata: `available` (bool), `price` (float|null), `type` (string)
      */
-    public function suggest(array|string $query, array $tlds = [], int|null $limit = null, string|null $filterType = null, int|null $priceMax = null, int|null $priceMin = null): array
+    public function suggest(array|string $query, array $tlds = [], ?int $limit = null, ?string $filterType = null, ?int $priceMax = null, ?int $priceMin = null): array
     {
         if ($priceMin !== null && $priceMax !== null && $priceMin > $priceMax) {
             throw new Exception("Invalid price range: priceMin ($priceMin) must be less than priceMax ($priceMax).");
         }
 
-        if ($filterType !== null && !in_array($filterType, ['premium', 'suggestion'])) {
+        if ($filterType !== null && !\in_array($filterType, ['premium', 'suggestion'])) {
             throw new Exception("Invalid filter type: filterType ($filterType) must be 'premium' or 'suggestion'.");
         }
 
@@ -295,9 +285,9 @@ class OpenSRS extends Adapter
                 'skip_registry_lookup' => 1,
             ],
         ];
-        $tlds = !empty($tlds) ? array_map(fn ($tld) => '.' . ltrim($tld, '.'), $tlds) : [];
+        $tlds = $tlds === [] ? [] : array_map(fn($tld): string => '.' . ltrim((string) $tld, '.'), $tlds);
 
-        if (!empty($tlds)) {
+        if ($tlds !== []) {
             $message['attributes']['tlds'] = $tlds;
             if ($filterType === 'premium' || $filterType === null) {
                 $message['attributes']['service_override']['premium']['tlds'] = $tlds;
@@ -355,13 +345,13 @@ class OpenSRS extends Adapter
                 $statusNode = $element->xpath('dt_assoc/item[@key="status"] | dt_assoc/item[@key="availability"]');
                 $domain = isset($domainNode[0]) ? (string) $domainNode[0] : null;
                 $status = isset($statusNode[0]) ? strtolower((string) $statusNode[0]) : '';
-                $available = in_array($status, ['available', 'true', '1'], true);
+                $available = \in_array($status, ['available', 'true', '1'], true);
 
                 if ($domain) {
                     $items[$domain] = [
                         'available' => $available,
                         'price' => null,
-                        'type' => 'suggestion'
+                        'type' => 'suggestion',
                     ];
 
                     $processedCount++;
@@ -372,13 +362,13 @@ class OpenSRS extends Adapter
                 return $items;
             }
 
-            if ($limit && count($items) >= $limit) {
-                return array_slice($items, 0, $limit, true);
+            if ($limit && \count($items) >= $limit) {
+                return \array_slice($items, 0, $limit, true);
             }
         }
 
         // Process premium domains
-        if (!($limit && count($items) >= $limit)) {
+        if (!$limit || \count($items) < $limit) {
             $premiumXpath = implode('/', [
                 '//body',
                 'data_block',
@@ -393,7 +383,7 @@ class OpenSRS extends Adapter
             ]);
             $premiumElements = $result->xpath($premiumXpath);
 
-            $remainingLimit = $limit ? ($limit - count($items)) : null;
+            $remainingLimit = $limit ? ($limit - \count($items)) : null;
             $processedCount = 0;
 
             foreach ($premiumElements as $element) {
@@ -419,7 +409,7 @@ class OpenSRS extends Adapter
                             $available = $value === 'available';
                             break;
                         case 'price':
-                            $price = is_numeric($value) ? floatval($value) : null;
+                            $price = is_numeric($value) ? \floatval($value) : null;
                             break;
                     }
                 }
@@ -428,7 +418,7 @@ class OpenSRS extends Adapter
                     $items[$domain] = [
                         'available' => $available,
                         'price' => $price,
-                        'type' => 'premium'
+                        'type' => 'premium',
                     ];
 
                     $processedCount++;
@@ -452,7 +442,7 @@ class OpenSRS extends Adapter
      */
     public function getPrice(string $domain, int $periodYears = 1, string $regType = Registrar::REG_TYPE_NEW, int $ttl = 3600): Price
     {
-        if ($this->cache) {
+        if ($this->cache instanceof \Utopia\Domains\Cache) {
             $cached = $this->cache->load($domain, $ttl);
             if (\is_array($cached) && isset($cached['price'])) {
                 return new Price($cached['price'], $cached['premium'] ?? false);
@@ -475,14 +465,14 @@ class OpenSRS extends Adapter
 
             $priceXpath = '//body/data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="price"]';
             $priceElements = $result->xpath($priceXpath);
-            $price = isset($priceElements[0]) ? floatval((string) $priceElements[0]) : null;
+            $price = isset($priceElements[0]) ? \floatval((string) $priceElements[0]) : null;
 
             if ($price === null) {
                 throw new PriceNotFoundException('Price not found for domain: ' . $domain, self::RESPONSE_CODE_DOMAIN_PRICE_NOT_FOUND);
             }
 
             $priceObj = new Price($price, false);
-            if ($this->cache) {
+            if ($this->cache instanceof \Utopia\Domains\Cache) {
                 $this->cache->save($domain, ['price' => $priceObj->price, 'premium' => $priceObj->premium]);
             }
 
@@ -550,7 +540,7 @@ class OpenSRS extends Adapter
                     $nameItems = $nameserverItem->xpath('item[@key="name"]');
                     if (!empty($nameItems)) {
                         $nameserverName = trim((string) $nameItems[0]);
-                        if (!empty($nameserverName)) {
+                        if ($nameserverName !== '' && $nameserverName !== '0') {
                             $nameserverList[] = $nameserverName;
                         }
                     }
@@ -610,7 +600,7 @@ class OpenSRS extends Adapter
             'dt_assoc',
             'item[@key="details"]',
             'dt_assoc',
-            'item[@key="'.$domain.'"]',
+            'item[@key="' . $domain . '"]',
             'dt_assoc',
             'item[@key="is_success"]',
         ]);
@@ -703,7 +693,7 @@ class OpenSRS extends Adapter
                 'action' => 'GET',
                 'domain' => $domain,
                 'attributes' => [
-                    'type' => 'domain_auth_info'
+                    'type' => 'domain_auth_info',
                 ],
             ];
 
@@ -810,13 +800,13 @@ class OpenSRS extends Adapter
         $xml = $this->buildEnvelop($object, $action, $attributes, $domain);
 
         $headers = array_merge($this->headers, [
-            'X-Signature:'.md5(md5($xml.$this->apiKey).$this->apiKey),
+            'X-Signature:' . md5(md5($xml . $this->apiKey) . $this->apiKey),
         ]);
 
         $ch = curl_init($this->endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
 
         $result = curl_exec($ch);
@@ -829,9 +819,13 @@ class OpenSRS extends Adapter
         return $result;
     }
 
-    private function sanitizeResponse(string $response)
+    private function sanitizeResponse(string $response): \SimpleXMLElement
     {
         $result = simplexml_load_string($response);
+        if ($result === false) {
+            throw new Exception('OpenSRS returned an invalid XML response');
+        }
+
         $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
         $code = (int) "{$elements[0]}";
 
@@ -852,13 +846,13 @@ class OpenSRS extends Adapter
         $responseCode = "{$elements[0]}";
 
         $elements = $doc->xpath('//data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="id"]');
-        $responseId = count($elements) > 0 ? "{$elements[0]}" : '';
+        $responseId = \count($elements) > 0 ? "{$elements[0]}" : '';
 
         $elements = $doc->xpath('//data_block/dt_assoc/item[@key="attributes"]/dt_assoc/item[@key="domain_id"]');
-        $responseDomainId = count($elements) > 0 ? "{$elements[0]}" : '';
+        $responseDomainId = \count($elements) > 0 ? "{$elements[0]}" : '';
 
         $elements = $doc->xpath('//data_block/dt_assoc/item[@key="is_success"]');
-        $responseSuccessful = "{$elements[0]}" === '1' ? true : false;
+        $responseSuccessful = "{$elements[0]}" === '1';
 
         return [
             'code' => $responseCode,
@@ -871,7 +865,7 @@ class OpenSRS extends Adapter
     private function createArray(string $key, array $ary): string
     {
         $result = [
-            '<item key="'.$key.'">',
+            '<item key="' . $key . '">',
             '<dt_array>',
         ];
 
@@ -888,13 +882,13 @@ class OpenSRS extends Adapter
     private function createAssoc(string $key, array $assoc): string
     {
         $result = [
-            '<item key="'.$key.'">',
+            '<item key="' . $key . '">',
             '<dt_assoc>',
         ];
 
         foreach ($assoc as $itemKey => $itemValue) {
             if (\is_array($itemValue)) {
-                if (array_keys($itemValue) === range(0, count($itemValue) - 1)) {
+                if (array_keys($itemValue) === range(0, \count($itemValue) - 1)) {
                     $result[] = $this->createArray($itemKey, $itemValue);
                 } else {
                     $result[] = $this->createAssoc($itemKey, $itemValue);
@@ -991,9 +985,7 @@ class OpenSRS extends Adapter
         $result[] = '</dt_assoc>';
         $result[] = '</item>';
 
-        $xml = implode(PHP_EOL, $result);
-
-        return $xml;
+        return implode(PHP_EOL, $result);
     }
 
     private function createContactSet(array $contacts): string
@@ -1029,8 +1021,9 @@ class OpenSRS extends Adapter
             '<item key="nameserver_list">',
             '<dt_array>',
         ];
+        $counter = \count($nameservers);
 
-        for ($index = 0; $index < count($nameservers); $index++) {
+        for ($index = 0; $index < $counter; $index++) {
             $result[] = $this->createNameserver($nameservers[$index], $index);
         }
 
@@ -1046,9 +1039,10 @@ class OpenSRS extends Adapter
             '<item key="add_ns">',
             '<dt_array>',
         ];
+        $counter = \count($nameservers);
 
-        for ($index = 0; $index < count($nameservers); $index++) {
-            $result[] = $this->createEnvelopItem($index, $nameservers[$index]);
+        for ($index = 0; $index < $counter; $index++) {
+            $result[] = $this->createEnvelopItem((string) $index, $nameservers[$index]);
         }
 
         $result[] = '</dt_array>';
@@ -1073,7 +1067,7 @@ class OpenSRS extends Adapter
             $this->createEnvelopItem('object', $object),
             $this->createEnvelopItem('action', $action),
             (
-                is_null($domain)
+                \is_null($domain)
                 ? ''
                 : $this->createEnvelopItem('domain', $domain)
             ),
@@ -1082,27 +1076,15 @@ class OpenSRS extends Adapter
         ];
 
         foreach ($attributes as $key => $value) {
-            switch ($key) {
-                case 'contact_set':
-                    $result[] = $this->createContactSet($value);
-                    break;
-                case 'nameserver_list':
-                    $result[] = $this->createNameserverList($value);
-                    break;
-                case 'assign_ns':
-                case 'add_ns':
-                case 'remove_ns':
-                    $result[] = $this->createNamespaceAssign($value);
-                    break;
-                case 'service_override':
-                    $result[] = $this->createServiceOverride($value);
-                    break;
-                default:
-                    $result[] =
-                      \is_array($value)
-                      ? $this->createArray($key, $value)
-                      : $this->createEnvelopItem($key, $value);
-            }
+            $result[] = match ($key) {
+                'contact_set' => $this->createContactSet($value),
+                'nameserver_list' => $this->createNameserverList($value),
+                'assign_ns', 'add_ns', 'remove_ns' => $this->createNamespaceAssign($value),
+                'service_override' => $this->createServiceOverride($value),
+                default => \is_array($value)
+                ? $this->createArray($key, $value)
+                : $this->createEnvelopItem($key, $value),
+            };
         }
 
         $closing = [
@@ -1118,9 +1100,7 @@ class OpenSRS extends Adapter
             $result[] = $line;
         }
 
-        $xml = implode(PHP_EOL, $result);
-
-        return $xml;
+        return implode(PHP_EOL, $result);
     }
 
     /**
@@ -1131,7 +1111,7 @@ class OpenSRS extends Adapter
      */
     private function sanitizeContacts(array $contacts): array
     {
-        if (count(array_keys($contacts)) == 1) {
+        if (\count(array_keys($contacts)) === 1) {
             return [
                 self::CONTACT_TYPE_OWNER => $contacts[0]->toArray(),
                 self::CONTACT_TYPE_ADMIN => $contacts[0]->toArray(),
