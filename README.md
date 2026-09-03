@@ -144,6 +144,17 @@ $registrar->updateDomain('example.com', new UpdateDetails(autoRenew: true));
 
 The registrar API also provides `tlds()`, `updateNameservers()`, `getPrice()`, `getAuthCode()`, `cancelPurchase()`, and `checkTransferStatus()`.
 
+## Testing
+
+```sh
+composer test       # unit tests
+composer test:e2e   # registrar tests; requires the registrar credentials below
+```
+
+The Name.com tests require `NAMECOM_USERNAME` and `NAMECOM_TOKEN`. The OpenSRS
+tests require `OPENSRS_USERNAME` and `OPENSRS_KEY`. The end-to-end suite skips
+an adapter when its credentials are unavailable.
+
 ## License
 
 Utopia Domains is available under the [MIT License](LICENSE.md).

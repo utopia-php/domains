@@ -23,11 +23,12 @@ final class NameComTest extends Base
     {
         $username = getenv('NAMECOM_USERNAME');
         $token = getenv('NAMECOM_TOKEN');
+        if ($username === false || $username === '' || $token === false || $token === '') {
+            $this->markTestSkipped('NAMECOM_USERNAME and NAMECOM_TOKEN are required');
+        }
+
         $utopiaCache = new UtopiaCache(new NoneAdapter());
         $cache = new Cache($utopiaCache);
-
-        $this->assertNotEmpty($username, 'NAMECOM_USERNAME environment variable must be set');
-        $this->assertNotEmpty($token, 'NAMECOM_TOKEN environment variable must be set');
 
         $adapter = new NameCom(
             $username,

@@ -17,17 +17,22 @@ final class OpenSRSTest extends Base
 {
     private Registrar $registrar;
     private Registrar $registrarWithCache;
+    private string $key;
+    private string $username;
     private string $testDomain = 'kffsfudlvc.net';
 
     protected function setUp(): void
     {
         $key = getenv('OPENSRS_KEY');
         $username = getenv('OPENSRS_USERNAME');
+        if ($key === false || $key === '' || $username === false || $username === '') {
+            $this->markTestSkipped('OPENSRS_KEY and OPENSRS_USERNAME are required');
+        }
+
+        $this->key = $key;
+        $this->username = $username;
         $utopiaCache = new UtopiaCache(new NoneAdapter());
         $cache = new Cache($utopiaCache);
-
-        $this->assertNotEmpty($key);
-        $this->assertNotEmpty($username);
 
         $adapter = new OpenSRS(
             $key,
@@ -98,8 +103,8 @@ final class OpenSRSTest extends Base
     public function testPurchaseWithInvalidPassword(): void
     {
         $adapter = new OpenSRS(
-            getenv('OPENSRS_KEY'),
-            getenv('OPENSRS_USERNAME'),
+            $this->key,
+            $this->username,
             'password',
         );
 

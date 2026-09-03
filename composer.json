@@ -36,7 +36,7 @@
     },
     "scripts": {
         "test": "phpunit --testsuite unit",
-        "test:integration": "phpunit --testsuite integration"
+        "test:e2e": "phpunit --testsuite e2e"
     },
     "require": {
         "php": ">=8.5",
