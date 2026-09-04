@@ -133,7 +133,7 @@ $contact = new Contact(
     'Example Inc.',
 );
 
-$available = $registrar->available('example.com');
+$availability = $registrar->available(['example.com', 'example.net']);
 $orderId = $registrar->purchase('example.com', $contact, 1);
 $suggestions = $registrar->suggest(['example'], ['com', 'net'], 10);
 $details = $registrar->getDomain('example.com');

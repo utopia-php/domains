@@ -114,18 +114,13 @@ abstract class Base extends TestCase
 
     public function testAvailable(): void
     {
-        $domain = $this->generateRandomString() . '.' . $this->getDefaultTld();
-        $result = $this->getRegistrar()->available($domain);
+        $availableDomain = $this->generateRandomString() . '.' . $this->getDefaultTld();
+        $result = $this->getRegistrar()->available([$availableDomain, 'google.com']);
 
-        $this->assertTrue($result);
-    }
-
-    public function testAvailableForTakenDomain(): void
-    {
-        $domain = 'google.com';
-        $result = $this->getRegistrar()->available($domain);
-
-        $this->assertFalse($result);
+        $this->assertSame([
+            $availableDomain => true,
+            'google.com' => false,
+        ], $result);
     }
 
     public function testPurchase(): void

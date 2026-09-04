@@ -59,11 +59,14 @@ class Registrar
     }
 
     /**
-     * Check if a domain is available
+     * Check if domains are available
+     *
+     * @param array<string> $domains Domain names to check
+     * @return array<string, bool> Availability keyed by domain name
      */
-    public function available(string $domain): bool
+    public function available(array $domains): array
     {
-        return $this->adapter->available($domain);
+        return $this->adapter->available($domains);
     }
 
     /**

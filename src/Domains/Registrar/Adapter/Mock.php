@@ -94,14 +94,21 @@ class Mock extends Adapter
     }
 
     /**
-     * Check if a domain is available for registration
+     * Check if domains are available for registration
+     *
+     * @param array<string> $domains Domain names to check
+     * @return array<string, bool> Availability keyed by domain name
      */
-    public function available(string $domain): bool
+    public function available(array $domains): array
     {
-        if (\in_array($domain, $this->takenDomains)) {
-            return false;
+        $availability = [];
+
+        foreach (array_unique($domains) as $domain) {
+            $availability[$domain] = !\in_array($domain, $this->takenDomains)
+                && !\in_array($domain, $this->purchasedDomains);
         }
-        return !\in_array($domain, $this->purchasedDomains);
+
+        return $availability;
     }
 
     /**
@@ -114,7 +121,7 @@ class Mock extends Adapter
      */
     public function purchase(string $domain, array|Contact $contacts, int $periodYears = 1, array $nameservers = [], bool $autorenewEnabled = false, ?float $purchasePrice = null): string
     {
-        if (!$this->available($domain)) {
+        if (!$this->available([$domain])[$domain]) {
             throw new DomainTakenException("Domain {$domain} is not available for registration", self::RESPONSE_CODE_DOMAIN_TAKEN);
         }
 
@@ -151,7 +158,7 @@ class Mock extends Adapter
 
                 $domain = $query . '.' . ltrim((string) $tld, '.');
                 $suggestions[$domain] = [
-                    'available' => $this->available($domain),
+                    'available' => $this->available([$domain])[$domain],
                     'price' => null,
                     'type' => 'suggestion',
                 ];
@@ -173,7 +180,7 @@ class Mock extends Adapter
                 }
 
                 $suggestions[$domain] = [
-                    'available' => $this->available($domain),
+                    'available' => $this->available([$domain])[$domain],
                     'price' => $price,
                     'type' => 'premium',
                 ];

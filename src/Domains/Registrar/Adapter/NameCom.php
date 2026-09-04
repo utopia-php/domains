@@ -27,6 +27,8 @@ use Utopia\Domains\Registrar\UpdateDetails;
 
 class NameCom extends Adapter
 {
+    private const int AVAILABILITY_BATCH_SIZE = 50;
+
     /**
      * Name.com API Error Keys
      */
@@ -105,25 +107,40 @@ class NameCom extends Adapter
     }
 
     /**
-     * Check if a domain is available
+     * Check if domains are available
      *
-     * @param string $domain The domain name to check
-     * @return bool True if the domain is available, false otherwise
+     * Name.com accepts up to 50 domains per availability request.
+     *
+     * @param array<string> $domains Domain names to check
+     * @return array<string, bool> Availability keyed by domain name
      */
-    public function available(string $domain): bool
+    public function available(array $domains): array
     {
-        try {
-            $result = $this->send('POST', '/core/v1/domains:checkAvailability', [
-                'domainNames' => [$domain],
-            ]);
-        } catch (Exception $e) {
-            return match ($this->matchError($e)) {
-                self::ERROR_INVALID_DOMAINS => false,
-                default => throw $e,
-            };
+        $domains = array_values(array_unique($domains));
+        $availability = array_fill_keys($domains, false);
+
+        foreach (array_chunk($domains, self::AVAILABILITY_BATCH_SIZE) as $chunk) {
+            try {
+                $result = $this->send('POST', '/core/v1/domains:checkAvailability', [
+                    'domainNames' => $chunk,
+                ]);
+            } catch (Exception $e) {
+                if ($this->matchError($e) === self::ERROR_INVALID_DOMAINS) {
+                    continue;
+                }
+
+                throw $e;
+            }
+
+            foreach ($result['results'] ?? [] as $domain) {
+                $domainName = $domain['domainName'] ?? null;
+                if ($domainName !== null && \array_key_exists($domainName, $availability)) {
+                    $availability[$domainName] = $domain['purchasable'] ?? false;
+                }
+            }
         }
 
-        return $result['results'][0]['purchasable'] ?? false;
+        return $availability;
     }
 
     /**

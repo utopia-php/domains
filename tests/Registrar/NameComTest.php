@@ -101,6 +101,22 @@ final class NameComTest extends Base
 
     // NameCom-specific tests
 
+    public function testAvailableInMultipleBatches(): void
+    {
+        $prefix = $this->generateRandomString();
+        $domains = array_map(
+            fn(int $index): string => "{$prefix}-{$index}.com",
+            range(1, 51),
+        );
+
+        $result = $this->registrar->available($domains);
+
+        $this->assertCount(51, $result);
+        foreach ($domains as $domain) {
+            $this->assertTrue($result[$domain]);
+        }
+    }
+
     public function testPurchaseWithInvalidCredentials(): void
     {
         $adapter = new NameCom(

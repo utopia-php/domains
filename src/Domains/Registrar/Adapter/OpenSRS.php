@@ -77,26 +77,30 @@ class OpenSRS extends Adapter
     }
 
     /**
-     * Check if a domain is available
+     * Check if domains are available
      *
-     * @param string $domain The domain name to check
-     * @return bool True if the domain is available, false otherwise
+     * @param array<string> $domains Domain names to check
+     * @return array<string, bool> Availability keyed by domain name
      */
-    public function available(string $domain): bool
+    public function available(array $domains): array
     {
-        $result = $this->send([
-            'object' => 'DOMAIN',
-            'action' => 'LOOKUP',
-            'attributes' => [
-                'domain' => $domain,
-            ],
-        ]);
+        $availability = [];
 
+        foreach (array_unique($domains) as $domain) {
+            $result = $this->send([
+                'object' => 'DOMAIN',
+                'action' => 'LOOKUP',
+                'attributes' => [
+                    'domain' => $domain,
+                ],
+            ]);
 
-        $result = $this->sanitizeResponse($result);
-        $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
+            $result = $this->sanitizeResponse($result);
+            $elements = $result->xpath('//body/data_block/dt_assoc/item[@key="response_code"]');
+            $availability[$domain] = (int) $elements[0] === self::RESPONSE_CODE_DOMAIN_AVAILABLE;
+        }
 
-        return (int) $elements[0] === self::RESPONSE_CODE_DOMAIN_AVAILABLE;
+        return $availability;
     }
 
     public function updateNameservers(string $domain, array $nameservers): array

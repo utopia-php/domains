@@ -68,9 +68,12 @@ abstract class Adapter extends DomainsAdapter
     abstract public function getName(): string;
 
     /**
-     * Check if a domain is available
+     * Check if domains are available
+     *
+     * @param array<string> $domains Domain names to check
+     * @return array<string, bool> Availability keyed by domain name
      */
-    abstract public function available(string $domain): bool;
+    abstract public function available(array $domains): array;
 
     /**
      * Purchase a domain
