@@ -144,6 +144,24 @@ $registrar->updateDomain('example.com', new UpdateDetails(autoRenew: true));
 
 The registrar API also provides `tlds()`, `updateNameservers()`, `getPrice()`, `getAuthCode()`, `cancelPurchase()`, and `checkTransferStatus()`.
 
+### Price caching
+
+Pass a `Cache` wrapping any `utopia-php/cache` adapter to `Registrar` to cache prices per domain and period. The `ttl` argument of `getPrice()` controls how long a cached price is reused.
+
+```php
+use Utopia\Cache\Adapter\Redis;
+use Utopia\Cache\Cache as UtopiaCache;
+use Utopia\Domains\Cache;
+
+$cache = new Cache(new UtopiaCache(new Redis($redis)));
+$registrar = new Registrar($adapter, ['ns1.name.com', 'ns2.name.com'], $cache);
+
+$availability = $registrar->available($domains);
+$price = $registrar->getPrice($domains[0], ttl: 86400);
+```
+
+With Name.com, `available()` also caches the registration and renewal prices it receives, so pricing a batch of domains after checking their availability costs one registrar request per 50 domains instead of two per domain.
+
 ## Testing
 
 ```sh

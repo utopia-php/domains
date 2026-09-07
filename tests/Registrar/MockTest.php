@@ -70,6 +70,12 @@ final class MockTest extends Base
         return new UpdateDetails($autoRenew);
     }
 
+    #[\Override]
+    protected function getPremiumTestDomain(): string
+    {
+        return 'premium.com';
+    }
+
     // Mock-specific tests
 
     public function testPurchaseWithNameservers(): void

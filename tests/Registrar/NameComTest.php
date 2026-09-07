@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Utopia\Tests\Registrar;
 
-use Utopia\Cache\Adapter\None as NoneAdapter;
+use Utopia\Cache\Adapter\Memory;
 use Utopia\Cache\Cache as UtopiaCache;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar;
@@ -27,17 +27,10 @@ final class NameComTest extends Base
             $this->markTestSkipped('NAMECOM_USERNAME and NAMECOM_TOKEN are required');
         }
 
-        $utopiaCache = new UtopiaCache(new NoneAdapter());
-        $cache = new Cache($utopiaCache);
-
-        $adapter = new NameCom(
-            $username,
-            $token,
-            'https://api.dev.name.com',
-        );
+        $endpoint = 'https://api.dev.name.com';
 
         $this->registrar = new Registrar(
-            $adapter,
+            new NameCom($username, $token, $endpoint),
             [
                 'ns1.name.com',
                 'ns2.name.com',
@@ -45,12 +38,12 @@ final class NameComTest extends Base
         );
 
         $this->registrarWithCache = new Registrar(
-            $adapter,
+            new NameCom($username, $token, $endpoint),
             [
                 'ns1.name.com',
                 'ns2.name.com',
             ],
-            $cache,
+            new Cache(new UtopiaCache(new Memory())),
         );
     }
 
@@ -97,6 +90,12 @@ final class NameComTest extends Base
     {
         // Name.com doesn't like 'example.com' for pricing
         return 'example-test-domain.com';
+    }
+
+    #[\Override]
+    protected function getPremiumTestDomain(): string
+    {
+        return 'shop.dev';
     }
 
     // NameCom-specific tests

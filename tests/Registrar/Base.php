@@ -106,6 +106,14 @@ abstract class Base extends TestCase
         return 'example.' . $this->getDefaultTld();
     }
 
+    /**
+     * Get an available premium domain, or null when the adapter has none to test with
+     */
+    protected function getPremiumTestDomain(): ?string
+    {
+        return null;
+    }
+
     public function testGetName(): void
     {
         $name = $this->getRegistrar()->getName();
@@ -239,6 +247,49 @@ abstract class Base extends TestCase
         $result = $this->getRegistrarWithCache()->getPrice($domain, 1, Registrar::REG_TYPE_NEW, 7200);
 
         $this->assertGreaterThan(0, $result->price);
+    }
+
+    public function testGetPriceAfterAvailable(): void
+    {
+        $available = $this->generateRandomString() . '.' . $this->getDefaultTld();
+        $taken = 'google.com';
+        $registrar = $this->getRegistrarWithCache();
+
+        $availability = $registrar->available([$available, $taken]);
+        $this->assertTrue($availability[$available]);
+        $this->assertFalse($availability[$taken]);
+
+        // Whatever an adapter remembers from the availability lookup, prices
+        // after it must match a direct lookup for every domain, type and period.
+        foreach ([$available, $taken] as $domain) {
+            foreach ([Registrar::REG_TYPE_NEW, Registrar::REG_TYPE_RENEWAL, Registrar::REG_TYPE_TRANSFER] as $type) {
+                $cached = $registrar->getPrice($domain, 1, $type);
+                $direct = $this->getRegistrar()->getPrice($domain, 1, $type);
+
+                $this->assertSame($direct->price, $cached->price, "{$type} price for {$domain}");
+                $this->assertSame($direct->premium, $cached->premium, "premium flag for {$domain}");
+            }
+        }
+
+        $multiYear = $registrar->getPrice($available, 3, Registrar::REG_TYPE_NEW);
+        $this->assertSame($this->getRegistrar()->getPrice($available, 3, Registrar::REG_TYPE_NEW)->price, $multiYear->price);
+    }
+
+    public function testGetPremiumPriceAfterAvailable(): void
+    {
+        $domain = $this->getPremiumTestDomain();
+        if ($domain === null) {
+            $this->markTestSkipped('No premium test domain for this adapter');
+        }
+
+        $registrar = $this->getRegistrarWithCache();
+        $this->assertTrue($registrar->available([$domain])[$domain]);
+
+        $price = $registrar->getPrice($domain, 1, Registrar::REG_TYPE_NEW);
+        $direct = $this->getRegistrar()->getPrice($domain, 1, Registrar::REG_TYPE_NEW);
+
+        $this->assertTrue($price->premium);
+        $this->assertSame($direct->price, $price->price);
     }
 
     public function testUpdateNameservers(): void
