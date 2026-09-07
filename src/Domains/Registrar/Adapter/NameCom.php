@@ -31,6 +31,8 @@ class NameCom extends Adapter
 
     private const int AVAILABILITY_CACHE_TTL = 60;
 
+    private const int TLD_PAGE_SIZE = 1000;
+
     /**
      * TLDs with a minimum term above one year; availability quotes them at that term.
      */
@@ -555,8 +557,20 @@ class NameCom extends Adapter
      */
     public function tlds(): array
     {
-        // Name.com supports too many TLDs to return efficiently
-        return [];
+        $tlds = [];
+        $page = 1;
+
+        do {
+            $result = $this->send('GET', '/core/v1/tldpricing?perPage=' . self::TLD_PAGE_SIZE . "&page={$page}");
+            foreach ($result['pricing'] ?? [] as $pricing) {
+                if (isset($pricing['tld'])) {
+                    $tlds[] = (string) $pricing['tld'];
+                }
+            }
+            $page = $result['nextPage'] ?? null;
+        } while ($page !== null);
+
+        return $tlds;
     }
 
     /**
