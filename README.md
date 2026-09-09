@@ -71,6 +71,8 @@ php data/import.php
 
 Create an adapter for the registrar and pass it to `Registrar`. Default nameservers belong to `Registrar`, not the adapter.
 
+Both adapters default to `utopia-php/client` with cURL. Either accepts `client: $client` for any PSR-18 transport, including `Utopia\Client\Pool`. Injected clients own their configuration; registrar timeout setters only affect the default transport. Keep TLS verification enabled and redirects disabled, and avoid automatic retries for purchases or transfers.
+
 ### OpenSRS adapter
 
 ```php
@@ -84,6 +86,10 @@ $adapter = new OpenSRS(
     'https://horizon.opensrs.net:55443',
 );
 
+// Default transport timeouts in seconds; OpenSRS now honors these settings.
+$adapter->setConnectTimeout(5);
+$adapter->setTimeout(10);
+
 $registrar = new Registrar($adapter, [
     'ns1.nameserver.com',
     'ns2.nameserver.com',
@@ -95,13 +101,23 @@ Use `https://rr-n1-tor.opensrs.net:55443` as the OpenSRS production endpoint.
 ### Name.com
 
 ```php
+use Utopia\Client;
+use Utopia\Client\Adapter\Curl\Client as CurlAdapter;
 use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Adapter\NameCom;
+
+// Optional: configure an injected transport instead of the registrar's defaults.
+$client = new Client(new CurlAdapter())
+    ->withConnectTimeout(5)
+    ->withTimeout(10)
+    ->withSslVerification(true)
+    ->withFollowRedirects(false);
 
 $adapter = new NameCom(
     'username',
     'api-token',
     'https://api.name.com',
+    client: $client,
 );
 
 $registrar = new Registrar($adapter, [

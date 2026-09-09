@@ -4,6 +4,8 @@ namespace Utopia\Domains\Registrar\Adapter;
 
 use DateTime;
 use Exception;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Adapter;
@@ -24,6 +26,7 @@ use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar\UpdateDetails;
+use Utopia\Psr7\Request\Factory;
 
 class NameCom extends Adapter
 {
@@ -90,12 +93,16 @@ class NameCom extends Adapter
      * @param  string  $username  Name.com API username
      * @param  string  $token  Name.com API token
      * @param  string  $endpoint  The endpoint to use for the API (use https://api.name.com for production)
+     * @param  ClientInterface|null  $client  Optional transport; owns timeout, TLS, redirect and connection settings
      */
     public function __construct(
         protected string $username,
         protected string $token,
         protected string $endpoint = 'https://api.name.com',
+        ?ClientInterface $client = null,
     ) {
+        $this->client = $client;
+
         if (str_starts_with($endpoint, 'http://')) {
             $this->endpoint = 'https://' . substr($endpoint, 7);
         } elseif (!str_starts_with($endpoint, 'https://')) {
@@ -103,7 +110,7 @@ class NameCom extends Adapter
         }
 
         $this->headers = [
-            'Content-Type: application/json',
+            'Content-Type' => 'application/json',
         ];
     }
 
@@ -761,15 +768,7 @@ class NameCom extends Adapter
     {
         $url = "{$this->endpoint}{$path}";
 
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $this->headers);
-        curl_setopt($ch, CURLOPT_USERPWD, "{$this->username}:{$this->token}");
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->connectTimeout);
-        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+        $body = '';
 
         if ($data !== null && \in_array($method, ['POST', 'PUT', 'PATCH'])) {
             $jsonData = json_encode($data);
@@ -778,16 +777,20 @@ class NameCom extends Adapter
                 throw new Exception("Failed to encode request data to JSON: {$jsonError}");
             }
 
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonData);
+            $body = $jsonData;
         }
 
-        $result = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $request = new Factory()->body($method, $url, $body, 'application/json', $this->headers)
+            ->withHeader('Authorization', 'Basic ' . base64_encode("{$this->username}:{$this->token}"));
 
-        if ($result === false) {
-            $error = curl_error($ch);
-            throw new Exception("Failed to send request to Name.com: {$error}");
+        try {
+            $httpResponse = $this->getHttpClient()->sendRequest($request);
+        } catch (ClientExceptionInterface $error) {
+            throw new Exception("Failed to send request to Name.com: {$error->getMessage()}", 0, $error);
         }
+
+        $httpCode = $httpResponse->getStatusCode();
+        $result = (string) $httpResponse->getBody();
 
         $response = json_decode($result, true);
         if ($response === null && $result !== 'null' && $result !== '') {

@@ -4,6 +4,8 @@ namespace Utopia\Domains\Registrar\Adapter;
 
 use DateTime;
 use Exception;
+use Psr\Http\Client\ClientExceptionInterface;
+use Psr\Http\Client\ClientInterface;
 use Utopia\Domains\Exception as DomainsException;
 use Utopia\Domains\Registrar;
 use Utopia\Domains\Registrar\Adapter;
@@ -19,6 +21,7 @@ use Utopia\Domains\Registrar\Renewal;
 use Utopia\Domains\Registrar\TransferStatus;
 use Utopia\Domains\Registrar\TransferStatusEnum;
 use Utopia\Domains\Registrar\UpdateDetails;
+use Utopia\Psr7\Request\Factory;
 
 class OpenSRS extends Adapter
 {
@@ -52,13 +55,17 @@ class OpenSRS extends Adapter
      * Instantiate a new adapter.
      *
      * @param  string  $endpoint - The endpoint to use for the API (use rr-n1-tor.opensrs.net:55443 for production)
+     * @param  ClientInterface|null  $client  Optional transport; owns timeout, TLS, redirect and connection settings
      */
     public function __construct(
         protected string $apiKey,
         string $username,
         string $password,
         protected string $endpoint = 'https://horizon.opensrs.net:55443',
+        ?ClientInterface $client = null,
     ) {
+        $this->client = $client;
+
         if (str_starts_with($endpoint, 'http://')) {
             $this->endpoint = 'https://' . substr($endpoint, 7);
         } elseif (!str_starts_with($endpoint, 'https://')) {
@@ -71,8 +78,8 @@ class OpenSRS extends Adapter
         ];
 
         $this->headers = [
-            'Content-Type:text/xml',
-            'X-Username: ' . $username,
+            'Content-Type' => 'text/xml',
+            'X-Username' => $username,
         ];
     }
 
@@ -804,23 +811,18 @@ class OpenSRS extends Adapter
         $xml = $this->buildEnvelop($object, $action, $attributes, $domain);
 
         $headers = array_merge($this->headers, [
-            'X-Signature:' . md5(md5($xml . $this->apiKey) . $this->apiKey),
+            'X-Signature' => md5(md5($xml . $this->apiKey) . $this->apiKey),
         ]);
 
-        $ch = curl_init($this->endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $xml);
+        $request = new Factory()->xml('POST', $this->endpoint, $xml, $headers);
 
-        $result = curl_exec($ch);
-
-        if ($result === false) {
-            $error = curl_error($ch);
-            throw new Exception('Failed to send request to OpenSRS: ' . $error);
+        try {
+            $response = $this->getHttpClient()->sendRequest($request);
+        } catch (ClientExceptionInterface $error) {
+            throw new Exception('Failed to send request to OpenSRS: ' . $error->getMessage(), 0, $error);
         }
 
-        return $result;
+        return (string) $response->getBody();
     }
 
     private function sanitizeResponse(string $response): \SimpleXMLElement

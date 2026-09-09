@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Utopia\Domains\Registrar;
 
+use Psr\Http\Client\ClientInterface;
+use Utopia\Client;
+use Utopia\Client\Adapter\Curl\Client as CurlAdapter;
 use Utopia\Domains\Adapter as DomainsAdapter;
 use Utopia\Domains\Cache;
 use Utopia\Domains\Registrar;
@@ -31,6 +34,28 @@ abstract class Adapter extends DomainsAdapter
     protected int $timeout = 10;
 
     /**
+     * An injected transport owns its timeout, TLS, redirect and connection settings.
+     */
+    protected ?ClientInterface $client = null;
+
+    private ?Client $defaultClient = null;
+
+    protected function getHttpClient(): ClientInterface
+    {
+        if ($this->client instanceof ClientInterface) {
+            return $this->client;
+        }
+
+        $this->defaultClient ??= new Client(new CurlAdapter());
+
+        return $this->defaultClient
+            ->withConnectTimeout($this->connectTimeout)
+            ->withTimeout($this->timeout)
+            ->withSslVerification(true)
+            ->withFollowRedirects(false);
+    }
+
+    /**
      * Set default nameservers
      */
     public function setDefaultNameservers(array $nameservers): void
@@ -47,7 +72,7 @@ abstract class Adapter extends DomainsAdapter
     }
 
     /**
-     * Set connection timeout
+     * Set connection timeout for the default transport. Injected clients are unchanged.
      */
     public function setConnectTimeout(int $connectTimeout): void
     {
@@ -55,7 +80,7 @@ abstract class Adapter extends DomainsAdapter
     }
 
     /**
-     * Set request timeout
+     * Set request timeout for the default transport. Injected clients are unchanged.
      */
     public function setTimeout(int $timeout): void
     {
